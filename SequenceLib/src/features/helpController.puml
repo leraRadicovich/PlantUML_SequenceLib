@@ -1,0 +1,37 @@
+@startuml
+/'Вызов подсказки с описанием возможностей библиотеки'/
+!unquoted procedure HELP($procName="")
+note across
+**ОПИСАНИЕ ПРОЦЕДУР БИБЛИОТЕКИ**
+====
+$proceduresDescription
+%invoke_procedure("helpBuilder",$procName)
+end note
+!endprocedure
+
+/'Процедура для построения списка процедур'/
+!unquoted procedure helpBuilder($procName="")
+    !if $procName == ""
+    !foreach $item in $procHelpMap
+%invoke_procedure("$textNewLineCutter", $item.description, $actionLength)
+!$itemDescription = $bufferVar
+%invoke_procedure("$textNewLineCutter", $item.example, $actionLength)
+!$itemExample = $bufferVar
+%invoke_procedure("$textNewLineCutter", $item.variables, $actionLength)
+!$itemVariables = $bufferVar
+| $item.name | $itemDescription | $item.originalSyntax | $itemExample | $itemVariables |
+    !endfor
+    !else
+    !foreach $item in $procHelpMap
+    !if %strpos($procName, $item.name) == 0 || %strpos($procName, $item.name) > 0
+%invoke_procedure("$textNewLineCutter", $item.description, $actionLength)
+!$itemDescription = $bufferVar
+%invoke_procedure("$textNewLineCutter", $item.example, $actionLength)
+!$itemExample = $bufferVar
+%invoke_procedure("$textNewLineCutter", $item.variables, $actionLength)
+!$itemVariables = $bufferVar
+| $item.name | $itemDescription | $item.originalSyntax | $itemExample | $itemVariables |
+    !endif
+    !endfor
+    !endif
+!endprocedure

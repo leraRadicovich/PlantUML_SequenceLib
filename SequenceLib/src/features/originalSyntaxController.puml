@@ -1,0 +1,70 @@
+@startuml
+!unquoted procedure ORIGINAL()
+    %invoke_procedure("originalSyntaxController")
+!endprocedure
+
+/'Построение диаграммы в оригинальном синтаксисе'/
+!unquoted procedure originalSyntaxController()
+!$deviderEnabled = 1
+!if $diagramMode == "draft"
+!assert Генерация диаграммы в оригинальном синтаксисе доступна в режиме final
+!endif
+note across
+/'Cтарт и стиль'/
+%string("@"+"startuml")
+
+/'Вывод параметров стиля'/
+%invoke_procedure("styleController")
+
+/'Вывод заголовки и хедера диаграммы'/
+title Диаграмма: <color:blue>$sequenceName
+header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
+
+/'Участники и объединение в бокси'/
+!foreach $item in $currentAliasMap
+!if $item.box != 1
+%invoke_procedure("partiesBuilder", $item.type, $item.name, $item.alias, $item.order)
+!endif
+!endfor
+/'Боксы'/
+!foreach $item in $originalSyntaxMap
+!if $item.type == "box"
+
+%invoke_procedure("BOX", $item.name, $item.color, $item.parties)
+!endif
+    /'Стрелки'/
+!if $item.type == "action"
+%invoke_procedure("actionBuilder", $item.initiator, $item.executor, $item.liveLine, $item.action, $item.subtype, $item.layer)
+!endif
+    /'Слои'/
+!if $item.type == "layer"
+%invoke_procedure("layerBuilder", $item.subtype, $item.color, $item.description)
+!endif
+    /'Заметки'/
+!if $item.type == "noteAndRef"
+!if $item.subtype == "note"
+%invoke_procedure("noteBuilder", $item.subtype, $item.position1, $item.position2, $item.color, $item.description)
+!else
+!$subtype = $item.subtype
+!$color = $item.color
+!$color = colorController($color)
+!$subtype = "ref" + $color
+!$color = ""
+%invoke_procedure("refBuilder", $subtype, $item.position1, $item.position2, $color, $item.description)
+!endif
+!endif
+    /'Аудит'/
+!if $item.type == "audit"
+%invoke_procedure("auditBuilder", $item.name, $item.status, $item.source)
+!endif
+    /'Общие функции'/
+!if $item.type == "activate" || $item.type == "deactivate" || $item.type == "separator"
+%invoke_procedure("commonBuilder", $item.type, $item.value)
+!endif
+!endfor
+/'Легенда'/
+%invoke_procedure("LEGEND")
+/'Конец диаграммы'/
+%string("@"+"enduml")
+end note
+!endprocedure

@@ -1,0 +1,40 @@
+@startuml
+!unquoted procedure config($name, $type)
+    %invoke_procedure("configController", $name, $type)
+!endprocedure
+
+!unquoted procedure configController($name, $type)
+
+    /'Проверка на уникальность для текущей диаграммы'/
+    !$uniqueCurrentCheck = 0
+    !foreach $item in $currentConfigMap
+        !if $name == $item.name
+            !$uniqueCurrentCheck = $uniqueCurrentCheck + 1
+        !endif
+    !endfor
+
+    /'Проверка уникальности для пользовательских конфигов'/
+    !$uniqueCheck = 0
+    !foreach $item in $customConfigMap
+        !if $name == $item.name
+            !$uniqueCheck = $uniqueCheck + 1
+        !endif
+    !endfor
+
+    /'Автозаполнение тудушки и сохранение новых конфигов'/
+    !if $uniqueCurrentCheck == 0 && $uniqueCheck == 0
+        !$todoText = "Необходимо добавить новый параметр: " + $name + ". Тип: " + $type
+        %invoke_procedure("todo", $todoText)
+        !if $diagramMode == "final"
+            %invoke_procedure("currentConfigMapBuilder",$name, $type)
+        !endif
+    !endif
+
+!endprocedure
+
+!unquoted procedure currentConfigMapBuilder($name, $type)
+        !$temp = {}
+        !$temp =%json_add($temp, "name", $name)
+        !$temp =%json_add($temp, "type", $type)
+        !$currentConfigMap = %json_add($currentConfigMap, $temp)
+!endprocedure

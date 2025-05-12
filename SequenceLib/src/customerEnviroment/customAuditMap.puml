@@ -1,0 +1,9 @@
+@startuml
+!$customAuditMap = [
+    { "name": "AUDIT_1",
+      "source" : "srv"
+    },
+    { "name": "AUDIT_2",
+      "source" : "srv"
+    }
+]

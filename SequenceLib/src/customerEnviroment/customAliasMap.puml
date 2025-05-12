@@ -1,0 +1,16 @@
+@startuml
+!$customAliasMap = [
+    { "type": "actor",
+      "name": "Пользователь",
+      "alias": "user"
+    },
+    { "type": "participant",
+      "name": "Ваш сервис",
+      "alias": "srv",
+      "order": "2"
+    },
+    { "type": "participant",
+      "name": "Смежный сервис",
+      "alias": "srv2"
+    }
+]

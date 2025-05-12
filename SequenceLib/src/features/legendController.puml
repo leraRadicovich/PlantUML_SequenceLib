@@ -1,0 +1,132 @@
+@startuml
+/'Процедура, рисующая легенду диаграммы'/
+!unquoted procedure LEGEND()
+legend
+/'Карта процесса драфт'/
+Карта процесса (полная)
+====
+$processMapFull
+!if $deviderEnabled == 1
+tableDevider(6)
+!endif
+%invoke_procedure("procMapBuilder", "full")
+/'Карта процесса ПроПро'/
+
+Карта процесса (для ПроПро)
+====
+$processMapProPro
+!if $deviderEnabled == 1
+tableDevider(7)
+!endif
+%invoke_procedure("procMapBuilder", "draft")
+/'Список доработок'/
+!if %size($todoMap)>0
+
+Список доработок
+====
+$todoList
+!if $deviderEnabled == 1
+tableDevider(2)
+!endif
+%invoke_procedure("todoRawBuilder")
+!endif
+/'Список событий аудита'/
+!if %size($currentAuditMap)>0
+
+Новые события аудита
+====
+$auditTable
+!if $deviderEnabled == 1
+tableDevider(8)
+!endif
+%invoke_procedure("auditLegendBuilder")
+!endif
+/'Список параметров'/
+!if %size($currentConfigMap)>0
+
+Новые параметры
+====
+$configTable
+!if $deviderEnabled == 1
+tableDevider(5)
+!endif
+%invoke_procedure("configRawBuilder")
+!endif
+/'Список ошибок'/
+!if %size($currentErrorMap)>0
+
+Новые ошибки
+====
+$errorTable
+!if $deviderEnabled == 1
+tableDevider(10)
+!endif
+%invoke_procedure("errorRawBuilder")
+!endif
+/'Список метрик'/
+!if %size($currentMetricMap)>0
+
+Новые метрики
+====
+$metricTable
+!if $deviderEnabled == 1
+tableDevider(2)
+!endif
+%invoke_procedure("metricRawBuilder")
+!endif
+
+end legend
+!endprocedure
+
+/'Построение строки карты процесса'/
+!unquoted procedure procMapBuilder($mode)
+    !$from = ""
+    !$to = ""
+    !foreach $item in $processMap
+    !if $item.initiator != ""
+        !$from = getNameByAlias($item.initiator)
+    !endif
+    !if $item.executor != ""
+        !$to = getNameByAlias($item.executor)
+    !endif
+    !if $mode == full
+| $item.id | $from | $to | $item.type | $item.layer | $item.action | $item.comment |
+    !else
+| $item.id |  | $from | $to | $item.type | $item.comment | | $item.action |
+    !endif
+    !endfor
+!endprocedure
+
+!unquoted procedure auditLegendBuilder()
+    !$i = 0
+    !foreach $item in $currentAuditMap
+    !$i = $i + 1
+%invoke_procedure("arrayNewLine",$item.additionalParams)
+| $i | $item.name | SUCCESS \n FAILURE |  |  |  |  |  |$bufferVar |
+    !endfor
+!endprocedure
+
+!unquoted procedure configRawBuilder()
+    !$i = 0
+    !foreach $item in $currentConfigMap
+    !$i = $i + 1
+| $i | $item.name | параметр configMap \n coreSetting | $item.type |  |  |
+    !endfor
+!endprocedure
+
+!unquoted procedure errorRawBuilder()
+    !$i = 0
+    !foreach $item in $currentErrorMap
+    !$i = $i + 1
+| $i |  | $item |  |  |  |  |  |  |  |  |
+    !endfor
+!endprocedure
+
+!unquoted procedure metricRawBuilder()
+    !$i = 0
+    !foreach $item in $currentMetricMap
+    !$i = $i + 1
+| $i | $item |  |
+    !endfor
+
+!endprocedure

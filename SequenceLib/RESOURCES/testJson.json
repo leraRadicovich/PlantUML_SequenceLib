@@ -1,0 +1,18 @@
+{"actions":[
+{
+"type": "rq",
+"initiator": "Alice",
+"executor": "Bob",
+"liveline": "++",
+"task": "Сделать тест",
+"comment": "Прокомментировать тест"
+},
+{"type":"rs",
+"initiator":"Bob",
+"executor":"Alice",
+"liveline":"--",
+"task":"Тест сделан",
+"comment":"Комментарий оставлен"
+}
+]
+}

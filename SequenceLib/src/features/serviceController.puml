@@ -1,0 +1,67 @@
+@startuml
+!unquoted procedure $textNewLineCutter($text, $length)
+    !$bufferVar = ""
+    !while %strpos(%substr($text,%intval($length)), " ") > 0 /'Пока в строке есть пробелы после ограничителя длины $length - делать перенос'/
+    !$cutPosition = $length + %strpos(%substr($text, $length), " ") /'Поиск пробела'/
+    !$bufferVar = $bufferVar + %substr($text, 0, $cutPosition) + "\n"
+    !$text = %substr($text,%intval($cutPosition))
+    !endwhile
+    !$bufferVar = $bufferVar + $text
+!endprocedure
+
+!unquoted procedure arrayNewLine($array)
+    !$bufferVar = ""
+    !$i = %size($array)
+    !$newString = "\n"
+!foreach $field in $array
+    !$i = $i - 1
+    !if $i == 0
+        !$newString = ""
+    !endif
+    !$bufferVar = $bufferVar + " " + $field + $newString
+    !endfor
+!end procedure
+
+!unquoted function tableDevider($int)
+    !$result = "|"
+    !$i = 0
+!while $i != $int
+    !$i = $i + 1
+    !$result = $result + "---|"
+!endwhile
+    !$result = $result + "---|"
+!return $result
+!end function
+
+/'Обработчик передаваемых в процедуры цветов'/
+!unquoted function colorController($color="")
+    !if $color != ""
+        !$color = "#" + $color
+    !endif
+    !return $color
+!end function
+
+/'Процедура добавляет на диаграмму параметры стиля'/
+!unquoted procedure styleController()
+    !foreach $item in $style
+$item
+    !endfor
+!endprocedure
+
+!$link = "**<size:17><color:blue><&link-intact></color>**"
+!$success = "**<size:20><color:green><&circle-check></color>**"
+!$error = "**<size:20><color:red><&circle-x></color>**"
+!$end = "**<size:20><color:red><&x></color>**"
+
+!unquoted procedure checkLibMode($mode)
+    !$i = 0
+    !foreach $item in $libMode
+        !if $mode == $item
+            !$i = $i + 1
+        !endif
+    !endfor
+
+    !if $i == 0
+!assert Некорректный режим работы, указан не draft/ final
+    !endif
+!endprocedure

@@ -1,0 +1,101 @@
+@startuml
+/'Процедура для отрисовки заметок note'/
+!unquoted procedure NOTE($position1, $position2, $color="", $description)
+    !$type = "note"
+    %invoke_procedure("noteAndRefController", $type, $position1, $position2, $color, $description)
+!endprocedure
+
+/'Процедура для отрисовки ссылок ref'/
+!unquoted procedure REF($position1, $position2, $color="", $description)
+    !$type = "ref"
+    %invoke_procedure("noteAndRefController", $type, $position1, $position2, $color, $description)
+!endprocedure
+
+/'Логики обработки заметок и ссылок'/
+!unquoted procedure noteAndRefController($type, $position1, $position2, $color="", $description)
+    %invoke_procedure("setOriginalnoteAndRef", $type, $position1, $position2, $color, $description)
+    !$color = colorController($color)
+    !if $type == "ref"
+        !$type = "ref" + $color
+        !$color = ""
+        %invoke_procedure("refBuilder", $type, $position1, $position2, $color, $description)
+    !else
+        %invoke_procedure("noteBuilder", $type, $position1, $position2, $color, $description)
+    !endif
+!endprocedure
+
+/'Сохранение данных для построения диаграммы в оригинальном синтаксисе'/
+!unquoted procedure setOriginalnoteAndRef($type, $position1, $position2, $color, $description)
+    !if $diagramMode == "final"
+    !$temp = {}
+    !$temp = %json_add($temp, "type", "noteAndRef")
+    !$temp = %json_add($temp, "subtype", $type)
+    !$temp = %json_add($temp, "position1", $position1)
+    !$temp = %json_add($temp, "position2", $position2)
+    !$temp = %json_add($temp, "color", $color)
+    !$temp = %json_add($temp, "description", $description)
+    !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !endif
+!endprocedure
+
+/'Отображение заметки'/
+!unquoted procedure noteBuilder($type, $position1, $position2, $color="", $description)
+/'Поверх всех'/
+    !if $position1 == "" && $position2 == ""
+$type across $color: $description
+
+    !endif
+/'Cлева, справа или поверх одного'/
+    !if $position1 == "right" || $position1 == "left" || $position1 == "over"
+$type $position1 $position2 $color: $description
+
+    !endif
+/'Дефолтные положения: справа'/
+    !if $position1 == "" && $position2 != ""
+$type right $position2 $color: $description
+
+    !endif
+/'Дефолтные положения: слева'/
+    !if $position2 == "" && $position1 != ""
+$type left $position1 $color: $description
+
+    !endif
+/'Поверх двух'/
+    !if $position1 != "" && $position2 != ""
+        !if $position1 != "right" && $position1 != "left" && $position1 != "over"
+$type over $position1, $position2 $color: $description
+
+        !endif
+    !endif
+!endprocedure
+/'Отображение ссылки'/
+!unquoted procedure refBuilder($type, $position1, $position2, $color="", $description)
+/'Поверх всех'/
+    !if $position1 == "" && $position2 == ""
+!assert Для ссылок необходимо указывать позицию
+    !endif
+/'Cлева, справа или поверх одного'/
+    !if $position1 == "right" || $position1 == "left"
+!assert Для ссылок можно использовать только over
+    !endif
+/'Дефолтные положения: справа'/
+    !if $position1 == "" && $position2 != ""
+$type over $position2 $color: $description
+
+    !endif
+/'Дефолтные положения: справа'/
+    !if $position1 == "over" && $position2 != ""
+$type $position1 $position2 $color: $description
+
+    !endif
+/'Дефолтные положения: слева'/
+    !if $position2 == "" && $position1 != ""
+$type over $position1 $color: $description
+
+    !endif
+/'Поверх двух'/
+    !if $position1 != "" && $position2 != "" && $position1 != "over"
+$type over $position1, $position2 $color: $description
+
+    !endif
+!endprocedure

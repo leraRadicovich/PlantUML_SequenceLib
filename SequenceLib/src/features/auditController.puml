@@ -1,0 +1,80 @@
+@startuml
+!unquoted procedure audit($name, $status="", $additionalParams="", $source="")
+    %invoke_procedure("auditController", $name, $status, $additionalParams, $source)
+!endprocedure
+
+!unquoted procedure auditController($name, $status="", $additionalParams="", $source="")
+
+    /'Проверка уникальность для текущей диаграммы'/
+    !$uniqueCurrentCheck = 0
+    !foreach $item in $currentAuditMap
+        !if $name == $item.name
+            !$uniqueCurrentCheck = $uniqueCurrentCheck + 1
+        !endif
+    !endfor
+
+    /'Обработка пустого сурса'/
+    !if $source == ""
+        !foreach $item in $customAuditMap
+            !if $name == $item.name
+                !$source = $item.source
+            !endif
+        !endfor
+    !endif
+
+    /'Проверка наличия участника переданного в аудите'/
+    %invoke_procedure("aliasCheck",$source)
+
+    /'Проверка уникальности для пользовательских событий аудита'/
+    !$uniqueCheck = 0
+    !foreach $item in $customAuditMap
+        !if $name == $item.name && $source == $item.source
+            !$uniqueCheck = $uniqueCheck + 1
+        !endif
+    !endfor
+
+    /'Автозаполнение тудушки и сохранение новых событий аудита'/
+    !if $uniqueCurrentCheck == 0 && $uniqueCheck == 0
+        !$todoText = "Необходимо реализовать новое событие аудита " + $name + ". Отправитель: " + getNameByAlias($source)
+        %invoke_procedure("todo", $todoText)
+        !if $diagramMode == "final"
+            %invoke_procedure("currantAuditMapBuilder",$name, $additionalParams)
+        !endif
+    !endif
+
+    /'Отрисовка аудита на диаграмме'/
+
+    %invoke_procedure("auditBuilder", $name, $status, $source)
+    %invoke_procedure("setOriginalSyntaxAudit", $name, $status, $source)
+!endprocedure
+
+!unquoted procedure currantAuditMapBuilder($name, $additionalParams="")
+        !$temp = {}
+        !$temp =%json_add($temp, "name", $name)
+        !if $additionalParams != ""
+            !$additionalParams = %splitstr($additionalParams, ",")
+            !$temp =%json_add($temp, "additionalParams", $additionalParams)
+        !endif
+        !$currentAuditMap = %json_add($currentAuditMap, $temp)
+!endprocedure
+
+!unquoted procedure setOriginalSyntaxAudit($name, $status, $source)
+    !if $diagramMode == "final"
+    !$temp = {}
+    !$temp = %json_add($temp, "type", "audit")
+    !$temp = %json_add($temp, "name", $name)
+    !$temp = %json_add($temp, "status", $status)
+    !$temp = %json_add($temp, "source", $source)
+    !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !endif
+!endprocedure
+
+!unquoted procedure auditBuilder($name, $status="", $source)
+    !if $status == ""
+        hnote over $source #lightyellow/lightgreen: <color:red><&media-play> <color:black>$name
+    !elseif $status == "FAILURE"
+        hnote over $source #orange/red: <color:red><&media-stop> <color:black>$name
+    !else
+        hnote over $source #lightyellow/lightgreen: <color:red><&media-stop> <color:black>$name
+    !endif
+!endprocedure

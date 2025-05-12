@@ -1,0 +1,5 @@
+@startuml
+!$customErrorMap = [
+    "error_1",
+    "error_2"
+]

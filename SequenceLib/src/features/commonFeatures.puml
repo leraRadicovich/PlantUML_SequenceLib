@@ -1,0 +1,65 @@
+@startuml
+/'Процедура инициации режима работы библиотеки'/
+!unquoted procedure diagramInit($mode, $name="")
+    !$diagramMode = $mode
+    !$sequenceName = $name
+    %invoke_procedure("styleController")
+    %invoke_procedure("checkLibMode",$mode)
+    !if $diagramMode == "draft"
+        !$on = "выключена"
+    !else
+        !$on = "включена"
+    !endif
+title Диаграмма: <color:blue>$sequenceName\n Режим: <color:blue>$mode</color>; Генерация кода в оригинальном синтаксисе: <color:blue>**$on**
+header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
+!endprocedure
+
+/'Процедура для активации линии жизни'/
+!unquoted procedure ACTIVATE($value="")
+    !$commonType = "activate"
+    %invoke_procedure("commonBuilder", $commonType, $value)
+    %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
+!endprocedure
+
+/'Процедура для деактивации линии жизни'/
+!unquoted procedure DEACTIVATE($value="")
+    !$commonType = "deactivate"
+    %invoke_procedure("commonBuilder", $commonType, $value)
+    %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
+!endprocedure
+
+/'Процедура, создающая и запоминающая идентификатор - якорь'/
+!unquoted procedure anchor($name)
+    %set_variable_value($name,$id)
+!end procedure
+
+/'Процедура разделитель'/
+!unquoted procedure SEPARATOR($value="")
+    !$commonType = "separator"
+    %invoke_procedure("commonBuilder", $commonType, $value)
+    %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
+!endprocedure
+
+!unquoted procedure commonBuilder($commonType, $value)
+!if $commonType == "activate"
+activate $value
+!endif
+
+!if $commonType == "deactivate"
+deactivate $value
+!endif
+
+!if $commonType == "separator"
+== $value ==
+!endif
+!endprocedure
+
+/'Сохранение для генерации диаграммы в оригинальном синтаксисе'/
+!unquoted procedure setOriginalSyntaxCommon($type, $value)
+    !if $diagramMode == "final"
+    !$temp = {}
+    !$temp = %json_add($temp, "type", $type)
+    !$temp = %json_add($temp, "value", $value)
+    !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !endif
+!endprocedure

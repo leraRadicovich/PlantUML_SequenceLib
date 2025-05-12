@@ -1,0 +1,135 @@
+@startuml
+/'Процедуры для работы с вызовами и ответами'/
+!unquoted procedure rq($initiator, $executor, $liveLine="",$action, $comment="")
+    %invoke_procedure("actionController", "rq", $initiator, $executor, $liveLine, $action, $comment)
+!endprocedure
+
+!unquoted procedure rs($initiator, $executor, $liveLine="",$action, $comment="")
+    %invoke_procedure("actionController", "rs", $initiator, $executor, $liveLine, $action, $comment)
+!endprocedure
+
+/'Логика обработки взаимодействий между участниками'/
+!unquoted procedure actionController($type, $initiator, $executor, $liveLine, $action, $comment)
+    /'Кейс копирование или автоответ'/
+
+    /'Автоответ: меняем инициатора и экзекьютора местами'/
+    !if $initiator == "" && $executor == ""
+        !$getPartiesAlias = $id
+        !foreach $item in $processMap
+            !if $getPartiesAlias == $item.id
+                !$initiator = $item.executor
+                !$executor = $item.initiator
+            !endif
+        !endfor
+    !endif
+
+    /'Автоответ: копируем исходное положение инициатора и экзекьютора'/
+    !if $initiator == "*"
+        !$getPartiesAlias = $executor
+        !foreach $item in $processMap
+            !if $getPartiesAlias == $item.id
+                !$initiator = $item.initiator
+                !$executor = $item.executor
+            !endif
+        !endfor
+    !endif
+
+    /'Проверка переданных алиасов'/
+    !if $initiator != ""
+        %invoke_procedure("aliasCheck", $initiator)
+    !endif
+
+    !if $executor != ""
+        %invoke_procedure("aliasCheck", $executor)
+    !endif
+
+    /'Проверка текущего layer диаграммы - нужен для отрисовки в карте процесса только хэппикейса'/
+    !$currentLayer = ""
+    !if $layerId == 0
+        !$currentLayer = "default"
+    !else
+        !foreach $item in $layerMap
+            !if $layerId == $item.id
+                !$currentLayer = $item.type
+            !endif
+        !endfor
+    !endif
+
+    /'Непосредственно отрисовка стрелок и увеличение id'/
+    %invoke_procedure("actionBuilder", $initiator, $executor, $liveLine, $action, $type, $layerId)
+    !$id = $id + 1
+
+    /'Построение карты процесса'/
+    %invoke_procedure("processMapEntityBuilder", $id, $type, $initiator, $executor, $liveLine, $action, $comment, $currentLayer)
+    %invoke_procedure("setOriginalAction",$type, $initiator, $executor, $liveLine, $action)
+    /'Построение заметки с диаграммой в оригинальном синтаксисе'/
+!endprocedure
+
+/'Сохранение стрелки в памяти'/
+!unquoted procedure processMapEntityBuilder($id, $type, $initiator, $executor, $liveLine, $action, $comment, $currentLayer)
+    !$temp = {}
+    !$temp = %json_add($temp, id, $id)
+    !$temp = %json_add($temp, initiator, $initiator)
+    !$temp = %json_add($temp, executor, $executor)
+
+    !if $diagramMode == "final"
+        !$temp = %json_add($temp, type, $type)
+        !$temp = %json_add($temp, layer, $currentLayer)
+        !$temp = %json_add($temp, action, $action)
+        !if $liveLine != ""
+            !$temp = %json_add($temp, liveline, $liveLine)
+        !endif
+        !if $comment != ""
+            !$temp = %json_add($temp, comment, $comment)
+        !endif
+    !endif
+
+    !$processMap = %json_add($processMap, $temp)
+!endprocedure
+
+/'Сохранение данных для построения диаграммы в оригинальном синтаксисе'/
+!unquoted procedure setOriginalAction($type, $initiator, $executor, $liveLine, $action)
+    !if $diagramMode == "final"
+        !$temp = {}
+        !$temp = %json_add($temp, "type", "action")
+        !$temp = %json_add($temp, "subtype", $type)
+        !$temp = %json_add($temp, "initiator", $initiator)
+        !$temp = %json_add($temp, "executor", $executor)
+        !$temp = %json_add($temp, "liveLine", $liveLine)
+        !$temp = %json_add($temp, "action", $action)
+        !$temp = %json_add($temp, "layer", $layerId)
+        !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !endif
+!endprocedure
+
+
+
+/'Процедуры rq и rs заменяют синтаксис рисования стрелок.'/
+!unquoted procedure actionBuilder($initiator, $executor, $liveLine="",$action, $type, $layer)
+    /'Определение типа стрелки'/
+    !if $type == rq
+        !$arrow = "->"
+    !else
+        !$arrow = "-->"
+    !endif
+    /'Определение линии жизни'/
+    !if $liveLine == "..."
+        !$liveLineUnderRaw = $liveLine
+        !$liveLineInRaw = ""
+    !else
+        !$liveLineInRaw = $liveLine
+    !endif
+    /'Определение отступа'/
+    !$defaultTab = "    "
+    !if $layer != 0
+        !$initiator = $defaultTab + $initiator
+    !endif
+$initiator $arrow $executor $liveLineInRaw: $action
+/'Определение прерывания линии жизни'/
+!if $liveLineUnderRaw == "..."
+    !if $layer != 0
+        !$liveLineUnderRaw = $defaultTab + $liveLineUnderRaw
+    !endif
+$liveLineUnderRaw
+!endif
+!endprocedure
