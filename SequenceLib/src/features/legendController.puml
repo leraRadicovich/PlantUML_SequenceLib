@@ -10,15 +10,6 @@ $processMapFull
 tableDevider(6)
 !endif
 %invoke_procedure("procMapBuilder", "full")
-/'Карта процесса ПроПро'/
-
-Карта процесса (для ПроПро)
-====
-$processMapProPro
-!if $deviderEnabled == 1
-tableDevider(7)
-!endif
-%invoke_procedure("procMapBuilder", "draft")
 /'Список доработок'/
 !if %size($todoMap)>0
 
@@ -91,8 +82,6 @@ end legend
     !endif
     !if $mode == full
 | $item.id | $from | $to | $item.type | $item.layer | $item.action | $item.comment |
-    !else
-| $item.id |  | $from | $to | $item.type | $item.comment | | $item.action |
     !endif
     !endfor
 !endprocedure
