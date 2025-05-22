@@ -3,6 +3,7 @@
 diagramInit(final,"Диаграмма для AnalystDays")
 parties(participant,"AuthServer",srv,1)
 
+SEPARATOR("Первый вход")
 rq(user,srv,++,"Запрос **аутентификации по паролю**","Комментарий для таблицы")
 audit(AUTH_LOGIN,,"Вход по паролю",srv)
 todo("Переименовать событие аудита")
@@ -22,9 +23,9 @@ END()
 rs(srv,user,--,"Вход разрешен","Пользователь попал в авторизованную зону")
 audit(AUTH_LOGIN,SUCCESS,"Осуществлен вход по паролю",srv)
 anchor(st2)
+SEPARATOR("Повторный вход")
 rq(,,++,"Повторный вход","Повторный вход возможен в пределах 15 минут")
-note across: Повторяются шаги: st1 - st2
-HELP()
+NOTE(,,,"Повторяются шаги: st1 - st2")
 LEGEND()
 ORIGINAL()
 @enduml

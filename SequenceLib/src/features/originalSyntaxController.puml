@@ -43,11 +43,12 @@ header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
     /'Заметки'/
 !if $item.type == "noteAndRef"
 !if $item.subtype == "note"
-%invoke_procedure("noteBuilder", $item.subtype, $item.position1, $item.position2, $item.color, $item.description)
+!$color = colorController($item.color)
+%invoke_procedure("noteBuilder", $item.subtype, $item.position1, $item.position2, $color, $item.description)
 !else
 !$subtype = $item.subtype
-!$color = $item.color
-!$color = colorController($color)
+!$color = colorController($item.color)
+'!$color = colorController($color)
 !$subtype = "ref" + $color
 !$color = ""
 %invoke_procedure("refBuilder", $subtype, $item.position1, $item.position2, $color, $item.description)

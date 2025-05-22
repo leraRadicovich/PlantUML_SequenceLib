@@ -1,0 +1,121 @@
+@startuml                                                                                                                                                                            ░║
+
+autonumber
+skinparam dpi 100
+skinparam maxMessageSize 200
+skinparam backgroundColor LightGray
+skinparam sequence {
+ArrowColor blue
+ActorBorderColor blue
+LifeLineBorderColor blue
+LifeLineBackgroundColor #White
+ParticipantBorderColor blue
+ParticipantBackgroundColor DodgerBlue
+ParticipantFontName Impact
+ParticipantFontSize 17
+ParticipantFontColor #A9DCDF
+ActorBackgroundColor DodgerBlue
+ActorFontColor DeepSkyBlue
+ActorFontSize 17
+ActorFontName Aapex
+}
+
+title Диаграмма: <color:blue>Диаграмма для AnalystDays
+header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
+
+participant "Смежный сервис" as srv2 order 20
+database "redis" as redis order 15
+database "Redis_srv" as redis_srv
+
+box Пример группировки участников в коробку #lightblue
+    actor "Пользователь" as user
+    participant "Ваш сервис" as srv order 0
+end box
+
+== Первый вход ==
+user -> srv ++: Запрос **аутентификации по паролю**
+note across #azure: Пример заметки на всю ширину диаграммы.\nМногострочность реализована только через \\n.
+
+        hnote over srv #lightyellow/lightgreen: <color:red><&media-play> <color:black>AUTH_LOGIN
+srv -> redis_srv : Обработка запроса
+redis_srv --> srv : Обработка завершена
+note over redis_srv, srv #azure: Пример заметки поверх указанных участников
+
+alt #moccasin passLoginEnabled = false
+    srv --> user : Воспользуйтесь альтернативным\nспособом входа
+    ...
+        hnote over srv #orange/red: <color:red><&media-stop> <color:black>AUTH_LOGIN
+else  passLoginEnabled = true
+opt #orange Ошибка пароля
+    srv --> user : Вход НЕ разрешен
+    ...
+        hnote over srv #orange/red: <color:red><&media-stop> <color:black>AUTH_LOGIN
+end
+
+end
+
+srv --> user --: Вход разрешен
+        hnote over srv #lightyellow/lightgreen: <color:red><&media-stop> <color:black>AUTH_LOGIN
+
+
+== Повторный вход ==
+user -> srv ++: Повторный вход
+note left srv #azure: Пример заметки слева от указанного участника
+
+ref over user, srv : Повторяются шаги: 3 - 6
+
+legend
+Карта процесса (полная)
+====
+| Код | ИC-инициатор | ИС-исполнитель | Тип взаимодействия | Тип сценария | Метод API | Описание |
+|---|---|---|---|---|---|---|
+| 1 | Пользователь | Ваш сервис | rq | default | Запрос **аутентификации по паролю** | Комментарий для таблицы |
+| 2 | Ваш сервис | Redis_srv | rq | default | Обработка запроса |  |
+| 3 | Redis_srv | Ваш сервис | rs | default | Обработка завершена |  |
+| 4 | Ваш сервис | Пользователь | rs | alt | Воспользуйтесь альтернативным\nспособом входа | Вход по паролю отключен |
+| 5 | Ваш сервис | Пользователь | rs | opt | Вход НЕ разрешен | Введен неверный пароль |
+| 6 | Ваш сервис | Пользователь | rs | default | Вход разрешен | Пользователь попал в авторизованную зону |
+| 7 | Пользователь | Ваш сервис | rq | default | Повторный вход | Повторный вход возможен в пределах 15 минут |
+
+Карта процесса (для ПроПро)
+====
+| Код | Шаг процесса | ИC-инициатор | ИС-исполнитель | Тип взаимодействия | Описание | Наименование сущности | Метод API |
+|---|---|---|---|---|---|---|---|
+| 1 |  | Пользователь | Ваш сервис | rq | Комментарий для таблицы | | Запрос **аутентификации по паролю** |
+| 2 |  | Ваш сервис | Redis_srv | rq |  | | Обработка запроса |
+| 3 |  | Redis_srv | Ваш сервис | rs |  | | Обработка завершена |
+| 4 |  | Ваш сервис | Пользователь | rs | Вход по паролю отключен | | Воспользуйтесь альтернативным\nспособом входа |
+| 5 |  | Ваш сервис | Пользователь | rs | Введен неверный пароль | | Вход НЕ разрешен |
+| 6 |  | Ваш сервис | Пользователь | rs | Пользователь попал в авторизованную зону | | Вход разрешен |
+| 7 |  | Пользователь | Ваш сервис | rq | Повторный вход возможен в пределах 15 минут | | Повторный вход |
+
+Список доработок
+====
+| № | id обнаружения | Суть доработки|
+|---|---|---|
+| 1 | 1 | Необходимо реализовать новое событие аудита AUTH_LOGIN. Отправитель: Ваш сервис |
+| 2 | 1 | Переименовать событие аудита |
+| 3 | 3 | Реализовать обработку параметра passLoginEnabled |
+| 4 | 3 | Необходимо добавить новый параметр: passLoginEnabled. Тип: boolean |
+| 5 | 5 | Необходимо добавить новую ошибку: login_disabled. Шаг обнаружения: 5 |
+
+Новые события аудита
+====
+| # | Код события | Статус | Объект | Тип события | Операция | Краткое описание | Подробное описание | Доп.параметры |
+|---|---|---|---|---|---|---|---|---|
+| 1 | AUTH_LOGIN | SUCCESS \n FAILURE |  |  |  |  |  | Вход по паролю |
+
+Новые параметры
+====
+| # | Наименование | Тип1 | Тип2 | Значение | Описание |
+|---|---|---|---|---|---|
+| 1 | passLoginEnabled | параметр configMap \n coreSetting | boolean |  |  |
+
+Новые ошибки
+====
+| # | Метод | Ошибка | ИС источник | Маппинг в error.type 1673 | Стадия возникновения | Стадия в ответ для фронта | Параметры redirectUri | error&errorMessage | Заголовок | Текст |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 |  | login_disabled |  |  |  |  |  |  |  |  |
+
+end legend
+@enduml

@@ -1,4 +1,4 @@
-@startuml                                                                                                                  ░║
+@startuml
 
 autonumber
 skinparam dpi 100
@@ -25,6 +25,9 @@ header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
 
 participant "AuthServer" as srv order 1
 actor "Пользователь" as user
+
+
+== Первый вход ==
 user -> srv ++: Запрос **аутентификации по паролю**
         hnote over srv #lightyellow/lightgreen: <color:red><&media-play> <color:black>AUTH_LOGIN
 srv --> srv : Обработка запроса
@@ -43,7 +46,12 @@ end
 
 srv --> user --: Вход разрешен
         hnote over srv #lightyellow/lightgreen: <color:red><&media-stop> <color:black>AUTH_LOGIN
+
+
+== Повторный вход ==
 user -> srv ++: Повторный вход
+note across : Повторяются шаги: 2 - 5
+
 legend
 Карта процесса (полная)
 ====
@@ -58,7 +66,7 @@ legend
 
 Карта процесса (для ПроПро)
 ====
-| Код | Шаг процесса | ИC-инициатор | ИС-исполнитель | Тип взаимодействия | Описание | Наименование сущности | Метод API |
+| Код | Шаг процесса | ИC-инициатор | ИС-исполнитель | Тип взаимодействия | Описание | Наименование сущности | Метод API |  ║
 |---|---|---|---|---|---|---|---|
 | 1 |  | Пользователь | AuthServer | rq | Комментарий для таблицы | | Запрос **аутентификации по паролю** |
 | 2 |  | AuthServer | AuthServer | rs |  | | Обработка запроса |
