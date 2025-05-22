@@ -33,7 +33,7 @@
 ![version.png](SequenceLib%2FRESOURCES%2Fversion.png)
 
 
-1. Скачайте архив с последним релизом библиотеки
+1. Скачайте [архив](https://github.com/leraRadicovich/PlantUML_SequenceLib/archive/refs/tags/REaleas_for_AD.zip) с последним релизом библиотеки. 
 2. Распакуйте архив в выбранной папке
 3. Создайте диаграмму plantUML с помощью установленного плагина
 4. Включить в созданную диаграмму файл-указатель библиотеки:
