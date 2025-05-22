@@ -41,6 +41,17 @@
     !return $color
 !end function
 
+/'Изменение цвета'/
+!unquoted function DARKEN($color,$step)
+    !$color = %substr((%darken($color, %intval($step))),1)
+    !return $color
+!endfunction
+
+!unquoted function LIGHTEN($color,$step)
+    !$color = %substr((%lighten($color, %intval($step))),1)
+    !return $color
+!endfunction
+
 /'Процедура добавляет на диаграмму параметры стиля'/
 !unquoted procedure styleController()
     !foreach $item in $style
