@@ -40,9 +40,11 @@
     !if $alias != ""
         !$temp = %json_add($temp, alias, $alias)
     !endif
-    !if $order != ""
-        !$temp = %json_add($temp, order, $order)
+    !if $order == ""
+        !$orderId = $orderId + 1
+        !$order = $orderId
     !endif
+    !$temp = %json_add($temp, order, $order)
     !$currentAliasMap = %json_add($currentAliasMap, $temp)
 !endprocedure
 
