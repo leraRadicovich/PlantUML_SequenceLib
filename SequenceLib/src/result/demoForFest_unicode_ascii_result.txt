@@ -1,0 +1,103 @@
+  Диаграмма: <color:blue>Заголовок для демо                                                             
+   Режим: <color:blue>final</color>; Генерация кода в оригинальном синтаксисе: <color:blue>**включена** 
+                                                                                                        
+                             ┌─┐                                       ,.-^^-._                         
+                             ║"│                                      |-.____.-|                        
+                             └┬┘                                      |        |                        
+                             ┌┼┐                                      |        |                        
+                              │                 ┌──────────┐          |        |                        
+                             ┌┴┐                │Ваш сервис│          '-.____.-'                        
+                        Пользователь            └─────┬────┘            Redis                           
+                              │ 𝟏 POST/api-method    ┌┴┐                  │                             
+                              │────────────────────> │ │                  │                             
+                              │                      │ │                  │                             
+                              │                      │ │       𝟐         ┌┴┐                            
+                              │                      │ │ ───────────────>│ │                            
+                              │                      │ │                 │ │                            
+                              │                      │ │    𝟑 200 OK     │ │                            
+                              │                      │ │ <─ ─ ─ ─ ─ ─ ─ ─│ │                            
+                              │                      │ │                 │ │                            
+                              │                      │ │                 │ │                            
+                              │       ╔══════╤═══════╪═╪═════════════════╪═╪═══════════╗                
+                              │       ║ ALT  │  Какое-то условие         │ │           ║                
+                              │       ╟──────┘       │ │                 │ │           ║                
+                              │       ║              │ │  𝟒 Альт ответ   │ │           ║                
+                              │       ║              │ │ <─ ─ ─ ─ ─ ─ ─ ─│ │           ║                
+                              │       ╠══════════════╪═╪═════════════════╪═╪═══════════╣                
+                              │       ║ [Альт условие 2]                 └┬┘           ║                
+                              │       ║              │ │     𝟓 Ответ      │            ║                
+                              │       ║              │ │ <─ ─ ─ ─ ─ ─ ─ ─ │            ║                
+                              │       ╚══════════════╪═╪══════════════════╪════════════╝                
+                              │                      │ │                  │                             
+  ╔═══════════════════════════╧══════════════════════╧═╧══════════════════╧════════════════════════════╗
+  ║@startuml                                                                                          ░║
+  ║                                                                                                    ║
+  ║autonumber                                                                                          ║
+  ║skinparam dpi 100                                                                                   ║
+  ║skinparam maxMessageSize 200                                                                        ║
+  ║skinparam backgroundColor LightGray                                                                 ║
+  ║skinparam sequence {                                                                                ║
+  ║ArrowColor blue                                                                                     ║
+  ║ActorBorderColor blue                                                                               ║
+  ║LifeLineBorderColor blue                                                                            ║
+  ║LifeLineBackgroundColor #White                                                                      ║
+  ║ParticipantBorderColor blue                                                                         ║
+  ║ParticipantBackgroundColor DodgerBlue                                                               ║
+  ║ParticipantFontName Impact                                                                          ║
+  ║ParticipantFontSize 17                                                                              ║
+  ║ParticipantFontColor #A9DCDF                                                                        ║
+  ║ActorBackgroundColor DodgerBlue                                                                     ║
+  ║ActorFontColor DeepSkyBlue                                                                          ║
+  ║ActorFontSize 17                                                                                    ║
+  ║ActorFontName Aapex                                                                                 ║
+  ║}                                                                                                   ║
+  ║                                                                                                    ║
+  ║title Диаграмма: <color:blue>Заголовок для демо                                                     ║
+  ║header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR                                ║
+  ║                                                                                                    ║
+  ║actor "Пользователь" as user order 1                                                                ║
+  ║participant "Ваш сервис" as srv order 0                                                             ║
+  ║database "Redis" as redis order 2                                                                   ║
+  ║user -> srv ++: POST/api-method                                                                     ║
+  ║srv -> redis ++:                                                                                    ║
+  ║redis --> srv : 200 OK                                                                              ║
+  ║alt #orange Какое-то условие                                                                        ║
+  ║    redis --> srv : Альт ответ                                                                      ║
+  ║else #FFD78C Альт условие 2                                                                         ║
+  ║    redis --> srv --: Ответ                                                                         ║
+  ║end                                                                                                 ║
+  ║                                                                                                    ║
+  ║legend                                                                                              ║
+  ║Карта процесса (полная)                                                                             ║
+  ║====                                                                                                ║
+  ║| Код | ИC-инициатор | ИС-исполнитель | Тип взаимодействия | Тип сценария | Метод API | Описание |  ║
+  ║|---|---|---|---|---|---|---|                                                                       ║
+  ║| 1 | Пользователь | Ваш сервис | rq | default | POST/api-method | Комментарий |                    ║
+  ║| 2 | Ваш сервис | Redis | rq | default |  |  |                                                     ║
+  ║| 3 | Redis | Ваш сервис | rs | default | 200 OK | Комментарий |                                    ║
+  ║| 4 | Redis | Ваш сервис | rs | alt | Альт ответ | Альт условие |                                   ║
+  ║| 5 | Redis | Ваш сервис | rs | alt | Ответ | Успех |                                               ║
+  ║                                                                                                    ║
+  ║Список доработок                                                                                    ║
+  ║====                                                                                                ║
+  ║| № | id обнаружения | Суть доработки|                                                              ║
+  ║|---|---|---|                                                                                       ║
+  ║| 1 | 5 | Необходимо добавить новый параметр: libMode2. Тип: string |                               ║
+  ║| 2 | 5 | <color:blue>08.06.2025:</color> Коммент для разраба/лида/себя |                           ║
+  ║                                                                                                    ║
+  ║Новые параметры                                                                                     ║
+  ║====                                                                                                ║
+  ║| # | Наименование | Тип1 | Тип2 | Значение | Описание |                                            ║
+  ║|---|---|---|---|---|---|                                                                           ║
+  ║| 1 | libMode2 | параметр configMap \n coreSetting | string |  |  |                                 ║
+  ║                                                                                                    ║
+  ║end legend                                                                                          ║
+  ║@enduml                                                                                             ║
+  ╚══════════════════════════════════════════════════╤═╤═══════════════════════════════════════════════╝
+                             ┌─┐                │Ваш │ │вис│           ,.-^^-._                         
+                             ║"│                └────│ │───┘          |-.____.-|                        
+                             └┬┘                     │ │              |        |                        
+                             ┌┼┐                     │ │              |        |                        
+                              │                      │ │              |        |                        
+                             ┌┴┐                     │ │              '-.____.-'                        
+                                                     └┬┘                                                

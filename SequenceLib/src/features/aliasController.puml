@@ -13,14 +13,14 @@
             !$iterationCheck = $iterationCheck + 1
         !endif
     !endfor
-    /'Проверка уникальности добавляемого участника'/
+    /'Проверка уникальности алиаса добавляемого участника'/
     !$uniqueCheck = 0
     !foreach $item in $currentAliasMap
     !if $alias == $item.alias
         !$uniqueCheck = $uniqueCheck + 1
     !endif
     !endfor
-    /'Логика обработки: рисуем нового или вызываем проверку переданного'/
+    /'Если тип дефолтный и алиас уникальный - рисуем нового, иначе вызываем проверку переданного в типе алиаса'/
     !if $iterationCheck > 0 && $uniqueCheck == 0
 %invoke_procedure("partiesBuilder", $partyType, $name, $alias, $order)
 %invoke_procedure("currentAliasMapBuilder", $partyType, $name, $alias, $order)
@@ -28,7 +28,11 @@
         !if $name != ""
             !assert Некорректный тип участника, либо не уникальный алиас
         !endif
-%invoke_procedure("aliasCheck", $partyType)
+        !$partiesList = ""
+        !$partiesList = %splitstr($partyType, ",")
+!foreach $party in $partiesList
+%invoke_procedure("aliasCheck", $party)
+!endfor
     !endif
 !endprocedure
 

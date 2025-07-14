@@ -1,0 +1,16 @@
+@startuml
+!include C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v4.puml
+diagramInit(final,"Заголовок для демо")
+rq(user,srv,++,"POST/api-method","Комментарий")
+rq(srv,redis,++,"","")
+rs(,,,"200 OK","Комментарий")
+ALT(orange,"Какое-то условие")
+    rs(*,3,,"Альт ответ","Альт условие")
+ELSE(LIGHTEN(orange, 55),"Альт условие 2")
+    rs(*,3,--,"Ответ","Успех")
+END()
+config(libMode2, string)
+todo("<color:blue>08.06.2025:</color> Коммент для разраба/лида/себя")
+LEGEND()
+ORIGINAL()
+@enduml
