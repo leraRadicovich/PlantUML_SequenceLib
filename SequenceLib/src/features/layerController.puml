@@ -5,6 +5,12 @@
     %invoke_procedure("layerController", $type, $color, $description)
 !endprocedure
 
+/'Процедура для отрисовки терминальных сценариев break'/
+!unquoted procedure BREAK($color, $description)
+    !$type = "break"
+    %invoke_procedure("layerController", $type, $color, $description)
+!endprocedure
+
 /'Процедура для отрисовки опциональных сценариев opt'/
 !unquoted procedure OPT($color,$description)
     !$type = "opt"
