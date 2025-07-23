@@ -14,20 +14,27 @@ title Диаграмма: <color:blue>$sequenceName\n Режим: <color:blue>$m
 header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
 !endprocedure
 
-/'Процедура для активации линии жизни'/
+/'Интерфейс для активации линии жизни'/
 !unquoted procedure ACTIVATE($value="")
     !$commonType = "activate"
-    %invoke_procedure("aliasCheck", $value)
-    %invoke_procedure("commonBuilder", $commonType, $value)
-    %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
+    %invoke_procedure("activationDeactivationController", $value,$commonType)
 !endprocedure
 
-/'Процедура для деактивации линии жизни'/
+/'Интерфейс для деактивации линии жизни'/
 !unquoted procedure DEACTIVATE($value="")
     !$commonType = "deactivate"
-    %invoke_procedure("aliasCheck", $value)
-    %invoke_procedure("commonBuilder", $commonType, $value)
-    %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
+    %invoke_procedure("activationDeactivationController", $value,$commonType)
+!endprocedure
+
+/'Процедура контроллер активации/деактивации линии жизни'/
+!unquoted procedure activationDeactivationController($value="",$commonType)
+    !$partiesList = ""
+    !$partiesList = %splitstr($value, ",")
+!foreach $party in $partiesList
+%invoke_procedure("aliasCheck", $party)
+%invoke_procedure("commonBuilder", $commonType, $party)
+%invoke_procedure("setOriginalSyntaxCommon", $commonType, $party)
+!endfor
 !endprocedure
 
 /'Процедура, создающая и запоминающая идентификатор - якорь'/
