@@ -17,6 +17,7 @@ header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
 /'Процедура для активации линии жизни'/
 !unquoted procedure ACTIVATE($value="")
     !$commonType = "activate"
+    %invoke_procedure("aliasCheck", $value)
     %invoke_procedure("commonBuilder", $commonType, $value)
     %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
 !endprocedure
@@ -24,6 +25,7 @@ header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
 /'Процедура для деактивации линии жизни'/
 !unquoted procedure DEACTIVATE($value="")
     !$commonType = "deactivate"
+    %invoke_procedure("aliasCheck", $value)
     %invoke_procedure("commonBuilder", $commonType, $value)
     %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
 !endprocedure
