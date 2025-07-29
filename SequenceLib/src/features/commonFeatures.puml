@@ -1,17 +1,31 @@
 @startuml
 /'Процедура инициации режима работы библиотеки'/
-!unquoted procedure diagramInit($mode, $name="")
+!unquoted procedure diagramInit($mode, $name="", $by="")
     !$diagramMode = $mode
     !$sequenceName = $name
     %invoke_procedure("styleController")
     %invoke_procedure("checkLibMode",$mode)
+    /'Выбор режима работы библиотеки'/
     !if $diagramMode == "draft"
         !$on = "выключена"
     !else
         !$on = "включена"
     !endif
 title Диаграмма: <color:blue>$sequenceName\n Режим: <color:blue>$mode</color>; Генерация кода в оригинальном синтаксисе: <color:blue>**$on**
-header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
+    %invoke_procedure("setAuthorInTitle",$by)
+!endprocedure
+
+/'Установка автора диаграммы'/
+!unquoted procedure setAuthorInTitle($by)
+    !global $originalBy = ""
+    !if $by == "" && %variable_exists("$author") == 1
+        !$originalBy = "\n<color:black>Author: <color:blue>" + $author
+    !elseif $by != "" && %variable_exists("$author") == 0
+        !$originalBy = "\n<color:black>Author: <color:blue>" + $by
+    !elseif $by == "" && %variable_exists("$author") == 0
+        !$originalBy = ""
+    !endif
+    header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $originalBy
 !endprocedure
 
 /'Интерфейс для активации линии жизни'/
@@ -68,6 +82,7 @@ deactivate $value
     !if $diagramMode == "final"
     !$temp = {}
     !$temp = %json_add($temp, "type", $type)
+    !$temp = %json_add($temp, "layerId", $layerId)
     !$temp = %json_add($temp, "value", $value)
     !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
     !endif

@@ -7,7 +7,7 @@
 
 /'Процедура для отрисовки терминальных сценариев break'/
 !unquoted procedure BREAK($color, $description)
-    !$type = "break"
+    !$type = "break#red"
     %invoke_procedure("layerController", $type, $color, $description)
 !endprocedure
 
@@ -48,6 +48,16 @@
 !endprocedure
 
 !unquoted procedure layerController($type, $color="", $description="")
+    !$color = colorController($color)
+
+    !if $type == "end"
+        !$layerIdToBuild = $layerId - 1
+    !else
+        !$layerIdToBuild = $layerId
+    !endif
+
+    %invoke_procedure("layerOriginSyntaxBuilder", $type, $layerIdToBuild, $color, $description)
+
     !if $type != "else"
         !if $type == "end"
             !$layerId = $layerId - 1
@@ -64,11 +74,9 @@
         !$removeId = %size($layerMap)
         !$layerMap = %json_remove($layerMap, $removeId)
     !endif
-    /'пробел'/
-    !$color = colorController($color)
+
     /'пробел'/
     %invoke_procedure("layerBuilder", $type, $color, $description)
-    %invoke_procedure("layerOriginSyntaxBuilder", $type, $color, $description)
 !endprocedure
 
 /'Отрисовка слоев layers'/
@@ -89,10 +97,11 @@ $type
 !endprocedure
 
 /'Сохранение слоев в оригинальном синтаксисе'/
-!unquoted procedure layerOriginSyntaxBuilder($type, $color="", $description="")
+!unquoted procedure layerOriginSyntaxBuilder($type, $layerIdToBuild, $color="", $description="")
     !if $diagramMode == "final"
     !$temp = {}
     !$temp = %json_add($temp, "type", "layer")
+    !$temp = %json_add($temp, "layerId", $layerIdToBuild)
     !$temp = %json_add($temp, "subtype", $type)
     !$temp = %json_add($temp, "color", $color)
     !$temp = %json_add($temp, "description", $description)

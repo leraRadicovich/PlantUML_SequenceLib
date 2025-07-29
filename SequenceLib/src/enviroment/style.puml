@@ -1,7 +1,7 @@
 @startuml
 /'Параметры стиля'/
 !$style = ["autonumber",
-"skinparam dpi 100",
+"skinparam dpi 70",
 "skinparam maxMessageSize 200",
 "skinparam backgroundColor LightGray",
 "skinparam sequence {",

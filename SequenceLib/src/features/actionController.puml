@@ -1,11 +1,36 @@
 @startuml
 /'Процедуры для работы с вызовами и ответами'/
 !unquoted procedure rq($initiator, $executor, $liveLine="",$action, $comment="")
-    %invoke_procedure("actionController", "rq", $initiator, $executor, $liveLine, $action, $comment)
+    %invoke_procedure("proxyController", "rq", $initiator, $executor, $liveLine, $action, $comment)
 !endprocedure
 
 !unquoted procedure rs($initiator, $executor, $liveLine="",$action, $comment="")
-    %invoke_procedure("actionController", "rs", $initiator, $executor, $liveLine, $action, $comment)
+    %invoke_procedure("proxyController", "rs", $initiator, $executor, $liveLine, $action, $comment)
+!endprocedure
+
+/'Проксиконтроллер - проверка наличия проксирующих вызовов'/
+!unquoted procedure proxyController($type, $initiator, $executor, $liveLine, $action, $comment)
+    !if $initiator != "" && $executor != ""
+        !$executorsList = %splitstr($executor, ",")
+        !$i = 0
+        !if $type == "rq"
+            !$proxyAction = "Проксирование запроса"
+        !else
+            !$proxyAction = "Проксирование ответа"
+        !endif
+        !foreach $party in $executorsList
+            !if $i == 0
+                %invoke_procedure("actionController", $type, $initiator, $party, $liveLine, $action, $comment)
+            !else
+                %invoke_procedure("actionController", $type, $initiator, $party, $liveLine, $proxyAction, "")
+            !endif
+            !$initiator = $party
+            !$executorsList = %json_remove($executorsList,0)
+            !$i = $i + 1
+        !endfor
+    !else
+        %invoke_procedure("actionController", $type, $initiator, $executor, $liveLine, $action, $comment)
+    !endif
 !endprocedure
 
 /'Логика обработки взаимодействий между участниками'/
@@ -14,9 +39,9 @@
 
     /'Автоответ: меняем инициатора и экзекьютора местами'/
     !if $initiator == "" && $executor == ""
-        !$getPartiesAlias = $id
+        !$getPartiesAliasId = $id
         !foreach $item in $processMap
-            !if $getPartiesAlias == $item.id
+            !if $getPartiesAliasId == $item.id
                 !$initiator = $item.executor
                 !$executor = $item.initiator
             !endif
@@ -25,9 +50,9 @@
 
     /'Автоответ: копируем исходное положение инициатора и экзекьютора'/
     !if $initiator == "*"
-        !$getPartiesAlias = $executor
+        !$getPartiesAliasId = $executor
         !foreach $item in $processMap
-            !if $getPartiesAlias == $item.id
+            !if $getPartiesAliasId == $item.id
                 !$initiator = $item.initiator
                 !$executor = $item.executor
             !endif
@@ -56,7 +81,7 @@
     !endif
 
     /'Непосредственно отрисовка стрелок и увеличение id'/
-    %invoke_procedure("actionBuilder", $initiator, $executor, $liveLine, $action, $type, $layerId)
+    %invoke_procedure("actionBuilder", $initiator, $executor, $liveLine, $action, $type)
     !$id = $id + 1
 
     /'Построение карты процесса'/
@@ -97,15 +122,13 @@
         !$temp = %json_add($temp, "executor", $executor)
         !$temp = %json_add($temp, "liveLine", $liveLine)
         !$temp = %json_add($temp, "action", $action)
-        !$temp = %json_add($temp, "layer", $layerId)
+        !$temp = %json_add($temp, "layerId", $layerId)
         !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
     !endif
 !endprocedure
 
-
-
 /'Процедуры rq и rs заменяют синтаксис рисования стрелок.'/
-!unquoted procedure actionBuilder($initiator, $executor, $liveLine="",$action, $type, $layer)
+!unquoted procedure actionBuilder($initiator, $executor, $liveLine="",$action, $type)
     /'Определение типа стрелки'/
     !if $type == rq
         !$arrow = "->"
@@ -119,17 +142,9 @@
     !else
         !$liveLineInRaw = $liveLine
     !endif
-    /'Определение отступа'/
-    !$defaultTab = "    "
-    !if $layer != 0
-        !$initiator = $defaultTab + $initiator
-    !endif
 $initiator $arrow $executor $liveLineInRaw: $action
 /'Определение прерывания линии жизни'/
 !if $liveLineUnderRaw == "..."
-    !if $layer != 0
-        !$liveLineUnderRaw = $defaultTab + $liveLineUnderRaw
-    !endif
 $liveLineUnderRaw
 !endif
 !endprocedure

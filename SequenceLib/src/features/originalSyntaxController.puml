@@ -18,7 +18,7 @@ note across
 
 /'Вывод заголовки и хедера диаграммы'/
 title Диаграмма: <color:blue>$sequenceName
-header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
+header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $originalBy
 
 /'Участники и объединение в бокси'/
 !foreach $item in $currentAliasMap
@@ -34,33 +34,32 @@ header <color:black>by SequenceLib.v.4.0.\n <color:black>Author: PVR
 !endif
     /'Стрелки'/
 !if $item.type == "action"
-%invoke_procedure("actionBuilder", $item.initiator, $item.executor, $item.liveLine, $item.action, $item.subtype, $item.layer)
+tabController($item.layerId)%invoke_procedure("actionBuilder", $item.initiator, $item.executor, $item.liveLine, $item.action, $item.subtype)
 !endif
     /'Слои'/
 !if $item.type == "layer"
-%invoke_procedure("layerBuilder", $item.subtype, $item.color, $item.description)
+tabController($item.layerId)%invoke_procedure("layerBuilder", $item.subtype, $item.color, $item.description)
 !endif
     /'Заметки'/
 !if $item.type == "noteAndRef"
 !if $item.subtype == "note"
 !$color = colorController($item.color)
-%invoke_procedure("noteBuilder", $item.subtype, $item.position1, $item.position2, $color, $item.description)
+tabController($item.layerId)%invoke_procedure("noteBuilder", $item.subtype, $item.position1, $item.position2, $color, $item.description)
 !else
 !$subtype = $item.subtype
 !$color = colorController($item.color)
-'!$color = colorController($color)
 !$subtype = "ref" + $color
 !$color = ""
-%invoke_procedure("refBuilder", $subtype, $item.position1, $item.position2, $color, $item.description)
+tabController($item.layerId)%invoke_procedure("refBuilder", $subtype, $item.position1, $item.position2, $color, $item.description)
 !endif
 !endif
     /'Аудит'/
 !if $item.type == "audit"
-%invoke_procedure("auditBuilder", $item.name, $item.status, $item.source)
+tabController($item.layerId)%invoke_procedure("auditBuilder", $item.name, $item.status, $item.source)
 !endif
     /'Общие функции'/
 !if $item.type == "activate" || $item.type == "deactivate" || $item.type == "separator"
-%invoke_procedure("commonBuilder", $item.type, $item.value)
+tabController($item.layerId)%invoke_procedure("commonBuilder", $item.type, $item.value)
 !endif
 !endfor
 /'Легенда'/

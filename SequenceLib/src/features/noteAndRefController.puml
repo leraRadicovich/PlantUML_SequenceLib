@@ -13,7 +13,7 @@
 
 /'Логики обработки заметок и ссылок'/
 !unquoted procedure noteAndRefController($type, $position1, $position2, $color="", $description)
-    %invoke_procedure("setOriginalnoteAndRef", $type, $position1, $position2, $color, $description)
+    %invoke_procedure("setOriginalNoteAndRef", $type, $position1, $position2, $color, $description)
     !$color = colorController($color)
     !if $type == "ref"
         !$type = "ref" + $color
@@ -25,10 +25,11 @@
 !endprocedure
 
 /'Сохранение данных для построения диаграммы в оригинальном синтаксисе'/
-!unquoted procedure setOriginalnoteAndRef($type, $position1, $position2, $color, $description)
+!unquoted procedure setOriginalNoteAndRef($type, $position1, $position2, $color, $description)
     !if $diagramMode == "final"
     !$temp = {}
     !$temp = %json_add($temp, "type", "noteAndRef")
+    !$temp = %json_add($temp, "layerId", $layerId)
     !$temp = %json_add($temp, "subtype", $type)
     !$temp = %json_add($temp, "position1", $position1)
     !$temp = %json_add($temp, "position2", $position2)

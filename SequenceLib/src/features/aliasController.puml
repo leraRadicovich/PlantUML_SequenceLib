@@ -132,7 +132,6 @@ box $name $colorToBuild
 !$partiesToPaint = %json_remove($partiesToPaint, $item)
     !endfor
 end box
-
 %invoke_procedure("setOriginalBox", $name, $color, $parties)
 %invoke_procedure("tagPartiesFromBoxInCurrentAliasMap",$parties)
 !dump_memory

@@ -76,3 +76,15 @@ $item
 !assert Некорректный режим работы, указан не draft/ final
     !endif
 !endprocedure
+
+/'Определение отступа'/
+!unquoted function tabController($x)
+    !$tab = "    "
+    !$defaultTab = ""
+    !$i = %intval($x)
+    !while $i > 0
+        !$defaultTab = $defaultTab + $tab
+        !$i = $i - 1
+    !endwhile
+!return $defaultTab
+!endfunction

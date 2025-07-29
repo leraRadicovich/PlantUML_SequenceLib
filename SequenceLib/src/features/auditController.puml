@@ -43,7 +43,6 @@
     !endif
 
     /'Отрисовка аудита на диаграмме'/
-
     %invoke_procedure("auditBuilder", $name, $status, $source)
     %invoke_procedure("setOriginalSyntaxAudit", $name, $status, $source)
 !endprocedure
@@ -62,6 +61,7 @@
     !if $diagramMode == "final"
     !$temp = {}
     !$temp = %json_add($temp, "type", "audit")
+    !$temp = %json_add($temp, "layerId", $layerId)
     !$temp = %json_add($temp, "name", $name)
     !$temp = %json_add($temp, "status", $status)
     !$temp = %json_add($temp, "source", $source)
@@ -71,10 +71,10 @@
 
 !unquoted procedure auditBuilder($name, $status="", $source)
     !if $status == ""
-        hnote over $source #lightyellow/lightgreen: <color:red><&media-play> <color:black>$name
+hnote over $source #lightyellow/lightgreen: <color:red><&media-play> <color:black>$name
     !elseif $status == "FAILURE"
-        hnote over $source #orange/red: <color:red><&media-stop> <color:black>$name
+hnote over $source #orange/red: <color:red><&media-stop> <color:black>$name
     !else
-        hnote over $source #lightyellow/lightgreen: <color:red><&media-stop> <color:black>$name
+hnote over $source #lightyellow/lightgreen: <color:red><&media-stop> <color:black>$name
     !endif
 !endprocedure
