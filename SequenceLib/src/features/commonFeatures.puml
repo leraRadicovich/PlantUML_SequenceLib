@@ -18,12 +18,14 @@ title Диаграмма: <color:blue>$sequenceName\n Режим: <color:blue>$m
 /'Установка автора диаграммы'/
 !unquoted procedure setAuthorInTitle($by)
     !global $originalBy = ""
-    !if $by == "" && %variable_exists("$author") == 1
-        !$originalBy = "\n<color:black>Author: <color:blue>" + $author
-    !elseif $by != "" && %variable_exists("$author") == 0
+    !if $by != ""
         !$originalBy = "\n<color:black>Author: <color:blue>" + $by
-    !elseif $by == "" && %variable_exists("$author") == 0
-        !$originalBy = ""
+    !else
+        !if %variable_exists("$author")
+            !$originalBy = "\n<color:black>Author: <color:blue>" + $author
+        !else
+            !$originalBy = ""
+        !endif
     !endif
     header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $originalBy
 !endprocedure
