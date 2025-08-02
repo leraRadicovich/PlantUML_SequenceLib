@@ -1,0 +1,104 @@
+@startuml
+/'
+!include C:\Users\valik\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v4.puml
+diagramInit(draft, "test")
+'/
+
+
+!$layer = 0
+!$id = 0
+
+!$actionObject = {
+    "actionId" : "empty",
+    "arrowType" : "empty",
+    "from" : "empty",
+    "to" : "empty",
+    "ll" : "empty",
+    "action" : "empty",
+    "comment" : "empty",
+    "layer" : "empty"
+}
+
+!$procMap = []
+
+
+!unquoted procedure rq($from, $to, $ll, $text, $comment)
+    %invoke_procedure("actionController", "->", $from, $to, $ll, $text, $comment)
+!endprocedure
+
+!unquoted procedure rs($from, $to, $ll, $text, $comment)
+    %invoke_procedure("actionController", "-->", $from, $to, $ll, $text, $comment)
+!endprocedure
+
+!unquoted procedure actionController($arrowType, $from, $to, $ll, $text, $comment)
+    !$id = $id + 1
+    %invoke_procedure("setContext", $arrowType, $from, $to, $ll, $text, $comment)
+    checkAutoResponse()
+    checkProxy()
+    setProcMap()
+    actionBuilder()
+!endprocedure
+
+!unquoted procedure checkAutoResponse()
+    !if $actionObject.from == "" && $actionObject.to == ""
+        !$i = $id - 2
+        !$actionObject = %json_set($actionObject, from, $procMap[$i].to)
+        !$actionObject = %json_set($actionObject, to, $procMap[$i].from)
+    !endif
+!endprocedure
+
+!unquoted procedure checkProxy()
+    !$executorList = %splitstr($actionObject.to, ",")
+    !$executorListSize = %size($executorList)
+    !$ifFirst = 1
+    !if $executorListSize > 1
+        !foreach $item in $executorList
+            !if $ifFirst
+                %invoke_procedure("actionController", $actionObject.arrowType, $actionObject.from, $item, $actionObject.ll, $actionObject.text, $actionObject.comment)
+            !else
+                %invoke_procedure("actionController", $actionObject.arrowType, $actionObject.from, $item, $actionObject.ll, "Прокси", $actionObject.comment)
+            !endif
+            !$actionObject = %json_set($actionObject, from, $item)
+            !$ifFirst = 0
+        !endfor
+    !endif
+!endprocedure
+
+!unquoted procedure setContext($arrowType, $from, $to, $ll, $text, $comment)
+    !$actionObject = %json_set($actionObject, actionId, $id)
+    !$actionObject = %json_set($actionObject, arrowType, $arrowType)
+    !$actionObject = %json_set($actionObject, from, $from)
+    !$actionObject = %json_set($actionObject, to, $to)
+    !$actionObject = %json_set($actionObject, ll, $ll)
+    !$actionObject = %json_set($actionObject, action, $text)
+    !$actionObject = %json_set($actionObject, comment, $comment)
+    !$actionObject = %json_set($actionObject, layer, $layer)
+    !dump_memory
+!endprocedure
+
+!unquoted procedure setProcMap()
+    !$procMap = %json_add($procMap, $actionObject)
+!endprocedure
+
+!unquoted procedure showProcMap()
+    !$i = 0
+note across
+!foreach $item in $procMap
+| $procMap[$i].actionId | $procMap[$i].from | $procMap[$i].to | $procMap[$i].arrowType | $procMap[$i].action | $procMap[$i].comment |
+!$i = $i + 1
+!endfor
+end note
+!endprocedure
+
+!unquoted procedure actionBuilder()
+$actionObject.from $actionObject.arrowType $actionObject.to $actionObject.ll : $actionObject.action
+!endprocedure
+
+rq(from,"123",++,"ывап","1")
+rs(to,from,--,"2","2")
+rs(,,,"3","3")
+rq(,,,"","")
+
+showProcMap()
+
+@enduml

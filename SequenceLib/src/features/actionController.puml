@@ -10,7 +10,7 @@
 
 /'Проксиконтроллер - проверка наличия проксирующих вызовов'/
 !unquoted procedure proxyController($type, $initiator, $executor, $liveLine, $action, $comment)
-    !if $initiator != "" && $executor != ""
+    !if $executor != ""
         !$executorsList = %splitstr($executor, ",")
         !$i = 0
         !if $type == "rq"
