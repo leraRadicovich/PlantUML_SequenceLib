@@ -8,6 +8,8 @@ autonumber
 
 !$layer = 0
 !$id = 0
+!$proxyArrowType = {"->":"Проксирование запроса","-->":"Проксирование ответа"}
+!$arrowTypeForLegend = {"->":"rq","-->":"rs"}
 
 /'Объект: стрелка'/
 !$actionObject = {}
@@ -38,22 +40,24 @@ autonumber
     /'Копирование стрелки'/
     !elseif $from == "*"
         !$i = %intval($to) - 1
-        !$from = $procMap[$i].from
         !$to = $procMap[$i].to
+        !$from = $procMap[$i].from
+    /'Обработка проксирования'/
     !endif
 
-    /'Вызов контроллера и проверка проксирования'/
     !if $to != ""
         !$executorList = %splitstr($to, ",")
-        !$executorListSize = %size($executorList)
         !$ifFirst = 1
-        !foreach $item in $executorList
-            !if %not($ifFirst)
-                !$actionText = "Прокси"
+        !foreach $item in %splitstr($to, ",")
+            !if $ifFirst
+                !$to = $item
+                !$ifFirst = 0
+            !else
+                !$from = $to /'Еще не обновили значение $to, записываем его в $from'/
+                !$to = $item /'Обновили значение $to'/
+                !$actionText = $proxyArrowType[$arrowType]
             !endif
-            %invoke_procedure("actionController", $arrowType, $from, $item, $ll, $actionText, $comment)
-            !$ifFirst = 0
-            !$from = $item
+            %invoke_procedure("actionController", $arrowType, $from, $to, $ll, $actionText, $comment)
         !endfor
     !else
         %invoke_procedure("actionController", $arrowType, $from, $to, $ll, $actionText, $comment)
@@ -65,7 +69,7 @@ autonumber
 !unquoted procedure actionController($arrowType, $from, $to, $ll, $actionText, $comment)
     !$id = $id + 1
     %invoke_procedure("setContext", $arrowType, $from, $to, $ll, $actionText, $comment)
-    %invoke_procedure("setProcMap")
+    !$procMap = %json_add($procMap, $actionObject)
     %invoke_procedure("actionBuilder")
 !endprocedure
 
@@ -78,30 +82,34 @@ autonumber
     !$actionObject = %json_set($actionObject, actionText, $actionText)
     !$actionObject = %json_set($actionObject, comment, $comment)
     !$actionObject = %json_set($actionObject, layer, $layer)
-    '!dump_memory
-!endprocedure
-
-!unquoted procedure setProcMap()
-    !$procMap = %json_add($procMap, $actionObject)
+    !dump_memory
 !endprocedure
 
 !unquoted procedure showProcMap()
-    !$i = 0
     note across
     !foreach $item in $procMap
-        | $procMap[$i].actionId | $procMap[$i].from | $procMap[$i].to | $procMap[$i].arrowType | $procMap[$i].actionText | $procMap[$i].comment |
-        !$i = $i + 1
+| $item.actionId | $item.from | $item.to | $arrowTypeForLegend[$item.arrowType] | $item.actionText | $item.comment |
     !endfor
     end note
 !endprocedure
 
-!unquoted procedure actionBuilder()
+!unquoted procedure actionBuilder($objectId="")
+!if $objectId != ""
+    !$i = %intval($objectId) - 1
+    $procMap[$i].from $procMap[$i].arrowType $procMap[$i].to $procMap[$i].ll : $procMap[$i].actionText
+!endif
 $actionObject.from $actionObject.arrowType $actionObject.to $actionObject.ll : $actionObject.actionText
 !endprocedure
 
-rq(Валера, "lib, rtsa,asdf",++,"ывап","1")
-rs(,"sdfasdf,asdfasdf",,"","")
+rq(,Лена,++,"","")
 rs(,,,"","")
+rq(Лена,,--++,"Победа","1")
+rq(*,1,,"","")
+rs(Валера,"1,2,3",--++,"Текст","")
+rq(Лена,,,"","")
+
+
+
 
 
 showProcMap()
