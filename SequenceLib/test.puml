@@ -4,76 +4,81 @@
 diagramInit(draft, "test")
 '/
 
+autonumber
 
 !$layer = 0
 !$id = 0
 
-!$actionObject = {
-    "actionId" : "empty",
-    "arrowType" : "empty",
-    "from" : "empty",
-    "to" : "empty",
-    "ll" : "empty",
-    "action" : "empty",
-    "comment" : "empty",
-    "layer" : "empty"
-}
+/'Объект: стрелка'/
+!$actionObject = {}
 
+/'Список объектов - стрелок'/
 !$procMap = []
 
-
-!unquoted procedure rq($from, $to, $ll, $text, $comment)
-    %invoke_procedure("actionController", "->", $from, $to, $ll, $text, $comment)
+/'Интерфейс для отрисовки сплошной стрелки'/
+!unquoted procedure rq($from, $to, $ll, $actionText, $comment)
+    %invoke_procedure("inputValidator", "->", $from, $to, $ll, $actionText, $comment)
 !endprocedure
 
-!unquoted procedure rs($from, $to, $ll, $text, $comment)
-    %invoke_procedure("actionController", "-->", $from, $to, $ll, $text, $comment)
+/'Интерфейс для отрисовки пунктирной стрелки'/
+!unquoted procedure rs($from, $to, $ll, $actionText, $comment)
+    %invoke_procedure("inputValidator", "-->", $from, $to, $ll, $actionText, $comment)
 !endprocedure
 
-!unquoted procedure actionController($arrowType, $from, $to, $ll, $text, $comment)
-    !$id = $id + 1
-    %invoke_procedure("setContext", $arrowType, $from, $to, $ll, $text, $comment)
-    checkAutoResponse()
-    checkProxy()
-    setProcMap()
-    actionBuilder()
-!endprocedure
-
-!unquoted procedure checkAutoResponse()
-    !if $actionObject.from == "" && $actionObject.to == ""
-        !$i = $id - 2
-        !$actionObject = %json_set($actionObject, from, $procMap[$i].to)
-        !$actionObject = %json_set($actionObject, to, $procMap[$i].from)
+/'Валидатор данных для отрисовки стрелок'/
+!unquoted procedure inputValidator($arrowType, $from, $to, $ll, $actionText, $comment)
+    /'Автоответ'/
+    !if $from == "" && $to == ""
+        /'Т.к. объект еще не создан, $id хранит идентификатор предыдущей стрелки либо 0,
+        нумерация списков в plantUml начинается с 0, поэтому из $id вычитаем 1,
+        чтобы обратиться к последнему объекту в карте процесса'/
+        !$i = $id - 1
+        !$from = $procMap[$i].to
+        !$to = $procMap[$i].from
+    /'Копирование стрелки'/
+    !elseif $from == "*"
+        !$i = %intval($to) - 1
+        !$from = $procMap[$i].from
+        !$to = $procMap[$i].to
     !endif
-!endprocedure
 
-!unquoted procedure checkProxy()
-    !$executorList = %splitstr($actionObject.to, ",")
-    !$executorListSize = %size($executorList)
-    !$ifFirst = 1
-    !if $executorListSize > 1
+    /'Вызов контроллера и проверка проксирования'/
+    !if $to != ""
+        !$executorList = %splitstr($to, ",")
+        !$executorListSize = %size($executorList)
+        !$ifFirst = 1
         !foreach $item in $executorList
-            !if $ifFirst
-                %invoke_procedure("actionController", $actionObject.arrowType, $actionObject.from, $item, $actionObject.ll, $actionObject.text, $actionObject.comment)
-            !else
-                %invoke_procedure("actionController", $actionObject.arrowType, $actionObject.from, $item, $actionObject.ll, "Прокси", $actionObject.comment)
+            !if %not($ifFirst)
+                !$actionText = "Прокси"
             !endif
-            !$actionObject = %json_set($actionObject, from, $item)
+            %invoke_procedure("actionController", $arrowType, $from, $item, $ll, $actionText, $comment)
             !$ifFirst = 0
+            !$from = $item
         !endfor
+    !else
+        %invoke_procedure("actionController", $arrowType, $from, $to, $ll, $actionText, $comment)
     !endif
 !endprocedure
 
-!unquoted procedure setContext($arrowType, $from, $to, $ll, $text, $comment)
+/'Контроллер для отрисовки и сохранения в памяти стрелок,
+создает объект текущей стрелки, записывает его в карту процесса, рисует стрелку'/
+!unquoted procedure actionController($arrowType, $from, $to, $ll, $actionText, $comment)
+    !$id = $id + 1
+    %invoke_procedure("setContext", $arrowType, $from, $to, $ll, $actionText, $comment)
+    %invoke_procedure("setProcMap")
+    %invoke_procedure("actionBuilder")
+!endprocedure
+
+!unquoted procedure setContext($arrowType, $from, $to, $ll, $actionText, $comment)
     !$actionObject = %json_set($actionObject, actionId, $id)
     !$actionObject = %json_set($actionObject, arrowType, $arrowType)
     !$actionObject = %json_set($actionObject, from, $from)
     !$actionObject = %json_set($actionObject, to, $to)
     !$actionObject = %json_set($actionObject, ll, $ll)
-    !$actionObject = %json_set($actionObject, action, $text)
+    !$actionObject = %json_set($actionObject, actionText, $actionText)
     !$actionObject = %json_set($actionObject, comment, $comment)
     !$actionObject = %json_set($actionObject, layer, $layer)
-    !dump_memory
+    '!dump_memory
 !endprocedure
 
 !unquoted procedure setProcMap()
@@ -82,22 +87,22 @@ diagramInit(draft, "test")
 
 !unquoted procedure showProcMap()
     !$i = 0
-note across
-!foreach $item in $procMap
-| $procMap[$i].actionId | $procMap[$i].from | $procMap[$i].to | $procMap[$i].arrowType | $procMap[$i].action | $procMap[$i].comment |
-!$i = $i + 1
-!endfor
-end note
+    note across
+    !foreach $item in $procMap
+        | $procMap[$i].actionId | $procMap[$i].from | $procMap[$i].to | $procMap[$i].arrowType | $procMap[$i].actionText | $procMap[$i].comment |
+        !$i = $i + 1
+    !endfor
+    end note
 !endprocedure
 
 !unquoted procedure actionBuilder()
-$actionObject.from $actionObject.arrowType $actionObject.to $actionObject.ll : $actionObject.action
+$actionObject.from $actionObject.arrowType $actionObject.to $actionObject.ll : $actionObject.actionText
 !endprocedure
 
-rq(from,"123",++,"ывап","1")
-rs(to,from,--,"2","2")
-rs(,,,"3","3")
-rq(,,,"","")
+rq(Валера, "lib, rtsa,asdf",++,"ывап","1")
+rs(,"sdfasdf,asdfasdf",,"","")
+rs(,,,"","")
+
 
 showProcMap()
 
