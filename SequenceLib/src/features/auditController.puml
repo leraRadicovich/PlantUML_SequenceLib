@@ -66,6 +66,7 @@
     !$temp = %json_add($temp, "status", $status)
     !$temp = %json_add($temp, "source", $source)
     !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !$techId = $techId + 1
     !endif
 !endprocedure
 

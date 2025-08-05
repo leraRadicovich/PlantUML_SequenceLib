@@ -71,7 +71,7 @@ $partyType "$name" as $alias
             !return $field.name
         !endif
     !endfor
-    !dump_memory
+
 !end function
 
 /'Процедура для проверки алиаса и автоопределения участников'/
@@ -180,5 +180,6 @@ end box
 !$temp = %json_add($temp, "color", $color)
 !$temp = %json_add($temp, "parties", $parties)
 !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+!$techId = $techId + 1
 !dump_memory
 !endprocedure

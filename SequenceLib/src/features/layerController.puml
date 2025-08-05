@@ -106,5 +106,6 @@ $type
     !$temp = %json_add($temp, "color", $color)
     !$temp = %json_add($temp, "description", $description)
     !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !$techId = $techId + 1
     !endif
 !endprocedure

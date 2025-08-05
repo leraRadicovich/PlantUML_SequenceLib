@@ -80,7 +80,7 @@ end legend
     !if $item.executor != ""
         !$to = getNameByAlias($item.executor)
     !endif
-| $item.id | $from | $to | $arrowForLegend[$item.subtype] | $item.layer | $item.action | $item.comment |
+| $item.id | $from | $to | $arrowForLegend[$item.subtype] | /'$item.layerId'/ | $item.action | $item.comment |
     !endfor
 !endprocedure
 

@@ -84,8 +84,8 @@ deactivate $value
     !if $diagramMode == "final"
     !$temp = {}
     !$temp = %json_add($temp, "type", $type)
-    !$temp = %json_add($temp, "layerId", $layerId)
     !$temp = %json_add($temp, "value", $value)
     !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !$techId = $techId + 1
     !endif
 !endprocedure

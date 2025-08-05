@@ -1,11 +1,13 @@
 @startuml
 !include C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v4.puml
-diagramInit(final,"", VPatrushev)
+diagramInit(draft,"asdf", )
 
+rq(Илья,"Алена,Андрей,Валера",++,"хантинг","")
 
-rq(,"Лена,Саша",++,"фывафыав","фыафывафыав")
+ALT(orange,"тест")
+note across:$linkOnOriginalSyntaxMap
+END()
 rs(,,,"","")
-rq(,Валера,,"","")
-rs(*,1,,"","")
+rq(ase,"Саша",++,"фывафыав","фыафывафыав")
 ORIGINAL()
 @enduml

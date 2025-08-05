@@ -1,27 +1,29 @@
 @startuml
 /'Интерфейс для отрисовки сплошной стрелки'/
 !unquoted procedure rq($initiator, $executor, $liveLine, $action, $comment)
-    %invoke_procedure("inputValidaexecutorr", "->", $initiator, $executor, $liveLine, $action, $comment)
+    %invoke_procedure("inputValidator", "->", $initiator, $executor, $liveLine, $action, $comment)
 !endprocedure
 
 /'Интерфейс для отрисовки пунктирной стрелки'/
 !unquoted procedure rs($initiator, $executor, $liveLine, $action, $comment)
-    %invoke_procedure("inputValidaexecutorr", "-->", $initiator, $executor, $liveLine, $action, $comment)
+    %invoke_procedure("inputValidator", "-->", $initiator, $executor, $liveLine, $action, $comment)
 !endprocedure
 
 /'Валидатор данных для отрисовки стрелок'/
-!unquoted procedure inputValidaexecutorr($arrow, $initiator, $executor, $liveLine, $action, $comment)
+!unquoted procedure inputValidator($arrow, $initiator, $executor, $liveLine, $action, $comment)
     /'Автоответ'/
     !if $initiator == "" && $executor == ""
         /'Т.к. объект еще не создан, $id хранит идентификатор предыдущей стрелки либо 0,
         нумерация списков в plantUml начинается с 0, поэтому из $id вычитаем 1,
         чтобы обратиться к последнему объекту в карте процесса'/
         !$i = $id - 1
+        !$i = $linkOnOriginalSyntaxMap[$i]
         !$initiator = $originalSyntaxMap[$i].executor
         !$executor = $originalSyntaxMap[$i].initiator
     /'Копирование стрелки'/
     !elseif $initiator == "*"
         !$i = %intval($executor) - 1
+        !$i = $linkOnOriginalSyntaxMap[$i]
         !$executor = $originalSyntaxMap[$i].executor
         !$initiator = $originalSyntaxMap[$i].initiator
     /'Обработка проксирования'/
@@ -51,7 +53,6 @@
 создает объект текущей стрелки, записывает его в карту процесса, рисует стрелку'/
 !unquoted procedure actionController($arrow, $initiator, $executor, $liveLine, $action, $comment)
     !$id = $id + 1
-
     /'Проверка переданных алиасов'/
     !if $initiator != ""
         %invoke_procedure("aliasCheck", $initiator)
@@ -63,6 +64,8 @@
 
     %invoke_procedure("setContext", $arrow, $initiator, $executor, $liveLine, $action, $comment)
     !$originalSyntaxMap = %json_add($originalSyntaxMap, $actionObject)
+    !$techId = $techId + 1
+    !$linkOnOriginalSyntaxMap = %json_add($linkOnOriginalSyntaxMap, $techId)
     %invoke_procedure("actionBuilder",$arrow, $initiator, $executor, $liveLine, $action)
 !endprocedure
 
@@ -70,14 +73,14 @@
     !$actionObject = %json_set($actionObject, id, $id)
     !$actionObject = %json_set($actionObject, initiator, $initiator)
     !$actionObject = %json_set($actionObject, executor, $executor)
-    !if $diagramMode == "final"
+    /'!if $diagramMode == "final"'/
         !$actionObject = %json_set($actionObject, type, "action")
         !$actionObject = %json_set($actionObject, subtype, $arrow)
         !$actionObject = %json_set($actionObject, liveLine, $liveLine)
         !$actionObject = %json_set($actionObject, action, $action)
         !$actionObject = %json_set($actionObject, comment, $comment)
         !$actionObject = %json_set($actionObject, layerId, $layerId)
-    !endif
+    /'!endif'/
     !dump_memory
 !endprocedure
 
