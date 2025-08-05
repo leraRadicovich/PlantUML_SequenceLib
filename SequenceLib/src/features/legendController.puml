@@ -3,29 +3,20 @@
 !unquoted procedure LEGEND()
 legend
 /'Карта процесса драфт'/
-Карта процесса (полная)
+Карта процесса
 ====
-$processMapFull
-!if $deviderEnabled == 1
+$processMapHead
+!if $deviderEnabled
 tableDevider(6)
 !endif
-%invoke_procedure("procMapBuilder", "full")
-/'Карта процесса ПроПро'/
-
-/'Карта процесса (для ПроПро) - раскомментировать при необходимости
-====
-$processMapProPro
-!if $deviderEnabled == 1
-tableDevider(7)
-!endif
-%invoke_procedure("procMapBuilder", "draft")
+%invoke_procedure("procMapBuilder")
 
 /'Список доработок'/
 !if %size($todoMap)>0
 Список доработок
 ====
 $todoList
-!if $deviderEnabled == 1
+!if $deviderEnabled
 tableDevider(2)
 !endif
 %invoke_procedure("todoRawBuilder")
@@ -36,7 +27,7 @@ tableDevider(2)
 Новые события аудита
 ====
 $auditTable
-!if $deviderEnabled == 1
+!if $deviderEnabled
 tableDevider(8)
 !endif
 %invoke_procedure("auditLegendBuilder")
@@ -47,7 +38,7 @@ tableDevider(8)
 Новые параметры
 ====
 $configTable
-!if $deviderEnabled == 1
+!if $deviderEnabled
 tableDevider(5)
 !endif
 %invoke_procedure("configRawBuilder")
@@ -58,7 +49,7 @@ tableDevider(5)
 Новые ошибки
 ====
 $errorTable
-!if $deviderEnabled == 1
+!if $deviderEnabled
 tableDevider(10)
 !endif
 %invoke_procedure("errorRawBuilder")
@@ -69,7 +60,7 @@ tableDevider(10)
 Новые метрики
 ====
 $metricTable
-!if $deviderEnabled == 1
+!if $deviderEnabled
 tableDevider(2)
 !endif
 %invoke_procedure("metricRawBuilder")
@@ -79,21 +70,17 @@ end legend
 !endprocedure
 
 /'Построение строки карты процесса'/
-!unquoted procedure procMapBuilder($mode)
+!unquoted procedure procMapBuilder()
     !$from = ""
     !$to = ""
-    !foreach $item in $processMap
+    !foreach $item in $originalSyntaxMap
     !if $item.initiator != ""
         !$from = getNameByAlias($item.initiator)
     !endif
     !if $item.executor != ""
         !$to = getNameByAlias($item.executor)
     !endif
-    !if $mode == full
-| $item.id | $from | $to | $item.type | $item.layer | $item.action | $item.comment |
-    !else
-| $item.id |  | $from | $to | $item.type | $item.comment | | $item.action |
-    !endif
+| $item.id | $from | $to | $arrowForLegend[$item.subtype] | $item.layer | $item.action | $item.comment |
     !endfor
 !endprocedure
 

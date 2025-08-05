@@ -1,15 +1,11 @@
 @startuml
-!unquoted procedure ORIGINAL()
-    %invoke_procedure("originalSyntaxController")
-!endprocedure
-
 /'Построение диаграммы в оригинальном синтаксисе'/
-!unquoted procedure originalSyntaxController()
+!unquoted procedure ORIGINAL()
 !$deviderEnabled = 1
-!if $diagramMode == "draft"
-!assert Генерация диаграммы в оригинальном синтаксисе доступна в режиме final
-!endif
 note across
+!if $diagramMode == "draft"
+** Генерация диаграммы в оригинальном синтаксисе доступна в режиме final **
+!else
 /'Cтарт и стиль'/
 %string("@"+"startuml")
 
@@ -34,7 +30,7 @@ header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $ori
 !endif
     /'Стрелки'/
 !if $item.type == "action"
-tabController($item.layerId)%invoke_procedure("actionBuilder", $item.initiator, $item.executor, $item.liveLine, $item.action, $item.subtype)
+tabController($item.layerId)%invoke_procedure("actionBuilder", $item.subtype, $item.initiator, $item.executor, $item.liveLine, $item.action)
 !endif
     /'Слои'/
 !if $item.type == "layer"
@@ -66,5 +62,6 @@ tabController($item.layerId)%invoke_procedure("commonBuilder", $item.type, $item
 %invoke_procedure("LEGEND")
 /'Конец диаграммы'/
 %string("@"+"enduml")
+!endif
 end note
 !endprocedure

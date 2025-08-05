@@ -4,6 +4,9 @@
 %invoke_procedure("partiesController", $partyType, $name, $alias, $order)
 !endprocedure
 
+
+
+
 /'Процедура для обработки логики построения участников'/
 !unquoted procedure partiesController($partyType, $name, $alias, $order)
     !$iterationCheck = 0
@@ -54,13 +57,12 @@
 
 /'Процедура для отрисовка участника'/
 !unquoted procedure partiesBuilder($partyType, $name="", $alias="", $order="")
-    !$ord = ""
     !if $order != ""
-        !$ord = "order " + $order
+$partyType "$name" as $alias order $order
+    !else
+$partyType "$name" as $alias
     !endif
-$partyType "$name" as $alias $ord
 !endprocedure
-
 
 /'Процедура получения имени по алиасу'/
 !unquoted function getNameByAlias($alias)
@@ -114,6 +116,10 @@ $partyType "$name" as $alias $ord
 !dump_memory
 !endprocedure
 
+
+
+
+
 /'Процедура объединения участников в боксы'/
 !unquoted procedure BOX($name, $color, $parties)
 !$partiesToPaint = %splitstr($parties, ",")
@@ -137,6 +143,8 @@ end box
 !dump_memory
 !endprocedure
 
+
+
 !unquoted procedure tagPartiesFromBoxInCurrentAliasMap($parties)
     !$partiesToPaint = %splitstr($parties, ",")
     !$i = 0
@@ -157,6 +165,12 @@ end box
     !$i = $i + 1
     !endfor
 !endprocedure
+
+
+
+
+
+
 
 /'Сохранение данных для построения диаграммы в оригинальном синтаксисе'/
 !unquoted procedure setOriginalBox($name, $color, $parties)
