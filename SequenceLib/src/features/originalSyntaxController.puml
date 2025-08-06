@@ -25,7 +25,6 @@ header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $ori
 /'Боксы'/
 !foreach $item in $originalSyntaxMap
 !if $item.type == "box"
-
 %invoke_procedure("BOX", $item.name, $item.color, $item.parties)
 !endif
     /'Стрелки'/

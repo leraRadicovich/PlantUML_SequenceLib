@@ -9,6 +9,8 @@
     !$bufferVar = $bufferVar + $text
 !endprocedure
 
+/'Формирование новых строк для таблицы с событиями аудита'/
+/'TODO Пересмотреть необходимость этой процедуры'/
 !unquoted procedure arrayNewLine($array)
     !$bufferVar = ""
     !$i = %size($array)
@@ -21,17 +23,6 @@
     !$bufferVar = $bufferVar + " " + $field + $newString
     !endfor
 !end procedure
-
-!unquoted function tableDevider($int)
-    !$result = "|"
-    !$i = 0
-!while $i != $int
-    !$i = $i + 1
-    !$result = $result + "---|"
-!endwhile
-    !$result = $result + "---|"
-!return $result
-!end function
 
 /'Обработчик передаваемых в процедуры цветов'/
 !unquoted function colorController($color="")

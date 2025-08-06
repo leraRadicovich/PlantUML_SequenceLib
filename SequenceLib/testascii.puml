@@ -1,0 +1,63 @@
+@startuml                                                                                                          ░
+
+autonumber
+skinparam dpi 70
+skinparam maxMessageSize 200
+skinparam backgroundColor LightGray
+skinparam sequence {
+ArrowColor blue
+ActorBorderColor blue
+LifeLineBorderColor blue
+LifeLineBackgroundColor #White
+ParticipantBorderColor blue
+ParticipantBackgroundColor DodgerBlue
+ParticipantFontName Impact
+ParticipantFontSize 17
+ParticipantFontColor #A9DCDF
+ActorBackgroundColor DodgerBlue
+ActorFontColor DeepSkyBlue
+ActorFontSize 17
+ActorFontName Aapex
+}
+
+title Диаграмма: <color:blue>asdf
+header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR \n<color:black>Author: <color:blue>PVR
+
+participant "Илья" as Илья order 1
+participant "Алена" as Алена order 2
+participant "Андрей" as Андрей order 3
+participant "Валера" as Валера order 4
+participant "Саша" as Саша order 5
+activate Илья
+
+
+Илья -> Алена ++: хантинг
+Алена -> Андрей ++: Проксирование запроса
+Андрей -> Валера ++: Проксирование запроса
+alt #orange sadf
+    Валера --> Андрей :
+end
+
+Андрей --> Валера :
+note across :
+
+ -> Саша ++: фывафыав
+legend
+Карта процесса
+====
+| Код | ИC-инициатор | ИС-исполнитель | Тип взаимодействия | Тип сценария | Метод API/ Действие | Описание |
+|--|--|--|--|--|--|--|
+| 1 | Илья | Алена | rq | 0 | хантинг |  |
+| 2 | Алена | Андрей | rq | 0 | Проксирование запроса |  |
+| 3 | Андрей | Валера | rq | 0 | Проксирование запроса |  |
+| 4 | Валера | Андрей | rs | 1 |  |  |
+| 5 | Андрей | Валера | rs | 0 |  |  |
+| 6 | Андрей | Саша | rq | 0 | фывафыав | фыафывафыав |
+
+Список доработок
+====
+| № | id обнаружения | Суть доработки|
+|--|--|--|
+| 1 | 5 | <color:blue>05.08.2025:</color>  |
+end legend
+@enduml

@@ -73,14 +73,14 @@
     !$actionObject = %json_set($actionObject, id, $id)
     !$actionObject = %json_set($actionObject, initiator, $initiator)
     !$actionObject = %json_set($actionObject, executor, $executor)
-    /'!if $diagramMode == "final"'/
+    !if $diagramMode == "final"
         !$actionObject = %json_set($actionObject, type, "action")
         !$actionObject = %json_set($actionObject, subtype, $arrow)
         !$actionObject = %json_set($actionObject, liveLine, $liveLine)
         !$actionObject = %json_set($actionObject, action, $action)
         !$actionObject = %json_set($actionObject, comment, $comment)
         !$actionObject = %json_set($actionObject, layerId, $layerId)
-    /'!endif'/
+    !endif
     !dump_memory
 !endprocedure
 
