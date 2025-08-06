@@ -3,14 +3,25 @@
 diagramInit(final,"asdf", )
 ACTIVATE(Илья)
 rq(Илья,"Алена,Андрей,Валера",++,"хантинг","")
-ALT(orange,"sadf")
-rs(,,,"","")
-END()
-rs(,,,"","")
-NOTE(,,,"")
-todo("<color:blue>05.08.2025:</color> ")
-rq(,"Саша",++,"фывафыав","фыафывафыав")
 
+rs(,,,"","")
+!$x=1
+
+ALT(,"")
+
+rq(*,4,,"","")
+OPT(,"")
+NOTE(,,azure,"Check tab")
+rq(*,4,,"","")
+ELSE(,"")
+
+rq(*,5,,"","")
+END()
+
+END()
+
+rq(*,5,,"","")
+note across:$layerMap[$x]
 LEGEND()
 ORIGINAL()
 @enduml

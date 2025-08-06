@@ -29,32 +29,32 @@ header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $ori
 !endif
     /'Стрелки'/
 !if $item.type == "action"
-tabController($item.layerId)%invoke_procedure("actionBuilder", $item.subtype, $item.initiator, $item.executor, $item.liveLine, $item.action)
+$tabMap[$item.layerId]%invoke_procedure("actionBuilder", $item.subtype, $item.initiator, $item.executor, $item.liveLine, $item.action)
 !endif
     /'Слои'/
 !if $item.type == "layer"
-tabController($item.layerId)%invoke_procedure("layerBuilder", $item.subtype, $item.color, $item.description)
+$tabMap[$item.layerId]%invoke_procedure("layerBuilder", $item.subtype, $item.color, $item.description)
 !endif
     /'Заметки'/
 !if $item.type == "noteAndRef"
 !if $item.subtype == "note"
 !$color = colorController($item.color)
-tabController($item.layerId)%invoke_procedure("noteBuilder", $item.subtype, $item.position1, $item.position2, $color, $item.description)
+$tabMap[$item.layerId]%invoke_procedure("noteBuilder", $item.subtype, $item.position1, $item.position2, $color, $item.description)
 !else
 !$subtype = $item.subtype
 !$color = colorController($item.color)
 !$subtype = "ref" + $color
 !$color = ""
-tabController($item.layerId)%invoke_procedure("refBuilder", $subtype, $item.position1, $item.position2, $color, $item.description)
+$tabMap[$item.layerId]%invoke_procedure("refBuilder", $subtype, $item.position1, $item.position2, $color, $item.description)
 !endif
 !endif
     /'Аудит'/
 !if $item.type == "audit"
-tabController($item.layerId)%invoke_procedure("auditBuilder", $item.name, $item.status, $item.source)
+$tabMap[$item.layerId]%invoke_procedure("auditBuilder", $item.name, $item.status, $item.source)
 !endif
     /'Общие функции'/
 !if $item.type == "activate" || $item.type == "deactivate" || $item.type == "separator"
-tabController($item.layerId)%invoke_procedure("commonBuilder", $item.type, $item.value)
+$tabMap[$item.layerId]%invoke_procedure("commonBuilder", $item.type, $item.value)
 !endif
 !endfor
 /'Легенда'/
