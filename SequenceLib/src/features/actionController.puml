@@ -11,6 +11,7 @@
 
 /'Валидатор данных для отрисовки стрелок'/
 !unquoted procedure inputValidator($arrow, $initiator, $executor, $liveLine, $action, $comment)
+    /'TODO Переписать - исключить запуск контроллера из двух мест'/
     /'Автоответ'/
     !if $initiator == "" && $executor == ""
         /'Т.к. объект еще не создан, $id хранит идентификатор предыдущей стрелки либо 0,
@@ -70,6 +71,7 @@
 !endprocedure
 
 !unquoted procedure setContext($arrow, $initiator, $executor, $liveLine, $action, $comment)
+    /'TODO: Переписать - нужно реализовать объект-справочник id:{стрелка}, и записывать с originalSyntaxMap ссылку на поле справочника'/
     !$actionObject = %json_set($actionObject, id, $id)
     !$actionObject = %json_set($actionObject, initiator, $initiator)
     !$actionObject = %json_set($actionObject, executor, $executor)
