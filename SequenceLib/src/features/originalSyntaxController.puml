@@ -3,9 +3,7 @@
 !unquoted procedure ORIGINAL()
 !$deviderEnabled = 1
 note across
-!if $diagramMode == "draft"
-** Генерация диаграммы в оригинальном синтаксисе доступна в режиме final **
-!else
+!if $diagramMode == "final"
 /'Cтарт и стиль'/
 %string("@"+"startuml")
 
@@ -61,6 +59,8 @@ $tabMap[$item.layerId]%invoke_procedure("commonBuilder", $item.type, $item.value
 %invoke_procedure("LEGEND")
 /'Конец диаграммы'/
 %string("@"+"enduml")
+!else
+** Генерация диаграммы в оригинальном синтаксисе доступна в режиме final **
 !endif
 end note
 !endprocedure

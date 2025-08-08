@@ -10,7 +10,7 @@
 !endprocedure
 
 /'Формирование новых строк для таблицы с событиями аудита'/
-/'TODO Пересмотреть необходимость этой процедуры'/
+/'TODO Переписать процедуру - она должно параметры аудита построчно в таблице приводить'/
 !unquoted procedure arrayNewLine($array)
     !$bufferVar = ""
     !$i = %size($array)
@@ -54,19 +54,6 @@ $item
 !$success = "**<size:20><color:green><&circle-check></color>**"
 !$error = "**<size:20><color:red><&circle-x></color>**"
 !$end = "**<size:20><color:red><&x></color>**"
-
-!unquoted procedure checkLibMode($mode)
-    !$i = 0
-    !foreach $item in $libMode
-        !if $mode == $item
-            !$i = $i + 1
-        !endif
-    !endfor
-
-    !if $i == 0
-!assert Некорректный режим работы, указан не draft/ final
-    !endif
-!endprocedure
 
 /'Определение отступа'/
 !unquoted function tabController($x)

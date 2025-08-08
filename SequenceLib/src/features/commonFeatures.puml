@@ -4,7 +4,6 @@
     !$diagramMode = $mode
     !$sequenceName = $name
     %invoke_procedure("styleController")
-    %invoke_procedure("checkLibMode",$mode)
     /'Выбор режима работы библиотеки'/
     !if $diagramMode == "draft"
         !$on = "выключена"
