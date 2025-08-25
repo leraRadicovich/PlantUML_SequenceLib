@@ -1,7 +1,19 @@
 @startuml
-!include customAliasMap.puml
-!include customAuditMap.puml
-!include customConfigMap.puml
-!include customMetricMap.puml
-!include customErrorMap.puml
-!include partyTypes.puml
+'!include C:\Users\valik\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\enviroment\ParametersAndSwitchers.puml
+
+/'Разделение логики между версиями'/
+!if %variable_exists("$majorVersion") == 1
+    !include major5/customAliasMap.puml
+    !include major5/customAuditMap.puml
+    !include major5/customConfigMap.puml
+    !include major5/customMetricMap.puml
+    !include major5/customErrorMap.puml
+    !include major5/partyTypes.puml
+!else
+    !include oldVer/customAliasMap.puml
+    !include oldVer/customAuditMap.puml
+    !include oldVer/customConfigMap.puml
+    !include oldVer/customMetricMap.puml
+    !include oldVer/customErrorMap.puml
+    !include oldVer/partyTypes.puml
+!endif

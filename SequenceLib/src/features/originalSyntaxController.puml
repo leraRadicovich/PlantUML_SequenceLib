@@ -60,7 +60,7 @@ $tabMap[$item.layerId]%invoke_procedure("commonBuilder", $item.type, $item.value
 /'Конец диаграммы'/
 %string("@"+"enduml")
 !else
-** Генерация диаграммы в оригинальном синтаксисе доступна в режиме final **
+Генерация диаграммы в оригинальном синтаксисе доступна в режиме **final**
 !endif
 end note
 !endprocedure

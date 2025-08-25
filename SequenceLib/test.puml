@@ -1,33 +1,7 @@
 @startuml
-!$customMap = {
-    "user" : {
-        "type": "actor",
-        "name": "Пользователь"
-    },
-    "srv" : { "type": "participant",
-      "name": "Ваш сервис",
-      "order": "0"
-    },
-    "srv2" : { "type": "participant",
-      "name": "Смежный сервис",
-      "order": "20"
-    }
-}
-
-a -> b : asdf
-
-/'размышления на aliasCheck'/
-!unquoted procedure $testj($x, $type, $name)
-!if %json_key_exists($customMap, $x) == 1
-note across: good
-!else
-!$temp = {}
-!$temp = %json_add($temp, type, $type)
-!$temp = %json_add($temp, name, $name)
-!$customMap = %json_add($customMap, $x, $temp)
-note across: готово\n $customMap
-!endprocedure
-
-$testj(kafka, queue, очередь)
+!include C:\Users\valik\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v4.puml
+diagramInit(draft, sdaf)
+rq(user,"srv3,rabbit,user",,"","")
+ORIGINAL()
 
 @enduml
