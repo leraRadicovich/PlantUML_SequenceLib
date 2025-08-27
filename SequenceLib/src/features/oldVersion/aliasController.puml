@@ -1,0 +1,185 @@
+@startuml
+/'Вспомогательная процедура отрисовки участников: формирует мапу имя:алиас'/
+!unquoted procedure parties($partyType, $name="", $alias="", $order="")
+%invoke_procedure("partiesController", $partyType, $name, $alias, $order)
+!endprocedure
+
+
+
+
+/'Процедура для обработки логики построения участников'/
+!unquoted procedure partiesController($partyType, $name, $alias, $order)
+    !$iterationCheck = 0
+    /'Проверка переданного типа: из пользовательской библиотеки или новый участник'/
+    !foreach $item in $defaultTypes
+        !if $partyType == $item
+            !$iterationCheck = $iterationCheck + 1
+        !endif
+    !endfor
+    /'Проверка уникальности алиаса добавляемого участника'/
+    !$uniqueCheck = 0
+    !foreach $item in $currentAliasMap
+    !if $alias == $item.alias
+        !$uniqueCheck = $uniqueCheck + 1
+    !endif
+    !endfor
+    /'Если тип дефолтный и алиас уникальный - рисуем нового, иначе вызываем проверку переданного в типе алиаса'/
+    !if $iterationCheck > 0 && $uniqueCheck == 0
+%invoke_procedure("partiesBuilder", $partyType, $name, $alias, $order)
+%invoke_procedure("currentAliasMapBuilder", $partyType, $name, $alias, $order)
+    !else
+        !if $name != ""
+            !assert Некорректный тип участника, либо не уникальный алиас
+        !endif
+        !$partiesList = ""
+        !$partiesList = %splitstr($partyType, ",")
+!foreach $party in $partiesList
+%invoke_procedure("aliasCheck", $party)
+!endfor
+    !endif
+!endprocedure
+
+/'Процедура для формирования составка участников текущей диаграммы'/
+!unquoted procedure currentAliasMapBuilder($partyType, $name="", $alias="", $order="")
+    !$temp = {}
+    !$temp = %json_add($temp, type, $partyType)
+    !$temp = %json_add($temp, name, $name)
+    !if $alias != ""
+        !$temp = %json_add($temp, alias, $alias)
+    !endif
+    !if $order == ""
+        !$orderId = $orderId + 1
+        !$order = $orderId
+    !endif
+    !$temp = %json_add($temp, order, $order)
+    !$currentAliasMap = %json_add($currentAliasMap, $temp)
+!endprocedure
+
+/'Процедура для отрисовка участника'/
+!unquoted procedure partiesBuilder($partyType, $name="", $alias="", $order="")
+    !if $order != ""
+$partyType "$name" as $alias order $order
+    !else
+$partyType "$name" as $alias
+    !endif
+!endprocedure
+
+/'Процедура получения имени по алиасу'/
+!unquoted function getNameByAlias($alias)
+    !foreach $field in $currentAliasMap
+        !if $alias == $field.alias
+            !return $field.name
+        !endif
+    !endfor
+
+!end function
+
+/'Процедура для проверки алиаса и автоопределения участников'/
+!unquoted procedure aliasCheck($alias)
+    !$iterationCurrentAliasMapCheckCount = 0
+    !$iterationCustomAliasMapCheckCount = 0
+    /'Ищем в составе участников текущей диаграммы'/
+    !foreach $item in $currentAliasMap
+        !if $alias == $item.alias
+            !$iterationCurrentAliasMapCheckCount = $iterationCurrentAliasMapCheckCount + 1
+        !endif
+    !endfor
+    /'Ищем в пользовательской библиотеке участников'/
+    !if $iterationCurrentAliasMapCheckCount == 0
+        !foreach $item in $customAliasMap
+            !if $alias == $item.alias
+                !$iterationCustomAliasMapCheckCount = $iterationCustomAliasMapCheckCount + 1
+%invoke_procedure("partiesBuilder", $item.type, $item.name, $item.alias, $item.order)
+%invoke_procedure("currentAliasMapBuilder", $item.type, $item.name, $item.alias, $item.order)
+            !endif
+        !endfor
+    !endif
+    /'Логика обработки результатов поиска'/
+    !if $iterationCurrentAliasMapCheckCount == 0 && $iterationCustomAliasMapCheckCount == 0
+        !$partyType = ""
+        !$name = ""
+        /'Автоопределение типа: редис, кака и тд'/
+        !foreach $item in $partyTypes
+            !$xpos = %strpos($alias, $item.item)
+            !if $xpos == 0 || $xpos > 0
+                !$partyType = $item.type
+            !endif
+        !endfor
+        /'Делаем первую букву заглавной'/
+        !$name = %upper(%substr($alias,0,1)) + %substr($alias,1)
+        !if $partyType == ""
+            !$partyType = "participant"
+        !endif
+%invoke_procedure("partiesBuilder", $partyType, $name, $alias)
+%invoke_procedure("currentAliasMapBuilder", $partyType, $name, $alias)
+    !endif
+!dump_memory
+!endprocedure
+
+
+
+
+
+/'Процедура объединения участников в боксы'/
+!unquoted procedure BOX($name, $color, $parties)
+!$partiesToPaint = %splitstr($parties, ",")
+!$colorToBuild = colorController($color)
+box $name $colorToBuild
+    !foreach $item in $partiesToPaint
+        !foreach $field in $currentAliasMap
+            !if $item == $field.alias
+    %invoke_procedure("partiesBuilder", $field.type, $field.name, $field.alias, $field.order)
+!$partiesToPaint = %json_remove($partiesToPaint, $item)
+            !endif
+        !endfor
+    !endfor
+    !foreach $item in $partiesToPaint
+%invoke_procedure("parties",$item)
+!$partiesToPaint = %json_remove($partiesToPaint, $item)
+    !endfor
+end box
+%invoke_procedure("setOriginalBox", $name, $color, $parties)
+%invoke_procedure("tagPartiesFromBoxInCurrentAliasMap",$parties)
+!dump_memory
+!endprocedure
+
+
+
+!unquoted procedure tagPartiesFromBoxInCurrentAliasMap($parties)
+    !$partiesToPaint = %splitstr($parties, ",")
+    !$i = 0
+    !foreach $item in $currentAliasMap
+        !foreach $field in $partiesToPaint
+            !if $field == $item.alias
+                !$temp = {}
+                !$temp = %json_add($temp, type, $item.type)
+                !$temp = %json_add($temp, name, $item.name)
+                !$temp = %json_add($temp, alias, $item.alias)
+                !if $order != ""
+                !$temp = %json_add($temp, order, $item.order)
+                !endif
+                !$temp = %json_add($temp, box, 1)
+                !$currentAliasMap = %json_set($currentAliasMap, $i, $temp)
+            !endif
+        !endfor
+    !$i = $i + 1
+    !endfor
+!endprocedure
+
+
+
+
+
+
+
+/'Сохранение данных для построения диаграммы в оригинальном синтаксисе'/
+!unquoted procedure setOriginalBox($name, $color, $parties)
+!$temp = {}
+!$temp = %json_add($temp, "type", "box")
+!$temp = %json_add($temp, "name", $name)
+!$temp = %json_add($temp, "color", $color)
+!$temp = %json_add($temp, "parties", $parties)
+!$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+!$techId = $techId + 1
+!dump_memory
+!endprocedure

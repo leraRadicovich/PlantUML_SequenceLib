@@ -5,12 +5,13 @@
     !$sequenceName = $name
     %invoke_procedure("styleController")
     /'Выбор режима работы библиотеки'/
-    !if $diagramMode == "draft"
-        !$on = "выключена"
+    !if $diagramMode != "final"
+        !$on = "\n Режим: <color:blue>draft</color>; Генерация кода в оригинальном синтаксисе: <color:blue>**выключена**"
     !else
-        !$on = "включена"
+        !$on = ""
     !endif
-title Диаграмма: <color:blue>$sequenceName\n Режим: <color:blue>$mode</color>; Генерация кода в оригинальном синтаксисе: <color:blue>**$on**
+
+title Диаграмма: <color:blue>$sequenceName $on
     %invoke_procedure("setAuthorInTitle",$by)
 !endprocedure
 

@@ -1,0 +1,92 @@
+@startuml
+/'Процедура инициации режима работы библиотеки'/
+!unquoted procedure diagramInit($mode, $name="", $by="")
+    !$diagramMode = $mode
+    !$sequenceName = $name
+    %invoke_procedure("styleController")
+    /'Выбор режима работы библиотеки'/
+    !if $diagramMode != "final"
+        !$on = "\n Режим: <color:blue>draft</color>; Генерация кода в оригинальном синтаксисе: <color:blue>**выключена**"
+    !else
+        !$on = ""
+    !endif
+
+title Диаграмма: <color:blue>$sequenceName $on
+    %invoke_procedure("setAuthorInTitle",$by)
+!endprocedure
+
+/'Установка автора диаграммы'/
+!unquoted procedure setAuthorInTitle($by)
+    !global $originalBy = ""
+    !if $by != ""
+        !$originalBy = "\n<color:black>Author: <color:blue>" + $by
+    !else
+        !if %variable_exists("$author")
+            !$originalBy = "\n<color:black>Author: <color:blue>" + $author
+        !else
+            !$originalBy = ""
+        !endif
+    !endif
+    header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $originalBy
+!endprocedure
+
+/'Интерфейс для активации линии жизни'/
+!unquoted procedure ACTIVATE($value="")
+    !$commonType = "activate"
+    %invoke_procedure("activationDeactivationController", $value,$commonType)
+!endprocedure
+
+/'Интерфейс для деактивации линии жизни'/
+!unquoted procedure DEACTIVATE($value="")
+    !$commonType = "deactivate"
+    %invoke_procedure("activationDeactivationController", $value,$commonType)
+!endprocedure
+
+/'Процедура контроллер активации/деактивации линии жизни'/
+!unquoted procedure activationDeactivationController($value="",$commonType)
+    !$partiesList = ""
+    !$partiesList = %splitstr($value, ",")
+!foreach $party in $partiesList
+%invoke_procedure("aliasCheck", $party)
+%invoke_procedure("commonBuilder", $commonType, $party)
+%invoke_procedure("setOriginalSyntaxCommon", $commonType, $party)
+!endfor
+!endprocedure
+
+/'Процедура, создающая и запоминающая идентификатор - якорь'/
+!unquoted procedure anchor($name)
+    %set_variable_value($name,$id)
+!end procedure
+
+/'Процедура разделитель'/
+!unquoted procedure SEPARATOR($value="")
+    !$commonType = "separator"
+    %invoke_procedure("commonBuilder", $commonType, $value)
+    %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
+!endprocedure
+
+!unquoted procedure commonBuilder($commonType, $value)
+!if $commonType == "activate"
+activate $value
+!endif
+
+!if $commonType == "deactivate"
+deactivate $value
+!endif
+
+!if $commonType == "separator"
+== $value ==
+!endif
+!endprocedure
+
+/'Сохранение для генерации диаграммы в оригинальном синтаксисе'/
+!unquoted procedure setOriginalSyntaxCommon($type, $value)
+    !if $diagramMode == "final"
+    !$temp = {}
+    !$temp = %json_add($temp, "type", $type)
+    !$temp = %json_add($temp, "value", $value)
+    !$temp = %json_add($temp, "layerId", $layerId)
+    !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !$techId = $techId + 1
+    !endif
+!endprocedure

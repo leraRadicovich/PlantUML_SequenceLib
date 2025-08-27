@@ -1,5 +1,5 @@
 @startuml
-!include C:\Users\valik\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v4.puml
+!include src\SequenceLibIncludeFile_v4.puml
 diagramInit(draft, sdaf)
 rq(user,"srv3,rabbit,user",,"","")
 ORIGINAL()
