@@ -1,42 +1,19 @@
 @startuml
 /'Мапа алиасов'/
-!$partyTypes = [
-    {"item" : "user",
-    "type" : "actor"
-    },
-    {"item" : "client",
-    "type" : "actor"
-    },
-    {"item" : "redis",
-    "type" : "database"
-    },
-    {"item" : "PostgreSql",
-    "type" : "database"
-    },
-    {"item" : "postgre",
-    "type" : "database"
-    },
-    {"item" : "postgres",
-    "type" : "database"
-    },
-    {"item" : "postgreSQL",
-    "type" : "database"
-    },
-    {"item" : "kafka",
-    "type" : "queue"
-    },
-    {"item" : "queue",
-    "type" : "queue"
-    },
-    {"item" : "rabbit",
-    "type" : "queue"
-    },
-    {"item" : "rabbitMQ",
-    "type" : "queue"
-    },
-    {"item" : "MQ",
-    "type" : "queue"}
-]
+!$partyTypes = {
+    "user": "actor",
+    "client": "actor",
+    "redis": "database",
+    "PostgreSql": "database",
+    "postgre": "database",
+    "postgres": "database",
+    "postgreSQL": "database",
+    "kafka": "queue",
+    "queue": "queue",
+    "rabbit": "queue",
+    "rabbitMQ": "queue",
+    "MQ": "queue"
+   }
 
 !$defaultTypes = [
     "participant",

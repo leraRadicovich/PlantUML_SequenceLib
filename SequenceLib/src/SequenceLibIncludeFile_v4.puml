@@ -1,5 +1,4 @@
 @startuml
 !include enviroment/include_enviroments.puml
 !include customerEnviroment/include_custom_env.puml
-
-!include features/oldVersion/include_features.puml
+!include features/include_features.puml

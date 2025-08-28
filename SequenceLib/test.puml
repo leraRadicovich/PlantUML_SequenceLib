@@ -1,6 +1,6 @@
 @startuml
 !include src\SequenceLibIncludeFile_v4.puml
-diagramInit(draft, sdaf)
+diagramInit(final, sdaf)
 rq(user,"srv3,rabbit,user",,"","")
 ORIGINAL()
 
