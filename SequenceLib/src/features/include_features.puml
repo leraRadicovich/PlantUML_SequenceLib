@@ -1,6 +1,6 @@
 @startuml
 /'Разделение логики между версиями'/
-!if %variable_exists("$majorVersion") == 1
+!if %variable_exists("$majorVersion")
     !include major5/serviceController.puml
     !include major5/layerController.puml
     !include major5/actionController.puml
