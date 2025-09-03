@@ -2,15 +2,9 @@
 !include src\SequenceLibIncludeFile_v4.puml
 diagramInit(final, sdaf)
 
+parties("queue")
 'BOX("sdf", lightblue, "srv6,user")
-'rq(user,"srv3,rabbit,user",,"","")
 
-a -> b
 
-note across: getNameByAlias(srv)
-
-note across: checkAliasInCustomEnvironments(srv)
-
-note across: checkUniqueAliasName("srv", "Ваш сервис1")
 
 @enduml
