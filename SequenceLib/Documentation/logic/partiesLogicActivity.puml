@@ -22,44 +22,47 @@ group Примеры ввода #moccasin
     :parties("participant", "Имя участника", алиас, порядок)}
     end split
 end group
+
 package parties #tan
-:Проверить заполненные поля: тип, имя, алиас, порядок;
-if (Заполнен только тип,\nт.е. передан массив, и\nостальные поля пустые?) then (Нет)
-    :Вызвать процедуру currentAliasMapBuilder:
-    сформировать объект и записать в $currentAliasMap;
-    :вызвать partieBuilder для отрисовки участника в диаграмме;
-    stop
-else (Да)
-    :Вызвать partyInputController;
-    package partyInputController #moccasin
+    :Проверить заполненные поля: тип, имя, алиас, порядок;
+    if (Заполнен только тип,\nт.е. передан массив, и\nостальные поля пустые?) then (Нет)
+        :Вызвать процедуру currentAliasMapBuilder:
+        сформировать объект и записать в $currentAliasMap;
+        :вызвать partieBuilder для отрисовки участника в диаграмме;
+        stop
+    else (Да)
+        :Вызвать partyInputController;
+    endif
+end group
+
+package partyInputController #moccasin
     :Вызвать функцию commonFeatures\stringToArray, чтобы
     сформировать массив объектов из переданных алиасов.
     Алиасы, переданы через запятую;
     repeat:ЦИКЛ foreach\nВызвать aliasCheck для каждого alias из списка;
-    package aliasCheck #antiquewhite
-    :Вызвать findAlias:
-    Найти алиас в $currentAliasMap;
-    if(Найден?) then(Нет)
-        :Вызвать findAlias:
-        Найти алиас в $customAliasMap;
-        if(Найден?) then(Нет)
-            :вызвать тудушку: добавьте интеграцию с алисаом;
-            :Вызвать функцию tempPartyNameBuilder,
-             записать в !$tempPartyName;
-            :Вызвать функцию tempPartyTypeBuilder,
-            записать в !$tempAliasType;
-        else(Да)
-            :Достать имя из $customAliasMap,
-            записать в !$tempPartyName;
-            :Достать тип из $customAliasMap,
-            записать в !$tempAliasType;
-        endif
-        :Вызвать parties для полученного объекта;
-    else (Да)
-    endif
-    end group
-    repeat while (Все элементы массива пройдены?) is (Нет)
-    kill
-    end group
-endif
+        package aliasCheck #antiquewhite
+            :Вызвать findAlias:
+            Найти алиас в $currentAliasMap;
+            if(Найден?) then(Нет)
+                :Вызвать findAlias:
+                Найти алиас в $customAliasMap;
+                if(Найден?) then(Нет)
+                    :вызвать тудушку: добавьте интеграцию с алисаом;
+                    :Вызвать функцию tempPartyNameBuilder,
+                     записать в !$tempPartyName;
+                    :Вызвать функцию tempPartyTypeBuilder,
+                    записать в !$tempAliasType;
+                else(Да)
+                    :Достать имя из $customAliasMap,
+                    записать в !$tempPartyName;
+                    :Достать тип из $customAliasMap,
+                    записать в !$tempAliasType;
+                endif
+                :Вызвать parties для полученного объекта;
+            else (Да)
+            endif
+        end group
+    repeat while (Все элементы массива пройдены?) is (Нет) not (Да)
+    stop
+end group
 @enduml
