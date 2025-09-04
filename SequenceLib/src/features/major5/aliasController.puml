@@ -1,9 +1,3 @@
-
-
-
-
-
-
 @startuml
 /'Вспомогательная процедура отрисовки участников: формирует мапу имя:алиас'/
 !unquoted procedure parties($partyType, $name="", $alias="", $order="")

@@ -15,54 +15,65 @@ start
 :Ввести parties;
 group Примеры ввода #moccasin
     split
-    :parties(user)}
+    :parties(user);
     split again
-    :parties("user,kafka")}
+    :parties("user,kafka");
     split again
-    :parties("participant", "Имя участника", алиас, порядок)}
+    :parties("participant", "Имя участника", алиас, порядок);
     end split
 end group
 
 package parties #tan
+    :Вызвать partyInputController;
+end group
+package partyInputController #tan
+    :Создать пустой массив $aliasArrayToCheck;
     :Проверить заполненные поля: тип, имя, алиас, порядок;
     if (Заполнен только тип,\nт.е. передан массив, и\nостальные поля пустые?) then (Нет)
-        :Вызвать процедуру currentAliasMapBuilder:
-        сформировать объект и записать в $currentAliasMap;
-        :вызвать partieBuilder для отрисовки участника в диаграмме;
-        stop
+        :Создать заполненный объект $aliasToCheck,
+        {"alias": {
+            "type":"value",
+            "name":"value",
+            "order":"value"}};
+        :Добавить сформированный объект $aliasToCheck
+        в массив $aliasArrayToCheck;
     else (Да)
-        :Вызвать partyInputController;
+        :Вызвать функцию commonFeatures\stringToArray, чтобы
+        сформировать массив объектов из переданных алиасов.
+        Алиасы, переданы через запятую, в поле тип процедуры parties;
+        repeat:ЦИКЛ foreach item in stringToArray
+            :Создать пустой объект $aliasToCheck {"alias":""};
+            :Добавить сформированный объект $aliasToCheck
+            в массив $aliasArrayToCheck;
+        repeat while (Весь массив обработан?) is (Нет) not (Да)
     endif
-end group
-
-package partyInputController #moccasin
-    :Вызвать функцию commonFeatures\stringToArray, чтобы
-    сформировать массив объектов из переданных алиасов.
-    Алиасы, переданы через запятую;
-    repeat:ЦИКЛ foreach\nВызвать aliasCheck для каждого alias из списка;
-        package aliasCheck #antiquewhite
+    :Вызвать addAliasInCurrentAliasMap;
+    end group
+    package addAliasInCurrentAliasMap #antiquewhite
+        repeat:ЦИКЛ foreach item in $aliasArrayToCheck
+        :Вызвать findAlias:\nНайти алиас в $currentAliasMap;
+        if(Найден?) then(Да)
+        else(Нет)
             :Вызвать findAlias:
-            Найти алиас в $currentAliasMap;
+            Найти алиас в $customAliasMap;
             if(Найден?) then(Нет)
-                :Вызвать findAlias:
-                Найти алиас в $customAliasMap;
-                if(Найден?) then(Нет)
-                    :вызвать тудушку: добавьте интеграцию с алисаом;
-                    :Вызвать функцию tempPartyNameBuilder,
-                     записать в !$tempPartyName;
-                    :Вызвать функцию tempPartyTypeBuilder,
-                    записать в !$tempAliasType;
-                else(Да)
-                    :Достать имя из $customAliasMap,
-                    записать в !$tempPartyName;
-                    :Достать тип из $customAliasMap,
-                    записать в !$tempAliasType;
-                endif
-                :Вызвать parties для полученного объекта;
-            else (Да)
+                :вызвать тудушку: добавьте интеграцию с алисаом;
+                :Вызвать функцию tempPartyNameBuilder,
+                 записать в !$tempPartyName;
+                :Вызвать функцию tempPartyTypeBuilder,
+                записать в !$tempAliasType;
+            else(Да)
+                :Достать имя из $customAliasMap,
+                записать в !$tempPartyName;
+                :Достать тип из $customAliasMap,
+                записать в !$tempAliasType;
             endif
-        end group
-    repeat while (Все элементы массива пройдены?) is (Нет) not (Да)
-    stop
-end group
+            :Добавить нового участника в $currentAliasMap;
+        endif
+
+    repeat while (Весь массив обработан?) is (Нет) not (Да)
+    :Вызвать partiesOutputController для полученного объекта;
+    end group
+
+
 @enduml
