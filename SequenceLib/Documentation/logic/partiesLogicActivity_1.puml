@@ -30,50 +30,51 @@ package partyInputController #tan
     :Создать пустой массив $aliasArrayToCheck;
     :Проверить заполненные поля: тип, имя, алиас, порядок;
     if (Заполнен только тип,\nт.е. передан массив, и\nостальные поля пустые?) then (Нет)
-        :Создать заполненный объект $aliasToCheck,
+        :Установить alias == stringToArray(alias);
+    else (Да)
+        :Установить alias == stringToArray(type);
+        :Установить type == "";
+    endif
+    repeat:ЦИКЛ foreach item in alias\n(stringToArray)
+        :Создать объект $aliasToCheck,
         {"alias": {
             "type":"value",
             "name":"value",
             "order":"value"}};
-        :Добавить сформированный объект $aliasToCheck
+        :Добавить объект $aliasToCheck
         в массив $aliasArrayToCheck;
-    else (Да)
-        :Вызвать функцию commonFeatures\stringToArray, чтобы
-        сформировать массив объектов из переданных алиасов.
-        Алиасы, переданы через запятую, в поле тип процедуры parties;
-        repeat:ЦИКЛ foreach item in stringToArray
-            :Создать пустой объект $aliasToCheck {"alias":""};
-            :Добавить сформированный объект $aliasToCheck
-            в массив $aliasArrayToCheck;
-        repeat while (Весь массив обработан?) is (Нет) not (Да)
-    endif
+    repeat while (Весь массив обработан?) is (Нет) not (Да)
     :Вызвать checkAliasInCurrentAliasMap;
     end group
-    package checkAliasInCurrentAliasMap #antiquewhite
+    package checkAliasInCurrentAliasMap #tan
         repeat:ЦИКЛ foreach item in $aliasArrayToCheck
-        :Вызвать findAlias:\nНайти алиас в $currentAliasMap;
+        :Вызвать findAlias(findInCurrentAliasMap == 1)
+        Найти алиас в $currentAliasMap;
         if(Найден?) then(Да)
         else(Нет)
-            :Вызвать findAlias:
+            :Вызвать findAlias(findInCurrentAliasMap == 0):
             Найти алиас в $customAliasMap;
             if(Найден?) then(Нет)
-                :вызвать тудушку: добавьте интеграцию с алисаом;
-                :Вызвать функцию tempPartyNameBuilder,
-                 обновить name для текущего объекта;
-                :Вызвать функцию tempPartyTypeBuilder,
+                :Вызвать функцию getPartyAttributeByAlias(alias,findInCustomAliasMap == 0,attrType=name,attrValue==name),
+                обновить name для текущего объекта;
+                :Вызвать функцию getPartyAttributeAlias(alias,findInCustomAliasMap == 0,attrType=type,attrValue==type),
                 обновить type для текущего объекта;
+                :вызвать тудушку: добавьте интеграцию с алисаом;
             else(Да)
-                if(Имя в $aliasArrayToCheck пустое?) then(Да)
-                    :Достать имя из $customAliasMap,
-                    обновить name для текущего объекта;
-                else(Нет)
-                    if(Имя из $aliasArrayToCheck совпадает\nс именем из $customAliasMap) then(Нет)
-                        :Вызвать тудушку: В текущей диаграмме используется alias,
-                        уже присутствующий в $customAliasMap с другим именем.
-                        Измените его перед добавлением в $customAliasMap.;
-                    else(Да)
+                :Вызвать функцию getPartyAttributeByAlias(alias,findInCustomAliasMap == 1,attrType=name,attrValue==name);
+                group "Это логика getPartyAttributeByAlias" #moccasin
+                    if(attrValue пустое?) then(Да)
+                        :Достать attrType из $customAliasMap,
+                        обновить name для текущего объекта;
+                    else(Нет)
+                        if(attrValue совпадает\nс attrValue такого же attrType\nдля текущего alias из $customAliasMap) then(Нет)
+                            :Вызвать тудушку: В текущей диаграмме используется alias,
+                            уже присутствующий в $customAliasMap с другим именем.
+                            Измените его перед добавлением в $customAliasMap.;
+                        else(Да)
+                        endif
                     endif
-                endif
+                end group
                 if(Тип в $aliasArrayToCheck пустой?) then(Да)
                     :Достать тип из $customAliasMap,
                     обновить type для текущего объекта;
