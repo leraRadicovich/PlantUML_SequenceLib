@@ -52,20 +52,23 @@ package partyInputController #tan
         Найти алиас в $currentAliasMap;
         if(Найден?) then(Да)
         else(Нет)
+           :Определить findInCustomAliasMap == 0;
             :Вызвать findAlias(findInCurrentAliasMap == 0):
             Найти алиас в $customAliasMap;
             if(Найден?) then(Нет)
-                :Вызвать функцию getPartyAttributeByAlias(alias,findInCustomAliasMap == 0,attrType=name,attrValue==name),
-                обновить name для текущего объекта;
-                :Вызвать функцию getPartyAttributeAlias(alias,findInCustomAliasMap == 0,attrType=type,attrValue==type),
-                обновить type для текущего объекта;
                 :вызвать тудушку: добавьте интеграцию с алисаом;
             else(Да)
-                :Вызвать функцию getPartyAttributeByAlias(alias,findInCustomAliasMap == 1,attrType=name,attrValue==name);
-                group "Это логика getPartyAttributeByAlias" #moccasin
+                :Определить findInCustomAliasMap == 1;
+            endif
+            :Вызвать функцию getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=name, attrValue==$aliasArrayToCheck.alias.name);
+            group "getPartyAttributeByAlias" #moccasin
+                if(findInCustomAliasMap == 0?) then(Да)
+                    :Вызвать функцию getPartyDataByAlias(attrType),
+                     обновить name для текущего объекта;
+                else(Нет)
                     if(attrValue пустое?) then(Да)
-                        :Достать attrType из $customAliasMap,
-                        обновить name для текущего объекта;
+                        :Достать attrValue из $customAliasMap,
+                        обновить его в attrType для текущего объекта;
                     else(Нет)
                         if(attrValue совпадает\nс attrValue такого же attrType\nдля текущего alias из $customAliasMap) then(Нет)
                             :Вызвать тудушку: В текущей диаграмме используется alias,
@@ -74,19 +77,27 @@ package partyInputController #tan
                         else(Да)
                         endif
                     endif
-                end group
-                if(Тип в $aliasArrayToCheck пустой?) then(Да)
-                    :Достать тип из $customAliasMap,
-                    обновить type для текущего объекта;
+                endif
+            end group
+            :Вызвать функцию getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=type, attrValue==$aliasArrayToCheck.alias.type);
+            group "getPartyAttributeByAlias" #moccasin
+                if(findInCustomAliasMap == 0?) then(Да)
+                    :Вызвать функцию getPartyDataByAlias(attrType),
+                     обновить name для текущего объекта;
                 else(Нет)
-                    if(Тип из $aliasArrayToCheck совпадает\nс типом из $customAliasMap) then(Нет)
-                        :Вызвать тудушку: В текущей диаграмме используется alias,
-                        уже присутствующий в $customAliasMap с другим типом.
-                        Измените его перед добавлением в $customAliasMap.;
-                    else(Да)
+                    if(attrValue пустое?) then(Да)
+                        :Достать attrValue из $customAliasMap,
+                        обновить его в attrType для текущего объекта;
+                    else(Нет)
+                        if(attrValue совпадает\nс attrValue такого же attrType\nдля текущего alias из $customAliasMap) then(Нет)
+                            :Вызвать тудушку: В текущей диаграмме используется alias,
+                            уже присутствующий в $customAliasMap с другим именем.
+                            Измените его перед добавлением в $customAliasMap.;
+                        else(Да)
+                        endif
                     endif
                 endif
-            endif
+            end group
             :Добавить нового участника в $currentAliasMap;
         endif
 
