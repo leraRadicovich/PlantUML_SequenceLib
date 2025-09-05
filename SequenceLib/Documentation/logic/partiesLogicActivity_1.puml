@@ -1,5 +1,11 @@
 @startuml
 title "AliasController"
+
+!$print = "<color:red><size:15><&print></color>"
+!unquoted function tag($symbol)
+    !return "<color:red><size:15><&"+ $symbol + "></color>"
+!end function
+
 legend top left
 Легенда диаграммы
 ====
@@ -44,12 +50,13 @@ package partyInputController #tan
         :Добавить объект $aliasToCheck
         в массив $aliasArrayToCheck;
     repeat while (Весь массив обработан?) is (Нет) not (Да)
-    :Вызвать checkAliasInCurrentAliasMap;
+    :Вызвать checkAliasInCurrentAliasMap(aliasArrayToCheck);
     end group
     package checkAliasInCurrentAliasMap #tan
         repeat:ЦИКЛ foreach item in $aliasArrayToCheck
-        :Вызвать findAlias(findInCurrentAliasMap == 1)
+        :tag(print) Вызвать findAlias(findInCurrentAliasMap == 1)
         Найти алиас в $currentAliasMap;
+        note right: findInCurrentAliasMap == 1 - искать алиас в текущей диаграмме,\n0 - искать в кастомных настройках
         if(Найден?) then(Да)
         else(Нет)
            :Определить findInCustomAliasMap == 0;
@@ -60,7 +67,7 @@ package partyInputController #tan
             else(Да)
                 :Определить findInCustomAliasMap == 1;
             endif
-            :Вызвать функцию getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=name, attrValue==$aliasArrayToCheck.alias.name);
+            :tag(cog) Вызвать процедуру getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=name, attrValue==$aliasArrayToCheck.alias.name);
             group "getPartyAttributeByAlias" #moccasin
                 if(findInCustomAliasMap == 0?) then(Да)
                     :Вызвать функцию getPartyDataByAlias(attrType),
@@ -79,7 +86,7 @@ package partyInputController #tan
                     endif
                 endif
             end group
-            :Вызвать функцию getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=type, attrValue==$aliasArrayToCheck.alias.type);
+            :tag(cog) Вызвать процедуру getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=type, attrValue==$aliasArrayToCheck.alias.type);
             group "getPartyAttributeByAlias" #moccasin
                 if(findInCustomAliasMap == 0?) then(Да)
                     :Вызвать функцию getPartyDataByAlias(attrType),
