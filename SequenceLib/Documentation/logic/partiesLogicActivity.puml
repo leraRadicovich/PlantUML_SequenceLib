@@ -22,20 +22,20 @@ group Примеры ввода #moccasin
     :parties("participant", "Имя участника", алиас, порядок);
     end split
 end group
-
 package parties #tan
-    :Вызвать partyInputController;
+    :Вызвать partyInputController(type, name, alias, order);
 end group
 package partyInputController #tan
     :Создать пустой массив $aliasArrayToCheck;
     :Проверить заполненные поля: тип, имя, алиас, порядок;
-    if (Заполнен только тип,\nт.е. передан массив, и\nостальные поля пустые?) then (Нет)
+    if (Заполнен только тип, и\nостальные поля пустые?) then (Нет)
         :Установить alias == stringToArray(alias);
     else (Да)
+        :Преобразоватья type в строку == %string(type);
         :Установить alias == stringToArray(type);
         :Установить type == "";
     endif
-    repeat:ЦИКЛ foreach item in alias\n(stringToArray)
+    repeat:ЦИКЛ foreach item in alias\n(stringToArray);
         :Создать объект $aliasToCheck,
         {"alias": {
             "type":"value",
@@ -44,13 +44,19 @@ package partyInputController #tan
         :Добавить объект $aliasToCheck
         в массив $aliasArrayToCheck;
     repeat while (Весь массив обработан?) is (Нет) not (Да)
-    :Вызвать checkAliasInCurrentAliasMap;
+    :Вызвать checkAliasInCurrentAliasMap($aliasArrayToCheck);
     end group
     package checkAliasInCurrentAliasMap #tan
         repeat:ЦИКЛ foreach item in $aliasArrayToCheck
         :Вызвать findAlias(findInCurrentAliasMap == 1)
         Найти алиас в $currentAliasMap;
         if(Найден?) then(Да)
+           :Вызвать Нотификашку: вы попытались
+           добавить участника с алиасом,
+           уже существующим в диаграмме.
+           Это действие не было выполнено.;
+           :Удалить alias
+           из $aliasArrayToCheck;
         else(Нет)
            :Определить findInCustomAliasMap == 0;
             :Вызвать findAlias(findInCurrentAliasMap == 0):
@@ -60,51 +66,40 @@ package partyInputController #tan
             else(Да)
                 :Определить findInCustomAliasMap == 1;
             endif
-            :Вызвать функцию getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=name, attrValue==$aliasArrayToCheck.alias.name);
-            group "getPartyAttributeByAlias" #moccasin
-                if(findInCustomAliasMap == 0?) then(Да)
-                    :Вызвать функцию getPartyDataByAlias(attrType),
-                     обновить name для текущего объекта;
-                else(Нет)
-                    if(attrValue пустое?) then(Да)
-                        :Достать attrValue из $customAliasMap,
-                        обновить его в attrType для текущего объекта;
+            repeat:Цикл foreach item in [name,type];
+                :Вызвать функцию getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=item, attrValue==$aliasArrayToCheck.alias.item);
+                group "getPartyAttributeByAlias" #moccasin
+                    if(findInCustomAliasMap == 0?) then(Да)
+                        :Вызвать функцию getPartyDataByAlias(attrType),
+                         обновить name для текущего объекта;
                     else(Нет)
-                        if(attrValue совпадает\nс attrValue такого же attrType\nдля текущего alias из $customAliasMap) then(Нет)
-                            :Вызвать тудушку: В текущей диаграмме используется alias,
-                            уже присутствующий в $customAliasMap с другим именем.
-                            Измените его перед добавлением в $customAliasMap.;
-                        else(Да)
+                        if(attrValue пустое?) then(Да)
+                            :Достать attrValue из $customAliasMap,
+                            обновить его в attrType для текущего объекта;
+                        else(Нет)
+                            if(attrValue совпадает\nс attrValue такого же attrType\nдля текущего alias из $customAliasMap) then(Нет)
+                                :Вызвать Нотификашку: В текущей диаграмме используется alias,
+                                уже присутствующий в $customAliasMap с другим именем.
+                                Измените его перед сохранением в кастомных настройках.;
+                            else(Да)
+                            endif
                         endif
                     endif
-                endif
-            end group
-            :Вызвать функцию getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=type, attrValue==$aliasArrayToCheck.alias.type);
-            group "getPartyAttributeByAlias" #moccasin
-                if(findInCustomAliasMap == 0?) then(Да)
-                    :Вызвать функцию getPartyDataByAlias(attrType),
-                     обновить name для текущего объекта;
-                else(Нет)
-                    if(attrValue пустое?) then(Да)
-                        :Достать attrValue из $customAliasMap,
-                        обновить его в attrType для текущего объекта;
-                    else(Нет)
-                        if(attrValue совпадает\nс attrValue такого же attrType\nдля текущего alias из $customAliasMap) then(Нет)
-                            :Вызвать тудушку: В текущей диаграмме используется alias,
-                            уже присутствующий в $customAliasMap с другим именем.
-                            Измените его перед добавлением в $customAliasMap.;
-                        else(Да)
-                        endif
-                    endif
-                endif
-            end group
+                end group
+
+            repeat while (Весь массив обработан?) is (Нет) not (Да)
+            :Увеличить $orderId на 1;
+            :Записать $orderId в $aliasArrayToCheck;
             :Добавить нового участника в $currentAliasMap;
         endif
-
     repeat while (Весь массив обработан?) is (Нет) not (Да)
-    :Вызвать partiesOutputController
-    для обновленного $aliasArrayToCheck;
-    end group
+    :Вызвать partyOutputController($aliasArrayToCheck);
+end group
 
-
+package partyOutputController #tan
+    repeat:ЦИКЛ foreach item in $aliasArrayToCheck;
+:вывод $aliasArrayToCheck.item.type $aliasArrayToCheck.item.name $aliasArrayToCheck.item.alias $aliasArrayToCheck.item.order; 
+    repeat while (Весь массив обработан?) is (Нет) not (Да)
+end group
+stop
 @enduml
