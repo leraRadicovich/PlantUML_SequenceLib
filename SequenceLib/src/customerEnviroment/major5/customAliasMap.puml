@@ -6,7 +6,6 @@
     },
     "srv" : {
       "type": "participant",
-      "name": "Ваш сервис",
-      "order": "0"
+      "name": "Ваш сервис"
     }
 }
