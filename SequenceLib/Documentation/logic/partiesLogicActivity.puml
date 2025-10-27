@@ -23,10 +23,9 @@ group Примеры ввода #moccasin
     end split
 end group
 package parties #tan
-    :Вызвать partyInputController(type, name, alias, order);
+    :Вызвать checkPartyInput(type, name, alias, order);
 end group
-package partyInputController #tan
-    :Создать пустой массив $aliasArrayToCheck;
+package checkPartyInput #tan
     :Проверить заполненные поля: тип, имя, алиас, порядок;
     if (Заполнен только тип, и\nостальные поля пустые?) then (Нет)
         :Установить alias == stringToArray(alias);
@@ -35,6 +34,11 @@ package partyInputController #tan
         :Установить alias == stringToArray(type);
         :Установить type == "";
     endif
+    :Вызвать aliasArrayToCheckBuilder(type, name, alias, order);
+end group
+
+package aliasArrayToCheckBuilder #tan
+    :Создать пустой массив $aliasArrayToCheck;
     repeat:ЦИКЛ foreach item in alias\n(stringToArray);
         :Создать объект $aliasToCheck,
         {"alias": {
@@ -44,54 +48,49 @@ package partyInputController #tan
         :Добавить объект $aliasToCheck
         в массив $aliasArrayToCheck;
     repeat while (Весь массив обработан?) is (Нет) not (Да)
-    :Вызвать checkAliasInCurrentAliasMap($aliasArrayToCheck);
-    end group
-    package checkAliasInCurrentAliasMap #tan
-        repeat:ЦИКЛ foreach item in $aliasArrayToCheck
-        :Вызвать findAlias(findInCurrentAliasMap == 1)
-        Найти алиас в $currentAliasMap;
+    :Вызвать checkAliasAttributes($aliasArrayToCheck);
+end group
+
+package checkAliasAttributes #tan
+    repeat:ЦИКЛ foreach item in $aliasArrayToCheck
+    :Вызвать findAlias(alias);
+    package findAlias #moccasin
+        :Найти алиас в $currentAliasMap;
         if(Найден?) then(Да)
            :Вызвать Нотификашку: вы попытались
-           добавить участника с алиасом,
+           добавить участника с алиасом "alias",
            уже существующим в диаграмме.
-           Это действие не было выполнено.;
-           :Удалить alias
-           из $aliasArrayToCheck;
+           Проверьте корректность алиаса.;
         else(Нет)
-           :Определить findInCustomAliasMap == 0;
-            :Вызвать findAlias(findInCurrentAliasMap == 0):
-            Найти алиас в $customAliasMap;
+        :Найти алиас в $customAliasMap;
             if(Найден?) then(Нет)
-                :вызвать тудушку: добавьте интеграцию с алисаом;
+                :вызвать тудушку:
+                добавьте интеграцию с алисом;
             else(Да)
-                :Определить findInCustomAliasMap == 1;
-            endif
-            repeat:Цикл foreach item in [name,type];
-                :Вызвать функцию getPartyAttributeByAlias(alias, findInCustomAliasMap, attrType=item, attrValue==$aliasArrayToCheck.alias.item);
-                group "getPartyAttributeByAlias" #moccasin
-                    if(findInCustomAliasMap == 0?) then(Да)
-                        :Вызвать функцию getPartyDataByAlias(attrType),
-                         обновить name для текущего объекта;
+                :Создать глобальный список
+                $aliasAttributesToCheck = [name,type];
+                repeat:ЦИКЛ foreach item in $aliasAttributesToCheck;
+                package aliasNameToCheck #azure
+                    if(alias.item == NULL) then(Да)
+                        :Обновить aliasArrayToCheck:
+                        alias.item = custom.alias.item;
                     else(Нет)
-                        if(attrValue пустое?) then(Да)
-                            :Достать attrValue из $customAliasMap,
-                            обновить его в attrType для текущего объекта;
-                        else(Нет)
-                            if(attrValue совпадает\nс attrValue такого же attrType\nдля текущего alias из $customAliasMap) then(Нет)
-                                :Вызвать Нотификашку: В текущей диаграмме используется alias,
-                                уже присутствующий в $customAliasMap с другим именем.
-                                Измените его перед сохранением в кастомных настройках.;
-                            else(Да)
-                            endif
+                        if(alias.item == custom.alias.item ?) then(Нет)
+                            :Вызвать тудушку:
+                            item участника с алиасом alias отличается
+                            от идентичного в пользовательских настройках -
+                            проверьте актуальность пользовательских настроек;
+                        else(Да)
                         endif
                     endif
                 end group
-
-            repeat while (Весь массив обработан?) is (Нет) not (Да)
-            :Увеличить $orderId на 1;
-            :Записать $orderId в $aliasArrayToCheck;
-            :Добавить нового участника в $currentAliasMap;
+                repeat while (Все атрибуты проверили?) is (Нет) not (Да)
+            endif
         endif
+    end group
+    :Увеличить $orderId на 1;
+    :Записать $orderId в $aliasArrayToCheck;
+    :Добавить нового участника в $currentAliasMap;
     repeat while (Весь массив обработан?) is (Нет) not (Да)
     :Вызвать partyOutputController($aliasArrayToCheck);
 end group
