@@ -48,10 +48,10 @@ package aliasArrayToCheckBuilder #tan
         :Добавить объект $aliasToCheck
         в массив $aliasArrayToCheck;
     repeat while (Весь массив обработан?) is (Нет) not (Да)
-    :Вызвать checkAliasAttributes($aliasArrayToCheck);
+    :Вызвать findAndCheckAlias($aliasArrayToCheck);
 end group
 
-package checkAliasAttributes #tan
+package findAndCheckAlias #tan
     repeat:ЦИКЛ foreach item in $aliasArrayToCheck
     :Вызвать findAlias(alias);
     package findAlias #moccasin
@@ -67,10 +67,11 @@ package checkAliasAttributes #tan
                 :вызвать тудушку:
                 добавьте интеграцию с алисом;
             else(Да)
+                :Вызвать checkAliasAttributes(alias(весь объект));
+                package checkAliasAttributes #azure
                 :Создать глобальный список
                 $aliasAttributesToCheck = [name,type];
                 repeat:ЦИКЛ foreach item in $aliasAttributesToCheck;
-                package aliasNameToCheck #azure
                     if(alias.item == NULL) then(Да)
                         :Обновить aliasArrayToCheck:
                         alias.item = custom.alias.item;
@@ -83,8 +84,8 @@ package checkAliasAttributes #tan
                         else(Да)
                         endif
                     endif
-                end group
                 repeat while (Все атрибуты проверили?) is (Нет) not (Да)
+                end group
             endif
         endif
     end group
