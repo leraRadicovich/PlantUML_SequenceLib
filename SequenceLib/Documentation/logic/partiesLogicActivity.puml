@@ -13,6 +13,7 @@ end legend
 
 start
 :Ввести parties;
+
 group Примеры ввода #moccasin
     split
     :parties(user);
@@ -22,76 +23,97 @@ group Примеры ввода #moccasin
     :parties("participant", "Имя участника", алиас, порядок);
     end split
 end group
+
 package parties #tan
     :Вызвать checkPartyInput(type, name, alias, order);
 end group
+
 package checkPartyInput #tan
+    :Задать глобальный список !$aliasDefaultTypes = [participant,cator,queue,control];
     :Проверить заполненные поля: тип, имя, алиас, порядок;
-    if (Заполнен только тип, и\nостальные поля пустые?) then (Нет)
-        :Установить alias == stringToArray(alias);
-    else (Да)
-        :Преобразоватья type в строку == %string(type);
-        :Установить alias == stringToArray(type);
+    if (type найден в $aliasDefaultTypes?) then (Нет)
+        :Установить alias == stringToArray(type, ",");
         :Установить type == "";
+    else(Да)
     endif
-    :Вызвать aliasArrayToCheckBuilder(type, name, alias, order);
+    :Установить alias = stringToArray(alias, ",");
+    :Вызвать findAndCheckAlias(type, name, alias, order);
 end group
 
-package aliasArrayToCheckBuilder #tan
+package findAlias #tan
     :Создать пустой массив $aliasArrayToCheck;
-    repeat:ЦИКЛ foreach item in alias\n(stringToArray);
-        :Создать объект $aliasToCheck,
-        {"alias": {
-            "type":"value",
-            "name":"value",
-            "order":"value"}};
-        :Добавить объект $aliasToCheck
-        в массив $aliasArrayToCheck;
+    repeat:ЦИКЛ foreach item in alias
+    :0 - новый участник,
+    1 - найден в $currentAliasMap
+    2 - найден в $customAliasMap/
+    :Найти алиас в $currentAliasMap;
+    if(Найден?) then(Да)
+       :Установить $searchResult = 1;
+    else(Нет)
+    :Найти алиас в $customAliasMap;
+        if(Найден?) then(Нет)
+            :Установить $searchResult = 0;
+        else(Да)
+            :Установить $searchResult = 2;
+        endif
+    endif
+    :Создать объект $aliasToCheck,
+    {"alias": {
+        "type":"value",
+        "name":"value",
+        "searchResult":"value"}};
+    :Добавить объект $aliasToCheck
+    в массив $aliasArrayToCheck;
     repeat while (Весь массив обработан?) is (Нет) not (Да)
-    :Вызвать findAndCheckAlias($aliasArrayToCheck);
+    :Вызвать checkAliasAttributes($aliasArrayToCheck);
 end group
 
-package findAndCheckAlias #tan
-    repeat:ЦИКЛ foreach item in $aliasArrayToCheck
-    :Вызвать findAlias(alias);
-    package findAlias #moccasin
-        :Найти алиас в $currentAliasMap;
-        if(Найден?) then(Да)
-           :Вызвать Нотификашку: вы попытались
-           добавить участника с алиасом "alias",
-           уже существующим в диаграмме.
-           Проверьте корректность алиаса.;
+package checkAliasAttributes #tan
+    repeat:ЦИКЛ foreach item in $aliasArrayToCheck;
+    if(item.alias.searchResult = 0) then(Да)
+        if(item.aliass.name == NULL) then(Да)
+            package convertAliasToName #moccasin
+            :Вызвать convertAliasToName:
+            увеличить регистр 1-ой буквы алиаса,
+            сохранить полученное значение в item.aliass.name;
+            end group
         else(Нет)
-        :Найти алиас в $customAliasMap;
-            if(Найден?) then(Нет)
-                :вызвать тудушку:
-                добавьте интеграцию с алисом;
-            else(Да)
-                :Вызвать checkAliasAttributes(alias(весь объект));
-                package checkAliasAttributes #azure
-                :Создать глобальный список
-                $aliasAttributesToCheck = [name,type];
-                repeat:ЦИКЛ foreach item in $aliasAttributesToCheck;
-                    if(alias.item == NULL) then(Да)
-                        :Обновить aliasArrayToCheck:
-                        alias.item = custom.alias.item;
-                    else(Нет)
-                        if(alias.item == custom.alias.item ?) then(Нет)
-                            :Вызвать тудушку:
-                            item участника с алиасом alias отличается
-                            от идентичного в пользовательских настройках -
-                            проверьте актуальность пользовательских настроек;
-                        else(Да)
-                        endif
-                    endif
-                repeat while (Все атрибуты проверили?) is (Нет) not (Да)
-                end group
-            endif
         endif
-    end group
-    :Увеличить $orderId на 1;
-    :Записать $orderId в $aliasArrayToCheck;
-    :Добавить нового участника в $currentAliasMap;
+        :Вызывать тудушку:
+        Добавляется интеграция с $item.name,
+        обновите пользовательскую библиотеку участников: $item;
+    elseif(item.alias.searchResult = 1) then(Да)
+        #yellow:Вывести яркую заметку:
+        Вы указали неуникальный для этой диаграммы алиас $alias,
+        проверьте корректность введенных данных;
+    elseif(item.alias.searchResult = 2) then(Да)
+        :Вызывать compareAliasAttributes($item);
+        package compareAliasAttributes #moccasin
+            :Задать глобальный список !$aliasAttributesToCompare = [type,name];
+            repeat:ЦИКЛ foreach attr in $aliasAttributesToCompare;
+                if(item.alias.attr = "") then(Нет)
+                    if(item.alias.attr == custom.alias.attr?) then(Нет)
+                        :Вызвать тудушку:
+                        Введенный attr не совпадает
+                        с пользовательскими настройками.
+                        Уточните данные или обновите
+                        пользовательску библиотеку $item;
+                    else(Да)
+                    endif
+                else(Да)
+                    :Установить item.alias.attr = custom.alias.attr;
+                endif
+            repeat while (Все атрибуты проверили?) is (Нет) not (Да)
+        end group
+    endif
+    :Увеличить глобальную orderId на 1;
+    :Добавить orderId в item:
+    {"alias": {
+        "type":"value",
+        "name":"value",
+        "searchResult":"value",
+        "orderId":"value"}};
+    :Добавить item в $currentAliasMap;
     repeat while (Весь массив обработан?) is (Нет) not (Да)
     :Вызвать partyOutputController($aliasArrayToCheck);
 end group

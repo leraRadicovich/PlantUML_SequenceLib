@@ -1,3 +1,17 @@
 @startuml
-color
-@enduml
+!$testJson = {"a":[1,2,3],"b":[4,5,6]}
+!unquoted function testReturn($var)
+    !return %json_key_exists($testJson, $var)
+!end function
+b -> a: dsaf
+!unquoted procedure testFunc($var)
+    !$po = testReturn($var)
+    !if $po == 1
+    note across: $testJson[$var]
+    !endif
+!endprocedure
+note across:testReturn(a)
+
+testFunc(a)
+
+@endum
