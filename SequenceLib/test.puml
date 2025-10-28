@@ -12,12 +12,8 @@
 
 !$jsonForSearch = {
     "a": {
-      "name": "A",
-      "type": "letterк"
-      },
-    "b": {
-      "name": "sdf",
-      "type": "letter"
+      "name": "",
+      "type": "letterц"
       },
     "c": {
       "name": "C",
@@ -28,7 +24,7 @@
 !$defTypesToCheck = ["name", "type"]
 
 !unquoted procedure testSearch()
-    !foreach $item in $testJson
+    !foreach $item in %get_json_keys($testJson)
         !if %json_key_exists($jsonForSearch, $item)
             !foreach $attr in $defTypesToCheck
                 !if $testJson[$item][$attr] != $jsonForSearch[$item][$attr]
