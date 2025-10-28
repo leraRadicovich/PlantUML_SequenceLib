@@ -1,17 +1,44 @@
 @startuml
-!$testJson = {"a":[1,2,3],"b":[4,5,6]}
-!unquoted function testReturn($var)
-    !return %json_key_exists($testJson, $var)
-!end function
-b -> a: dsaf
-!unquoted procedure testFunc($var)
-    !$po = testReturn($var)
-    !if $po == 1
-    note across: $testJson[$var]
-    !endif
+!$testJson = {
+    "a": {
+        "name": "A",
+        "type": "letter"
+        },
+    "b": {
+        "name": "B",
+        "type": "letter"
+        }
+    }
+
+!$jsonForSearch = {
+    "a": {
+      "name": "A",
+      "type": "letterк"
+      },
+    "b": {
+      "name": "sdf",
+      "type": "letter"
+      },
+    "c": {
+      "name": "C",
+      "type": "letter"
+      }
+    }
+
+!$defTypesToCheck = ["name", "type"]
+
+!unquoted procedure testSearch()
+    !foreach $item in $testJson
+        !if %json_key_exists($jsonForSearch, $item)
+            !foreach $attr in $defTypesToCheck
+                !if $testJson[$item][$attr] != $jsonForSearch[$item][$attr]
+                    note across: Выявлено несоответствие для объекта $item:\nзначение $attr <color: red>$testJson[$item][$attr]</color> не совпадает\nс <color: red>$jsonForSearch[$item][$attr]</color> из пользовательских настроек
+                !endif
+            !endfor
+        !endif
+    !endfor
 !endprocedure
-note across:testReturn(a)
 
-testFunc(a)
-
-@endum
+a -> b: adsf
+testSearch()
+@enduml
