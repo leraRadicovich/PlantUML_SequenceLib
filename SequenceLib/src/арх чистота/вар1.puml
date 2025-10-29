@@ -1,0 +1,21 @@
+@startuml
+/'Нужно зависимость от if победить за счет полиморфизма'/
+
+bob->alice: полиморфизм
+
+!unquoted procedure main($a, $b)
+    !$a = %intval($a)
+    !$b = %intval($b)
+    !if $a < $b
+        !$act = "plus"
+        !$x = $a + $b
+    !else
+        !$act = "minus"
+        !$x = $a - $b
+    !endif
+    note across:На входе: $a и $b\nВыбранная команда: $act\nИтог вычислений: $x
+!endprocedure
+
+main(50,100)
+
+@enduml
