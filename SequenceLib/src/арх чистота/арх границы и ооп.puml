@@ -66,15 +66,18 @@ amount
     !return %intval($db[$client][0])
 !end function
 
-/'TODO Дописать функцию обновления баланса'/
-!unquoted function changeAccBalance($client,$operation,$amount)
-    !if $operation == 1
-        !$newBalance = $currentBalance + $amount
+!unquoted procedure changeBalance($client,$operation,$amount)
+    !if $operation == 0
+        !$newBalance = %call_user_func("getBalance", $client) - $amount
     !else
-        !$newBalance = $currentBalance + $amount
+        !$newBalance = %call_user_func("getBalance", $client) + $amount
     !endif
-    !return
-!end function
+
+    !$value = []
+    !$value = %json_add($value, $newBalance)
+    !$value = %json_merge($value, $db[$client])
+    !$db = %json_set($db, $client, $value)
+!end procedure
 
 !unquoted procedure operationController($data)
     !$data = %str2json($data)
@@ -82,31 +85,19 @@ amount
     !$from = $data.from
     !$to = $data.to
 
-    !$accBalanceFrom = %call_user_func("getBalance", $from)
-    !$accBalanceTo = %call_user_func("getBalance", $to)
-
     !$operationResult = 0
 
-    !if %call_user_func("compare",$accBalanceFrom, $amount)
-        !$newBalanceFrom = $accBalanceFrom - $amount
-        !$value = []
-        !$value = %json_add($value, $newBalanceFrom)
-        !$value = %json_merge($value, $db[$from])
-        !$db = %json_set($db, $from, $value)
-
-        !$newBalanceTo = $accBalanceTo + $amount
-        !$value = []
-        !$value = %json_add($value, $newBalanceTo)
-        !$value = %json_merge($value, $db[$to])
-        !$db = %json_set($db, $to, $value)
-        !$operationResult = 1
+    !if %call_user_func("compare", %call_user_func("getBalance", $from), $amount)
+        %invoke_procedure("changeBalance",$from,0,$amount)
+        %invoke_procedure("changeBalance",$to,1,$amount)
         /'TODO Написать функцию вывода результата'/
         /'TODO Шаблонизировтаь результат и ошибки'/
-        note across:**Выполнение программы**\n----\nРезультат операции: $defOperationResult[$operationResult]\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: $newBalanceFrom
+        !$operationResult = 1
+        note across:**Выполнение программы**\n----\nРезультат операции: $defOperationResult[$operationResult]\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: %call_user_func("getBalance", $from)
     !else
         !$newBalanceFrom = $accBalanceFrom
         !$newBalanceTo = $accBalanceTo
-        note across:Результат операции: $defOperationResult[$operationResult]\nНедостаточно средств. Ваш баланс: $newBalanceFrom
+        note across:Результат операции: $defOperationResult[$operationResult]\nНедостаточно средств. Ваш баланс: %call_user_func("getBalance", $from)
     !endif
 !end procedure
 
@@ -119,7 +110,7 @@ amount
 !$tr1 = {
 "from" : "alice",
 "to" : "bob",
-"amount" : 1500
+"amount" : 150
 }
 
 main($tr1)
