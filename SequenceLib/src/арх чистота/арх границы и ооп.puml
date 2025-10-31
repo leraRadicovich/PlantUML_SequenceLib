@@ -1,0 +1,126 @@
+@startuml
+/'Цель этой диаграммы: показать зависимость разработчика от требований и разработку требований от разработчика.
+Текущая итерация работает, но все ли она покрывает?
+если придет имя, которого нет в базе
+если придем сумма, больше чем остаток по счтеу (обработка ошибок)
+если будет много счетов
+если появятся новые операции - например попросить в долг
+если появятся отложенные операции (ассинхрон)
+если у нас есть прямй досутп к бд, как защитить? возьму и поставлю себе 10000000
+'/
+
+
+title Постановка и реализация в коде на примере оплаты
+
+== Реализация в постановке ==
+skinparam maxmessageSize 150
+
+actor "Alice" as a
+participant "PaymentService" as srv
+database "BackOffice" as bo
+actor "Bob" as b
+
+a ->o srv++: Перевести деньги Бобу
+
+srv -> bo++: Запросить отстатки на счете Alice и Bob
+bo --> srv--: Остатки по счетам
+
+srv -> srv: Проверить остатки
+
+break У Алисы не хватает денег на перевод
+    srv --> a: Денег не хватает
+end
+
+srv -> bo++: Сформировтаь транзакции: пополнить счет Боба, уменьшить счет Алисы
+bo --> srv--: Остатки по счетам изменены
+srv ->> b: Ваш счет пополнен
+srv --> a --: Операция выполнена
+
+== Реализация в коде ==
+
+/'env'/
+!$db = {
+    "alice" : [1000,0,500],
+    "bob" : [50]
+}
+
+!$defOperationResult = ["Ошибка","Успех"]
+
+/'operation = {
+from
+to
+amount
+}
+'/
+
+!unquoted function compare($a, $b)
+    /'По дефолту считаем, что $a <= $b'/
+    !$i = 0
+    !if $a > $b
+        !$i = 1
+    !endif
+    !return $i
+!end function
+
+!unquoted function getBalance($client)
+    !return %intval($db[$client][0])
+!end function
+
+/'TODO Дописать функцию обновления баланса'/
+!unquoted function changeAccBalance($client,$operation,$amount)
+    !if $operation == 1
+        !$newBalance = $currentBalance + $amount
+    !else
+        !$newBalance = $currentBalance + $amount
+    !endif
+    !return
+!end function
+
+!unquoted procedure operationController($data)
+    !$data = %str2json($data)
+    !$amount = %intval($data.amount)
+    !$from = $data.from
+    !$to = $data.to
+
+    !$accBalanceFrom = %call_user_func("getBalance", $from)
+    !$accBalanceTo = %call_user_func("getBalance", $to)
+
+    !$operationResult = 0
+
+    !if %call_user_func("compare",$accBalanceFrom, $amount)
+        !$newBalanceFrom = $accBalanceFrom - $amount
+        !$value = []
+        !$value = %json_add($value, $newBalanceFrom)
+        !$value = %json_merge($value, $db[$from])
+        !$db = %json_set($db, $from, $value)
+
+        !$newBalanceTo = $accBalanceTo + $amount
+        !$value = []
+        !$value = %json_add($value, $newBalanceTo)
+        !$value = %json_merge($value, $db[$to])
+        !$db = %json_set($db, $to, $value)
+        !$operationResult = 1
+        /'TODO Написать функцию вывода результата'/
+        /'TODO Шаблонизировтаь результат и ошибки'/
+        note across:**Выполнение программы**\n----\nРезультат операции: $defOperationResult[$operationResult]\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: $newBalanceFrom
+    !else
+        !$newBalanceFrom = $accBalanceFrom
+        !$newBalanceTo = $accBalanceTo
+        note across:Результат операции: $defOperationResult[$operationResult]\nНедостаточно средств. Ваш баланс: $newBalanceFrom
+    !endif
+!end procedure
+
+!unquoted procedure main($operation)
+    note across:$db
+    %invoke_procedure(operationController, $operation)
+    note across:$db
+!endprocedure
+
+!$tr1 = {
+"from" : "alice",
+"to" : "bob",
+"amount" : 1500
+}
+
+main($tr1)
+@enduml
