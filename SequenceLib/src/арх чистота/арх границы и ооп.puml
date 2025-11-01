@@ -121,9 +121,11 @@ amount
     bo --> srv--: Остатки
     srv -> srv: Сравнить остаток на счете $from с суммой операции $amount
     !if %call_user_func(compare, %call_user_func("getBalance",$from), $amount)
-        srv -> bo++: Изменить остатки по счетам $from и $to
+        srv -> bo++: Изменить остатки по счету $from
         bo --> srv--: Успех
         %invoke_procedure("changeBalance",$from,0,$amount)
+        srv -> bo++: Изменить остатки по счету $to
+        bo --> srv--: Успех
         %invoke_procedure("changeBalance",$to,1,$amount)
         /'TODO Написать функцию вывода результата'/
         /'TODO Шаблонизировтаь результат и ошибки'/
@@ -169,6 +171,6 @@ amount
     !$color = moccasin
     %invoke_procedure("debug", main, 1)
 !endprocedure
-main(alice,bob,1000,1)
-main(bob,alice,3000)
+main(alice,bob,10,1)
+main(bob,alice,-1)
 @enduml
