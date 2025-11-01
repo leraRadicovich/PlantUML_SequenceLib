@@ -1,0 +1,40 @@
+@startuml
+skinparam maxMessageSize 100
+actor "Client" as user order 0
+box "OIDC service" order
+participant "OauthService" as srv order 3
+database "CACHE" as redis order 4
+end box
+participant "authPlatform" as ap order 5
+
+!$status = %load_json("status.json")
+!$scope = %load_json("scope.json")
+!$sessionPattern = %load_json("session.json")
+!$serviceProvider = %load_json("serviceProvider.json")
+
+!$cache = []
+
+!unquoted procedure createParty($party, $name="")
+    !if %not(%json_key_exists($serviceProvider, $party))
+        !$noName = "noName_" + $party
+        participant $noName as $party order 2
+    !else
+        participant "$serviceProvider[$party].name" as $party order 2
+    !endif
+!endprocedure
+
+!unquoted procedure clEnterWebSite($site)
+    %invoke_procedure("createParty",$site)
+    user -> $site ++: Войти с помощью testID
+    $site -> srv++: попытка входа с параметрами\n$site, scope,\nвозьми управление
+    %invoke_procedure("clAuthorize",$site,INIT)
+!endprocedure
+
+/'Демонстрация фразы: на уровне контракта отвалится'/
+!unquoted procedure clAuthorize($sp, $stage, $id="", $pass="")
+    $sp -> srv: Тут нужно продумать что рисовать, т.к. пропущен фронт
+!endprocedure
+
+clEnterWebSite(testSp)
+clEnterWebSite(spForTest)
+@enduml

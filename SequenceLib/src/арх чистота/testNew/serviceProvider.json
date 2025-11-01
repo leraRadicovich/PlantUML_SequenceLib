@@ -1,0 +1,20 @@
+{
+  "testSp": {
+    "id": "1",
+    "name": "Центр повышения компетенций",
+    "scope": [
+      "name",
+      "surname"
+    ]
+  },
+  "spForTest": {
+    "id": "2",
+    "name": "spForTest",
+    "scope": [
+      "name",
+      "patronymic",
+      "surname",
+      "birthdate"
+    ]
+  }
+}
