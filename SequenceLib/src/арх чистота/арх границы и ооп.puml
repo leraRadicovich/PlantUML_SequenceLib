@@ -15,12 +15,12 @@ title Постановка и реализация в коде на пример
 == Реализация в постановке ==
 skinparam maxmessageSize 150
 
-actor "Alice" as a
+actor "Alice" as alice
 participant "PaymentService" as srv
 database "BackOffice" as bo
-actor "Bob" as b
+actor "Bob" as bob
 
-a ->o srv++: Перевести деньги Бобу
+alice ->o srv++: Перевести деньги Бобу
 
 srv -> bo++: Запросить отстатки на счете Alice и Bob
 bo --> srv--: Остатки по счетам
@@ -28,17 +28,19 @@ bo --> srv--: Остатки по счетам
 srv -> srv: Проверить остатки
 
 break У Алисы не хватает денег на перевод
-    srv --> a: Денег не хватает
+    srv --> alice: Денег не хватает
 end
 
 srv -> bo++: Сформировтаь транзакции: пополнить счет Боба, уменьшить счет Алисы
 bo --> srv--: Остатки по счетам изменены
-srv ->> b: Ваш счет пополнен
-srv --> a --: Операция выполнена
+srv ->> bob: Ваш счет пополнен
+srv --> alice --: Операция выполнена
 
 == Реализация в коде ==
 
 /'env'/
+!$id = 0
+
 !$db = {
     "alice" : [1000,0,500],
     "bob" : [50]
@@ -80,27 +82,35 @@ amount
 !end procedure
 
 !unquoted procedure operationController($data)
-    note across:Было:\n----\n$db
+    srv -> srv: Подготовить данные для сравнения
     !$data = %str2json($data)
     !$amount = %intval($data.amount)
     !$from = $data.from
     !$to = $data.to
 
     !$operationResult = 0
-
+    srv -> bo++: Запросить остатки по счетам $from и $to
+    bo --> srv--: Остатки
+    srv -> srv: Сравнить остаток на счете $from с суммой операции $amount
     !if %call_user_func(compare, %call_user_func("getBalance",$from), $amount)
         %invoke_procedure("changeBalance",$from,0,$amount)
         %invoke_procedure("changeBalance",$to,1,$amount)
+        srv -> bo++: Изменить остатки по счетам $from и $to
+        bo --> srv--: Успех
         /'TODO Написать функцию вывода результата'/
         /'TODO Шаблонизировтаь результат и ошибки'/
         !$operationResult = 1
         note across #lightgreen:**Выполнение программы**\n----\nОперация: перевод от $from к $to на сумму $amount.\nРезультат операции: $defOperationResult[$operationResult]\nСообщение для $from:\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: getBalance($from)
+        srv -> $to: Ваш счет пополнен
+        srv --> $from--: Деньги переведены
     !else
         !$newBalanceFrom = $accBalanceFrom
         !$newBalanceTo = $accBalanceTo
         note across#orange:**Выполнение программы**\n----\nОперация: перевод от $from к $to на сумму $amount.\nРезультат операции: $defOperationResult[$operationResult]\nСообщение для $from:\nНедостаточно средств. Ваш баланс: getBalance($from)
+        break Не хватает
+        srv --> $from--: Недостаточно средств
+        end
     !endif
-    note across:Стало:\n----\n$db
 !end procedure
 
 !unquoted function buildOperation($from, $to, $amount)
@@ -112,12 +122,19 @@ amount
 !end function
 
 !unquoted procedure main($from, $to, $amount)
+    !$id = $id + 1
+    == Операция с ид $id ==
+    note across:До операции:\n----\n$db
+    $from ->o srv++: Перевести $amount баксов $to
+    srv -> srv: Сформировать транзакцию
     !$operation = %call_user_func("buildOperation",$from, $to, $amount)
+    srv -> srv: Выполнение проверок
     %invoke_procedure(operationController, $operation)
+    note across:После операции:\n----\n$db
 !endprocedure
 
 main(alice,bob,25)
 main(bob,alice,350)
-
-
+main(alice,bob,0)
+main(alice,bob,-1)
 @enduml
