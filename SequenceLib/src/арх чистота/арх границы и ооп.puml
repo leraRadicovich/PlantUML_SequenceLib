@@ -68,9 +68,9 @@ amount
 
 !unquoted procedure changeBalance($client,$operation,$amount)
     !if $operation == 0
-        !$newBalance = %call_user_func("getBalance", $client) - $amount
+        !$newBalance = getBalance($client) - $amount
     !else
-        !$newBalance = %call_user_func("getBalance", $client) + $amount
+        !$newBalance = getBalance($client) + $amount
     !endif
 
     !$value = []
@@ -80,6 +80,7 @@ amount
 !end procedure
 
 !unquoted procedure operationController($data)
+    note across:Было:\n----\n$db
     !$data = %str2json($data)
     !$amount = %intval($data.amount)
     !$from = $data.from
@@ -87,31 +88,36 @@ amount
 
     !$operationResult = 0
 
-    !if %call_user_func("compare", %call_user_func("getBalance", $from), $amount)
+    !if %call_user_func(compare, %call_user_func("getBalance",$from), $amount)
         %invoke_procedure("changeBalance",$from,0,$amount)
         %invoke_procedure("changeBalance",$to,1,$amount)
         /'TODO Написать функцию вывода результата'/
         /'TODO Шаблонизировтаь результат и ошибки'/
         !$operationResult = 1
-        note across:**Выполнение программы**\n----\nРезультат операции: $defOperationResult[$operationResult]\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: %call_user_func("getBalance", $from)
+        note across #lightgreen:**Выполнение программы**\n----\nОперация: перевод от $from к $to на сумму $amount.\nРезультат операции: $defOperationResult[$operationResult]\nСообщение для $from:\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: getBalance($from)
     !else
         !$newBalanceFrom = $accBalanceFrom
         !$newBalanceTo = $accBalanceTo
-        note across:Результат операции: $defOperationResult[$operationResult]\nНедостаточно средств. Ваш баланс: %call_user_func("getBalance", $from)
+        note across#orange:**Выполнение программы**\n----\nОперация: перевод от $from к $to на сумму $amount.\nРезультат операции: $defOperationResult[$operationResult]\nСообщение для $from:\nНедостаточно средств. Ваш баланс: getBalance($from)
     !endif
+    note across:Стало:\n----\n$db
 !end procedure
 
-!unquoted procedure main($operation)
-    note across:$db
+!unquoted function buildOperation($from, $to, $amount)
+    !$operation = {}
+    !$operation = %json_add($operation, from, $from)
+    !$operation = %json_add($operation, to, $to)
+    !$operation = %json_add($operation, amount, $amount)
+    !return $operation
+!end function
+
+!unquoted procedure main($from, $to, $amount)
+    !$operation = %call_user_func("buildOperation",$from, $to, $amount)
     %invoke_procedure(operationController, $operation)
-    note across:$db
 !endprocedure
 
-!$tr1 = {
-"from" : "alice",
-"to" : "bob",
-"amount" : 150
-}
+main(alice,bob,25)
+main(bob,alice,350)
 
-main($tr1)
+
 @enduml
