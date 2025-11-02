@@ -1,6 +1,7 @@
 @startuml
 skinparam maxMessageSize 100
 actor "Client" as user order 0
+
 box "OIDC service" order
 participant "OauthService" as srv order 3
 database "CACHE" as redis order 4
@@ -12,29 +13,59 @@ participant "authPlatform" as ap order 5
 !$sessionPattern = %load_json("session.json")
 !$serviceProvider = %load_json("serviceProvider.json")
 
+!$cookie = {}
+!$localStorage = {
+    "Домашний браузер" : {
+        "login": "123login",
+        "name": "Иван",
+        "surname": "Иванов"
+        }
+}
+
 !$cache = []
 
-!unquoted procedure createParty($party, $name="")
+!unquoted function frontCheck($browser)
+    !$result = {"status":0}
+    !if %json_key_exists($localStorage, $browser)
+        !$result = %json_set($result, "status", 1)
+        !$result = %json_merge($result, $localStorage[$browser])
+    !end
+    !return $result
+!end function
+
+
+!unquoted procedure frontInit($party, $browser ="", $name="")
+    box "$browser" #lightblue
     !if %not(%json_key_exists($serviceProvider, $party))
         !$noName = "noName_" + $party
         participant $noName as $party order 2
     !else
         participant "$serviceProvider[$party].name" as $party order 2
     !endif
+    participant "front TEST ID" as front order 2
+    end box
 !endprocedure
 
-!unquoted procedure clEnterWebSite($site)
-    %invoke_procedure("createParty",$site)
-    user -> $site ++: Войти с помощью testID
-    $site -> srv++: попытка входа с параметрами\n$site, scope,\nвозьми управление
-    %invoke_procedure("clAuthorize",$site,INIT)
+!unquoted procedure clientEnterWebSite($browser, $site)
+    %invoke_procedure("frontInit",$site, $browser)
+    user -> $site ++: Войти в авторизованную зону
+    $site --> user: Варианты входа: TEST ID, OTHER ID, LOGIN/PASS
+    user -> $site : Войти с помощью testID
+    $site -> front ++: попытка входа с параметрами\n$site, scope,\nвозьми управление
+
+    %invoke_procedure("clientAuth",$site,INIT)
+
+    !$checkCurrentAuth = %call_user_func("frontCheck", $browser)
+    !$checkCurrentAuth = %str2json($checkCurrentAuth)
+
+    front --> user--: Здравствуйте $checkCurrentAuth.name $checkCurrentAuth.surname .\nКнопка "Войти по логину"
 !endprocedure
 
-/'Демонстрация фразы: на уровне контракта отвалится'/
-!unquoted procedure clAuthorize($sp, $stage, $id="", $pass="")
-    $sp -> srv: Тут нужно продумать что рисовать, т.к. пропущен фронт
+!unquoted procedure clientAuth($sp, $stage, $id="", $pass="")
+    front -> srv++: POST/oauth2/authorize\nheaders:[]\nbody:{serviceProvider = $sp, stage = $stage}
+    srv -> srv: <color: red>TBD\nТут нужно прописывать
+    srv --> front--:200OK
 !endprocedure
 
-clEnterWebSite(testSp)
-clEnterWebSite(spForTest)
+clientEnterWebSite("Домашний браузер", testSp)
 @enduml
