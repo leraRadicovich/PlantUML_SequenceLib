@@ -86,7 +86,7 @@ amount
         !$value = %json_merge($value, $db[$to])
         !$db = %json_set($db, $to, $value)
         !$operationResult = 1
-        note across:**Выполнение программы**\n----\nРезультат операции: $defOperationResult[$operationResult]\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: $newBalanceFrom
+        note across:**Результат операции**\n----\nРезультат операции: $defOperationResult[$operationResult]\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: $newBalanceFrom
     !else
         !$newBalanceFrom = $accBalanceFrom
         !$newBalanceTo = $accBalanceTo

@@ -62,6 +62,11 @@ amount
     !return $color
 !end function
 
+!unquoted function reColor()
+    !$color = %lighten($color, 10)
+    !return ""
+!end function
+
 !unquoted procedure debug($name, $position="")
     !if $debugMod == 1
         !if $position == ""
@@ -69,7 +74,7 @@ amount
     note across #moccasin: **START: $name**\nСостояние счетов:\n$db
         !else
     note across #moccasin: **END: $name**\nСостояние счетов:\n$db
-
+    reColor()
     end group
         !endif
     !endif
@@ -110,7 +115,7 @@ amount
 
 !unquoted procedure operationController($data)
     %invoke_procedure("debug",operationController)
-    srv -> srv: Подготовить данные для сравнения
+    group #lightgreen Запросить остатик и сравнить данные
     !$data = %str2json($data)
     !$amount = %intval($data.amount)
     !$from = $data.from
@@ -119,6 +124,7 @@ amount
     !$operationResult = 0
     srv -> bo++: Запросить остатки по счетам $from и $to
     bo --> srv--: Остатки
+    end group
     srv -> srv: Сравнить остаток на счете $from с суммой операции $amount
     !if %call_user_func(compare, %call_user_func("getBalance",$from), $amount)
         srv -> bo++: Изменить остатки по счету $from
@@ -132,15 +138,16 @@ amount
         !$operationResult = 1
         srv -> $to: Ваш счет пополнен
         srv --> $from--: Деньги переведены
-        note across #lightgreen:**Выполнение программы**\n----\nОперация: перевод от $from к $to на сумму $amount.\nРезультат операции: $defOperationResult[$operationResult]\nСообщение для $from:\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: getBalance($from)
+        note across #lightgreen:**Результат операции**\n----\nОперация: перевод от $from к $to на сумму $amount.\nРезультат операции: $defOperationResult[$operationResult]\nСообщение для $from:\nОсуществлен перевод с Вашего счета на счет $to. Ваш баланс: getBalance($from)
     !else
         !$newBalanceFrom = $accBalanceFrom
         !$newBalanceTo = $accBalanceTo
         break Не хватает
         srv --> $from--: Недостаточно средств
         end
-        note across#orange:**Выполнение программы**\n----\nОперация: перевод от $from к $to на сумму $amount.\nРезультат операции: $defOperationResult[$operationResult]\nСообщение для $from:\nНедостаточно средств. Ваш баланс: getBalance($from)
+        note across#orange:**Результат операции**\n----\nОперация: перевод от $from к $to на сумму $amount.\nРезультат операции: $defOperationResult[$operationResult]\nСообщение для $from:\nНедостаточно средств. Ваш баланс: getBalance($from)
     !endif
+
     %invoke_procedure("debug",operationController,1)
 !end procedure
 
@@ -164,13 +171,16 @@ amount
     !$id = $id + 1
     == Операция с ид $id ==
     $from ->o srv++: Перевести $amount баксов $to
-    srv -> srv: Сформировать транзакцию
+    srv -> srv: Сформировать транзакцию,а именно подготовить объект {from,to,amount}
     !$operation = %call_user_func("buildOperation",$from, $to, $amount)
-    srv -> srv: Выполнение проверок
     %invoke_procedure(operationController, $operation)
     !$color = moccasin
     %invoke_procedure("debug", main, 1)
 !endprocedure
+
+
 main(alice,bob,10,1)
-main(bob,alice,-1)
+
+
+
 @enduml
