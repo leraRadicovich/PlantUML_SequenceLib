@@ -1,0 +1,24 @@
+{
+  "testSp": {
+    "id": "1",
+    "name": "Центр повышения \\nкомпетенций",
+    "scope": [
+      "name",
+      "surname"
+    ],
+    "passwordRequired" : "0",
+    "consentRequired" : "0"
+  },
+  "spForTest": {
+    "id": "2",
+    "name": "Сервис провайдер \\nдля тестирования",
+    "scope": [
+      "name",
+      "patronymic",
+      "surname",
+      "birthdate"
+    ],
+    "passwordRequired" : "0",
+    "consentRequired" : "0"
+  }
+}
