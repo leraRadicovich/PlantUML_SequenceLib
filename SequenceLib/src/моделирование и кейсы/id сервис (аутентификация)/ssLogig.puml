@@ -1,0 +1,16 @@
+@startuml
+!unquoted procedure log($name, $proc, $entity)
+    !$record = {}
+    !$record = %json_add($record, "name", $name)
+    !$record = %json_add($record, "proc", $proc)
+    !$record = %json_add($record, "entity", $entity)
+    !$logDb = %json_add($logDb, $record)
+!endprocedure
+
+!unquoted procedure readLog()
+    note across
+!foreach $item in $logDb
+$item
+!endfor
+    end note
+!endprocedure

@@ -1,0 +1,19 @@
+@startuml
+skinparam maxmessagesize 150
+actor "Пользователь" as user order 0
+participant "Фронт\nTEST ID" as testid order 2
+participant "БЭК\nTEST ID" as id order 3
+database "Сессионный КЭШ" as redis order 4
+database "Справочники и\nнастройки" as psql order 5
+participant "Сервис аутентификации" as auth order 6
+database "ДБ сервиса\nаутентификации" as db order 7
+
+!$logDb = []
+
+!$clientCredentials = %load_json("clientCredentials.json")
+!$clientsInfo = %load_json("clientsInfo.json")
+!$serviceProviders = %load_json("serviceProviders.json")
+!$siteAttributes = %load_json("siteAttributes.json")
+
+!include spLogic.puml
+!include ssLogig.puml

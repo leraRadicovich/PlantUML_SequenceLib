@@ -1,0 +1,29 @@
+{
+  "testSp": {
+    "name": "Центр повышения\\nкомпетенций",
+    "authType": [
+      "login",
+      "passCode"
+    ],
+    "clientId": "1111",
+    "clientSecret": "2222",
+    "scope": [
+      "name",
+      "surname"
+    ],
+    "enabled": "true"
+  },
+  "newSp": {
+    "name": "Центр чистой\\nархитектуры",
+    "authType": [
+      "login"
+    ],
+    "clientId": "3333",
+    "clientSecret": "4444",
+    "scope": [
+      "name",
+      "surname"
+    ],
+    "enabled": "false"
+  }
+}
