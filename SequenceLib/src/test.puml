@@ -1,0 +1,14 @@
+@startuml
+!include C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v5.puml
+
+a->b: Тестируем алиасы
+
+!$currentAliasMap = {
+    "user" : {
+        "alias": "actor",
+        "type": "actor",
+        "name": "Пользователь"
+    }}
+parties("participant","Полное имя","name",1)
+parties("user1,user2","",,)
+@enduml

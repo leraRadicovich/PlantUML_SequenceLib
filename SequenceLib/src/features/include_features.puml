@@ -1,33 +1,5 @@
 @startuml
-/'Разделение логики между версиями'/
-!if %variable_exists("$majorVersion")
-    !include major5/serviceController.puml
-    !include major5/layerController.puml
-    !include major5/actionController.puml
-    !include major5/aliasController.puml
-    !include major5/legendController.puml
-    !include major5/commonFeatures.puml
-    !include major5/helpController.puml
-    !include major5/todoController.puml
-    !include major5/auditController.puml
-    !include major5/configController.puml
-    !include major5/metricController.puml
-    !include major5/errorController.puml
-    !include major5/noteAndRefController.puml
-    !include major5/originalSyntaxController.puml
-!else
-    !include oldVersion/serviceController.puml
-    !include oldVersion/layerController.puml
-    !include oldVersion/actionController.puml
-    !include oldVersion/aliasController.puml
-    !include oldVersion/legendController.puml
-    !include oldVersion/commonFeatures.puml
-    !include oldVersion/helpController.puml
-    !include oldVersion/todoController.puml
-    !include oldVersion/auditController.puml
-    !include oldVersion/configController.puml
-    !include oldVersion/metricController.puml
-    !include oldVersion/errorController.puml
-    !include oldVersion/noteAndRefController.puml
-    !include oldVersion/originalSyntaxController.puml
-!endif
+
+!include serviceController.puml
+!include aliasController.puml
+!include todoController.puml

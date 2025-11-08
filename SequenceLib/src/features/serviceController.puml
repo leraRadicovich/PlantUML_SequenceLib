@@ -1,0 +1,7 @@
+@startuml
+!unquoted procedure serviceError($command, $text, $field, $terminal = "")
+    hnote across#orange: <color:red><size:20>**[ОШИБКА]**\nОшибка в команде <color:blue>**$command**</color> - $text: <color:blue>**$field**.\nПроверьте корректность введенных данных.
+    !if $terminal == ""
+    $stop
+    !endif
+!endprocedure
