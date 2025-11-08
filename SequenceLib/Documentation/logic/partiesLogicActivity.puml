@@ -29,7 +29,7 @@ package parties #tan
 end group
 
 package checkPartyInput #tan
-    :Задать глобальный список !$aliasDefaultTypes = [participant,cator,queue,control];
+    :Задать глобальный список !$aliasDefaultTypes = [participant, database, queue, control];
     :Проверить заполненные поля: тип, имя, алиас, порядок;
     if (type найден в $aliasDefaultTypes?) then (Нет)
         :Установить alias == type;

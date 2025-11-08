@@ -1,0 +1,21 @@
+@startuml
+/'Вспомогательная процедура отрисовки участников: формирует мапу имя:алиас'/
+
+!unquoted procedure parties($partyType, $name="", $alias="", $order="")
+%invoke_procedure("partiesController", $partyType, $name, $alias, $order)
+!endprocedure
+
+!unquoted procedure checkPartyInput($partyType, $name="", $alias="", $order="")
+    !if %not(%json_key_exists($defaultPartyTypes, $partyType))
+        !$alias = $partyType
+        !$partyType = ""
+    !endif
+    %invoke_procedure("findAlias", $partyType, $name, $alias, $order)
+!endprocedure
+
+!unquoted procedure findAlias($partyType="", $name="", $alias="", $order="")
+    !$aliasArrayToCheck = []
+    !$alias = %splitstr($alias, ",")
+
+
+!endprocedure

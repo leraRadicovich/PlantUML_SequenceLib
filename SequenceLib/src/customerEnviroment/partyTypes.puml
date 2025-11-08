@@ -1,6 +1,6 @@
 @startuml
 /'Мапа алиасов'/
-!$partyTypes = {
+!$defaultAliasTypes = {
     "user": "actor",
     "client": "actor",
     "redis": "database",
@@ -15,13 +15,13 @@
     "MQ": "queue"
    }
 
-!$defaultTypes = [
-    "participant",
-    "actor",
-    "queue",
-    "boundary",
-    "control",
-    "entity",
-    "database",
-    "collections"
-]
+!$defaultPartyTypes = {
+    "participant": "Участник",
+    "actor": "Пользователь",
+    "queue": "Очередь",
+    "boundary": "Граница",
+    "control": "Контроль",
+    "entity": "Сущность",
+    "database": "БД",
+    "collections: "Коллекция"
+}

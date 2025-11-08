@@ -1,9 +1,0 @@
-@startuml
-!$customConfigMap = [
-    { "name": "libEnabled",
-      "type" : "boolean"
-    },
-    { "name": "libMode",
-      "type" : "string"
-    }
-]

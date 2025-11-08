@@ -7,5 +7,9 @@
     "srv" : {
       "type": "participant",
       "name": "Ваш сервис"
+    },
+    "core": {
+      "type": "participant",
+      "name": "Ядро"
     }
 }
