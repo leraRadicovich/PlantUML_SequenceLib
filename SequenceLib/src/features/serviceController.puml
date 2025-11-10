@@ -66,3 +66,7 @@ $item
     !endwhile
 !return $defaultTab
 !endfunction
+
+!unquoted procedure serviceError($error)
+    hnote across#orange: <color:red><size:20>**[ОШИБКА]**\n$error
+!endprocedure
