@@ -2,8 +2,9 @@
 /'Вспомогательная процедура отрисовки участников: формирует мапу имя:алиас'/
 
 !unquoted procedure parties($partyType, $name="", $alias="", $order="")
-%invoke_procedure("partiesController", $partyType, $name, $alias, $order)
+%invoke_procedure("checkPartyInput", $partyType, $name, $alias, $order)
 !endprocedure
+
 
 !unquoted procedure checkPartyInput($partyType, $name="", $alias="", $order="")
     !if %not(%json_key_exists($defaultPartyTypes, $partyType))
@@ -14,8 +15,25 @@
 !endprocedure
 
 !unquoted procedure findAlias($partyType="", $name="", $alias="", $order="")
-    !$aliasArrayToCheck = []
     !$alias = %splitstr($alias, ",")
-
+    !$searchResult = ""
+    !$aliasArrayToCheck = []
+    !$aliasToCheck = {}
+    !foreach $item in $alias
+        !if %json_key_exists($currentAliasMap,$item)
+            !$searchResult = 1
+        !else
+            !if %json_key_exists($customAliasMap,$item)
+                !$searchResult = 2
+            !else
+                !$searchResult = 0
+            !endif
+        !endif
+        !$aliasToCheck = %json_set($aliasToCheck, "type", $partyType)
+        !$aliasToCheck = %json_set($aliasToCheck, "name", $name)
+    note across:$aliasToCheck = $searchResult
+        !$aliasArrayToCheck = %json_add($aliasArrayToCheck, $item, $aliasToCheck)
+    note across:$aliasArrayToCheck\n $searchResult
+    !endfor
 
 !endprocedure

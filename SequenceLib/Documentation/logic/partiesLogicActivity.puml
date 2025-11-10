@@ -36,11 +36,11 @@ package checkPartyInput #tan
         :Установить type == "";
     else(Да)
     endif
-    :Установить alias = stringToArray(alias, ",");
     :Вызвать findAndCheckAlias(type, name, alias, order);
 end group
 
 package findAlias #tan
+    :Установить alias = stringToArray(alias, ",");
     :Создать пустой массив $aliasArrayToCheck;
     repeat:ЦИКЛ foreach item in alias
     :0 - новый участник,
