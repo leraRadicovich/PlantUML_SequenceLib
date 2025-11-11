@@ -2,65 +2,67 @@
 /'Вспомогательная процедура отрисовки участников: формирует мапу имя:алиас'/
 
 !unquoted procedure parties($partyType, $name="", $alias="", $order="")
-%invoke_procedure("checkPartyInput", $partyType, $name, $alias, $order)
+%invoke_procedure("checkAndPreparePartyInput", $partyType, $name, $alias, $order)
 !endprocedure
 
 
-!unquoted procedure checkPartyInput($partyType, $name="", $alias="", $order="")
-    !if %not(%json_key_exists($defaultPartyTypes, $partyType)) /'Вместо дефолтного типа участников можно передать несколько алиасов'/
+!unquoted procedure checkAndPreparePartyInput($partyType, $name="", $alias="", $order="")
+
+    /'Вместо дефолтного типа участников можно передать несколько алиасов'/
+    !if %not(%json_key_exists($defaultPartyTypes, $partyType))
         !$alias = $partyType
         !$partyType = ""
         !$name = ""
         !$order = ""
-    !else
-        !$aliasNumber = %splitstr($alias, ",")  /'Если не передан дефолтный тип участника, можно указать только 1 алиас'/
-        !if %size($aliasNumber) > 1
-            %invoke_procedure("serviceError",%string("Вы объвляете в команде parties одного участника\nс более чем одним алиасом: "+$aliasNumber+".\nПроверьте корректность введенных данных."))
-        !endif
+
+    /'Если не передан дефолтный тип участника, можно указать только 1 алиас'/
+    !elseif %size(%splitstr($alias, ",")) > 1
+        %invoke_procedure("serviceError",%string("Вы объвляете в команде parties участника <color:blue>**"+$name+"** \nс более чем одним алиасом: <color:blue>**"+%splitstr($alias, ",")+"**.\nПроверьте корректность введенных данных."))
     !endif
-    %invoke_procedure("prepareAliasArray", $partyType, $name, $alias, $order)
+
+    /'Переходим к подготовке объекта для добавления в диаграмму'/
+    %invoke_procedure("prepareAliasToAdd", $partyType, $name, $alias, $order)
 !endprocedure
 
-!unquoted procedure prepareAliasArray($partyType="", $name="", $alias="", $order="")
+!unquoted procedure prepareAliasToAdd($type="", $name="", $alias="", $order="")
     !$alias = %splitstr($alias, ",")
-    !$aliasArrayToCheck = []
 
     !foreach $item in $alias
-        !$itemAttributes = {}
-        !$aliasToCheck = {}
-
+        !$partyAttributes = {}
+        !$defaultAttr = ["type", "name", "order"]
         /'Формируем объект для добавления в текущий список участников'/
-        !$itemAttributes = %json_add($itemAttributes, "name", $name)
-        !$itemAttributes = %json_add($itemAttributes, "type", $partyType)
-        !$itemAttributes = %json_add($itemAttributes, "order", $order)
-        !$aliasToCheck = %json_add($aliasToCheck, $item, $itemAttributes)
-        !$aliasArrayToCheck = %json_add($aliasArrayToCheck, $aliasToCheck)
+        !foreach $attr in $defaultAttr
+            !$value = %get_variable_value("$"+$attr)
+            !$partyAttributes = %json_add($partyAttributes, $attr, $value)
+        !endfor
+        %invoke_procedure("checkAliasAttributes", $item, $partyAttributes)
     !endfor
-
-    %invoke_procedure("checkAliasAttributes",$aliasArrayToCheck)
 !endprocedure
 
-!unquoted procedure checkAliasAttributes($arrayToCheck)
-    !foreach $item in $arrayToCheck
-        /'Найден в текущей диаграмме'/
-        !if %json_key_exists($currentAliasMap,$item)
-            %invoke_procedure("serviceError",%string("Вы объявляете в команде parties\nодного участника с уже используемым алиасом: " + $item + ".\nПроверьте корректность введенных данных."))
-
-        /'Найден в кастомных настройках'/
-        !elseif %json_key_exists($customAliasMap,$item)
-
-        /'Новый участник'/
-        !else
-            !if $item.name == ""
-                !$newName = %get_json_keys($item)
-                !$newName = $newName[0]
-                !$newName = %call_user_func("makeNameByAlias", $newName)
-                !$arrayToCheck = %json_set($item, name, $newName)
-            !endif
-            %invoke_procedure("todo","Добавляется интеграция с новым участником: $name")
+!unquoted procedure checkAliasAttributes($alias, $partyAttributes)
+        /'Проверка orderId'/
+        !if $partyAttributes.order == ""
+            !$orderId = $orderId + 1
+            !$partyAttributes = %json_set($partyAttributes, order, $orderId)
         !endif
-    !endfor
-    note across:$arrayToCheck
+
+        /'Если alias в текущей диаграмме'/
+        !if %json_key_exists($currentAliasMap, $alias)
+            %invoke_procedure("serviceError",%string("Вы объявляете в команде parties участника\nс уже используемым алиасом: <color:blue>**" + $item + "**.\nПроверьте корректность введенных данных."))
+
+        /'Если alias найден в кастомных настройках'/
+        !elseif %json_key_exists($customAliasMap, $alias)
+        /'TODO: Добить сравнение полей'/
+        /'TODO: Добить вызов добавления в каррент и отрисовку'/
+        /'Если alias - новый участник'/
+        !else
+            !if $partyAttributes.name == ""
+                !$partyAttributes = %json_set($partyAttributes, name, %call_user_func("makeNameByAlias", $alias))
+            !endif
+            %invoke_procedure("todo","Добавляется интеграция с новым участником: $partyAttributes.name")
+        /'TODO: Добить вызов добавления в каррент и отрисовку'/
+        !endif
+        note across: $partyAttributes
 !endprocedure
 
 !unquoted function makeNameByAlias($var)
