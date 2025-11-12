@@ -5,7 +5,6 @@
 %invoke_procedure("checkPartyInput", $partyType, $name, $alias, $order)
 !endprocedure
 
-
 !unquoted procedure checkPartyInput($partyType, $name="", $alias="", $order="")
     /'Вместо дефолтного типа участников можно передать несколько алиасов'/
     !if %not(%json_key_exists($defaultPartyTypes, $partyType))
@@ -57,10 +56,10 @@
         /'Если alias нигде не найден - новый участник'/
         !else
             !if $partyAttributes.name == ""
-                !$partyAttributes = %json_set($partyAttributes, name, %call_user_func("makeNameByAlias", $alias))
+                !$partyAttributes = %json_set($partyAttributes, name, %call_user_func("getNameByAlias", $alias))
             !endif
             !if $partyAttributes.type == ""
-                !$partyAttributes = %json_set($partyAttributes, type, %call_user_func("makeTypeByAlias", $alias))
+                !$partyAttributes = %json_set($partyAttributes, type, %call_user_func("getTypeByAlias", $alias))
             !endif
             %invoke_procedure("todo","Добавляется интеграция с новым участником: $partyAttributes.name")
         !endif
@@ -68,12 +67,12 @@
         %invoke_procedure("outputAliasController", $partyAttributes)
 !endprocedure
 
-!unquoted function makeNameByAlias($var)
+!unquoted function getNameByAlias($var)
     !$nameByAlias = %upper(%substr($var,0,1)) + %substr($var,1)
     !return $nameByAlias
 !end function
 
-!unquoted function makeTypeByAlias($var)
+!unquoted function getTypeByAlias($var)
     !$typeByAlias = "participant"
     /'TODO Дописать определение типа по алиасу, например user1 - actor, redis_123 - database'/
     !return $typeByAlias
@@ -82,3 +81,5 @@
 !unquoted procedure outputAliasController($partyAttributes)
 $partyAttributes.type "$partyAttributes.name" as $partyAttributes.alias order $partyAttributes.order
 !endprocedure
+
+/'TODO Дописать боксы'/
