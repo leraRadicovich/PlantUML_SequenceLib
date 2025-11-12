@@ -73,8 +73,13 @@
 !end function
 
 !unquoted function getTypeByAlias($var)
-        !$typeByAlias = "participant"
-    /'TODO Дописать определение типа по алиасу, например user1 - actor, redis_123 - database'/
+    !$typeByAlias = "participant"
+    !$list = %get_json_keys($partyTypesDictionary)
+    !foreach $item in $list
+        !if %strpos($var, $item) > 0 || %strpos($var, $item) == 0
+            !$typeByAlias = $partyTypesDictionary[$item]
+        !endif
+    !endfor
     !return $typeByAlias
 !end function
 
