@@ -5,11 +5,10 @@ a->b: Тестируем алиасы
 
 !$currentAliasMap = {
     "user" : {
-      "type": "actor",
-      "name": "Пользователь"
+        "alias": "actor",
+        "type": "actor",
+        "name": "Пользователь"
     }}
-parties("participant","Полное имя","user,fasf",1)
-parties("user,sdf","",,)
-
-
+parties("participant","Полное имя","name",1)
+parties("user1,user2","",,)
 @enduml

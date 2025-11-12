@@ -2,12 +2,11 @@
 /'Вспомогательная процедура отрисовки участников: формирует мапу имя:алиас'/
 
 !unquoted procedure parties($partyType, $name="", $alias="", $order="")
-%invoke_procedure("checkAndPreparePartyInput", $partyType, $name, $alias, $order)
+%invoke_procedure("checkPartyInput", $partyType, $name, $alias, $order)
 !endprocedure
 
 
-!unquoted procedure checkAndPreparePartyInput($partyType, $name="", $alias="", $order="")
-
+!unquoted procedure checkPartyInput($partyType, $name="", $alias="", $order="")
     /'Вместо дефолтного типа участников можно передать несколько алиасов'/
     !if %not(%json_key_exists($defaultPartyTypes, $partyType))
         !$alias = $partyType
@@ -17,22 +16,26 @@
 
     /'Если не передан дефолтный тип участника, можно указать только 1 алиас'/
     !elseif %size(%splitstr($alias, ",")) > 1
-        %invoke_procedure("serviceError",%string("Вы объвляете в команде parties участника <color:blue>**"+$name+"** \nс более чем одним алиасом: <color:blue>**"+%splitstr($alias, ",")+"**.\nПроверьте корректность введенных данных."))
+        %invoke_procedure("serviceError", parties, "добавление участника\nс более чем одним алиасом", $alias)
     !endif
 
     /'Переходим к подготовке объекта для добавления в диаграмму'/
-    %invoke_procedure("prepareAliasToAdd", $partyType, $name, $alias, $order)
+    %invoke_procedure("buildAliasToAdd", $partyType, $name, $alias, $order)
 !endprocedure
 
-!unquoted procedure prepareAliasToAdd($type="", $name="", $alias="", $order="")
+!unquoted procedure buildAliasToAdd($type="", $name="", $alias="", $order="")
     !$alias = %splitstr($alias, ",")
 
     !foreach $item in $alias
         !$partyAttributes = {}
-        !$defaultAttr = ["type", "name", "order"]
+        !$defaultAttr = ["alias", "type", "name", "order"]
         /'Формируем объект для добавления в текущий список участников'/
         !foreach $attr in $defaultAttr
-            !$value = %get_variable_value("$"+$attr)
+            !if $attr == "alias"
+                !$value = $item
+            !else
+                !$value = %get_variable_value("$"+$attr)
+            !endif
             !$partyAttributes = %json_add($partyAttributes, $attr, $value)
         !endfor
         %invoke_procedure("checkAliasAttributes", $item, $partyAttributes)
@@ -45,27 +48,37 @@
             !$orderId = $orderId + 1
             !$partyAttributes = %json_set($partyAttributes, order, $orderId)
         !endif
-
-        /'Если alias в текущей диаграмме'/
+        /'Если alias найден в текущей диаграмме $currentAliasMap'/
         !if %json_key_exists($currentAliasMap, $alias)
-            %invoke_procedure("serviceError",%string("Вы объявляете в команде parties участника\nс уже используемым алиасом: <color:blue>**" + $item + "**.\nПроверьте корректность введенных данных."))
-
-        /'Если alias найден в кастомных настройках'/
+            %invoke_procedure("serviceError", parties, "добавление участника\nс уже используемым алиасом", $alias)
+        /'Если alias найден в кастомных настройках $customAliasMap'/
         !elseif %json_key_exists($customAliasMap, $alias)
-        /'TODO: Добить сравнение полей'/
-        /'TODO: Добить вызов добавления в каррент и отрисовку'/
-        /'Если alias - новый участник'/
+        /'TODO: Добавить сравнение полей'/
+        /'Если alias нигде не найден - новый участник'/
         !else
             !if $partyAttributes.name == ""
                 !$partyAttributes = %json_set($partyAttributes, name, %call_user_func("makeNameByAlias", $alias))
             !endif
+            !if $partyAttributes.type == ""
+                !$partyAttributes = %json_set($partyAttributes, type, %call_user_func("makeTypeByAlias", $alias))
+            !endif
             %invoke_procedure("todo","Добавляется интеграция с новым участником: $partyAttributes.name")
-        /'TODO: Добить вызов добавления в каррент и отрисовку'/
         !endif
-        note across: $partyAttributes
+        !$currentAliasMap = %json_add($currentAliasMap, $alias, $partyAttributes)
+        %invoke_procedure("outputAliasController", $partyAttributes)
 !endprocedure
 
 !unquoted function makeNameByAlias($var)
     !$nameByAlias = %upper(%substr($var,0,1)) + %substr($var,1)
     !return $nameByAlias
 !end function
+
+!unquoted function makeTypeByAlias($var)
+    !$typeByAlias = "participant"
+    /'TODO Дописать определение типа по алиасу, например user1 - actor, redis_123 - database'/
+    !return $typeByAlias
+!end function
+
+!unquoted procedure outputAliasController($partyAttributes)
+$partyAttributes.type "$partyAttributes.name" as $partyAttributes.alias order $partyAttributes.order
+!endprocedure

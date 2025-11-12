@@ -36,17 +36,13 @@ package checkPartyInput #tan
         :Установить type == "";
     else(Да)
     endif
-    :Вызвать findAndCheckAlias(type, name, alias, order);
+    :Вызвать buildAliasToAdd(type, name, alias, order);
 end group
 
 package findAlias #tan
     :Установить alias = stringToArray(alias, ",");
-    :Создать пустой массив $aliasArrayToCheck;
     repeat:ЦИКЛ foreach item in alias
-    :0 - новый участник,
-    1 - найден в $currentAliasMap
-    2 - найден в $customAliasMap/
-    :Найти алиас в $currentAliasMap;
+    :Создать пустой массив $aliasToCheck;
     if(Найден?) then(Да)
        :Установить $searchResult = 1;
     else(Нет)
@@ -70,49 +66,48 @@ end group
 
 package checkAliasAttributes #tan
     repeat:ЦИКЛ foreach item in $aliasArrayToCheck;
-    if(item.alias.searchResult = 0) then(Да)
-        if(item.aliass.name == NULL) then(Да)
-            package convertAliasToName #moccasin
-            :Вызвать convertAliasToName:
-            увеличить регистр 1-ой буквы алиаса,
-            сохранить полученное значение в item.aliass.name;
-            end group
-        else(Нет)
-        endif
-        :Вызывать тудушку:
-        Добавляется интеграция с $item.name,
-        обновите пользовательскую библиотеку участников: $item;
-    elseif(item.alias.searchResult = 1) then(Да)
+    :Инкрементировать orderId на 1, если пустой;
+    :Установить в текущем объекте полученный orderId;
+    :Найти алиас в $currentAliasMap;
+    if(Найден?) then(Да)
         #yellow:Вывести яркую заметку:
         Вы указали неуникальный для этой диаграммы алиас $alias,
         проверьте корректность введенных данных;
-    elseif(item.alias.searchResult = 2) then(Да)
-        :Вызывать compareAliasAttributes($item);
-        package compareAliasAttributes #moccasin
-            :Задать глобальный список !$aliasAttributesToCompare = [type,name];
-            repeat:ЦИКЛ foreach attr in $aliasAttributesToCompare;
-                if(item.alias.attr = "") then(Нет)
-                    if(item.alias.attr == custom.alias.attr?) then(Нет)
-                        :Вызвать тудушку:
-                        Введенный attr не совпадает
-                        с пользовательскими настройками.
-                        Уточните данные или обновите
-                        пользовательску библиотеку $item;
+    else(Нет)
+        :Найти в $customAliasMap;
+        if (Найден?) then (Нет)
+            if(item.aliass.name == NULL) then(Да)
+                package makeNameByAlias #moccasin
+                :Вызвать makeNameByAlias:
+                увеличить регистр 1-ой буквы алиаса,
+                сохранить полученное значение в item.aliass.name;
+                end group
+            else(Нет)
+            endif
+            :Вызывать тудушку:
+            Добавляется интеграция с $item.name,
+            обновите пользовательскую библиотеку участников: $item;
+        else(Да)
+            :Вызывать compareAliasAttributes($item);
+            package compareAliasAttributes #moccasin
+                :Задать список !$aliasAttributesToCompare = [type,name];
+                repeat:ЦИКЛ foreach attr in $aliasAttributesToCompare;
+                    if(item.alias.attr = "") then(Нет)
+                        if(item.alias.attr == custom.alias.attr?) then(Нет)
+                            :Вызвать тудушку:
+                            Введенный attr не совпадает
+                            с пользовательскими настройками.
+                            Уточните данные или обновите
+                            пользовательску библиотеку $item;
+                        else(Да)
+                        endif
                     else(Да)
+                        :Установить item.alias.attr = custom.alias.attr;
                     endif
-                else(Да)
-                    :Установить item.alias.attr = custom.alias.attr;
-                endif
-            repeat while (Все атрибуты проверили?) is (Нет) not (Да)
-        end group
+                repeat while (Все атрибуты проверили?) is (Нет) not (Да)
+            end group
+        endif
     endif
-    :Увеличить глобальную orderId на 1;
-    :Добавить orderId в item:
-    {"alias": {
-        "type":"value",
-        "name":"value",
-        "searchResult":"value",
-        "orderId":"value"}};
     :Добавить item в $currentAliasMap;
     repeat while (Весь массив обработан?) is (Нет) not (Да)
     :Вызвать partyOutputController($aliasArrayToCheck);
