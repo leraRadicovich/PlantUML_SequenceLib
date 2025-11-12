@@ -9,6 +9,8 @@ a->b: Тестируем алиасы
         "type": "actor",
         "name": "Пользователь"
     }}
-parties("participant","Полное имя","name",1)
-parties("user1,user2","",,)
+note across: %strpos("123user", "ur")\ngetTypeByAlias(user1)
+
+parties("user132456","",,)
+
 @enduml

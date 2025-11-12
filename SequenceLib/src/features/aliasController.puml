@@ -73,7 +73,7 @@
 !end function
 
 !unquoted function getTypeByAlias($var)
-    !$typeByAlias = "participant"
+        !$typeByAlias = "participant"
     /'TODO Дописать определение типа по алиасу, например user1 - actor, redis_123 - database'/
     !return $typeByAlias
 !end function

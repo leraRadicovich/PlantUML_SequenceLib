@@ -1,13 +1,14 @@
 @startuml
 /'Мапа алиасов'/
-!$defaultAliasTypes = {
+!$partyTypesDictionary = {
     "user": "actor",
     "client": "actor",
     "redis": "database",
-    "PostgreSql": "database",
+    "psql": "database",
     "postgre": "database",
     "postgres": "database",
     "postgreSQL": "database",
+    "PostgreSql": "database",
     "kafka": "queue",
     "queue": "queue",
     "rabbit": "queue",
