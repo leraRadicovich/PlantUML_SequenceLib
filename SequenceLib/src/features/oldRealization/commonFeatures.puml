@@ -21,10 +21,9 @@ title Диаграмма: <color:blue>$sequenceName $on
     !if $by != ""
         !$originalBy = "\n<color:black>Author: <color:blue>" + $by
     !else
+        !$originalBy = ""
         !if %variable_exists("$author")
             !$originalBy = "\n<color:black>Author: <color:blue>" + $author
-        !else
-            !$originalBy = ""
         !endif
     !endif
     header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $originalBy

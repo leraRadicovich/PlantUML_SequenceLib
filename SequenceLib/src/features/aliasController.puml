@@ -50,9 +50,12 @@
         /'Если alias найден в текущей диаграмме $currentAliasMap'/
         !if %json_key_exists($currentAliasMap, $alias)
             %invoke_procedure("serviceError", parties, "добавление участника\nс уже используемым алиасом", $alias)
+        !endif
+
         /'Если alias найден в кастомных настройках $customAliasMap'/
-        !elseif %json_key_exists($customAliasMap, $alias)
+        !if %json_key_exists($customAliasMap, $alias)
         /'TODO: Добавить сравнение полей'/
+        note across: aga
         /'Если alias нигде не найден - новый участник'/
         !else
             !if $partyAttributes.name == ""
@@ -74,8 +77,7 @@
 
 !unquoted function getTypeByAlias($var)
     !$typeByAlias = "participant"
-    !$list = %get_json_keys($partyTypesDictionary)
-    !foreach $item in $list
+    !foreach $item in %get_json_keys($partyTypesDictionary)
         !if %strpos($var, $item) > 0 || %strpos($var, $item) == 0
             !$typeByAlias = $partyTypesDictionary[$item]
         !endif

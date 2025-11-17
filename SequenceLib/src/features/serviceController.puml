@@ -1,7 +1,29 @@
 @startuml
+/'Вывод ошибки'/
 !unquoted procedure serviceError($command, $text, $field, $terminal = "")
     hnote across#orange: <color:red><size:20>**[ОШИБКА]**\nОшибка в команде <color:blue>**$command**</color> - $text: <color:blue>**$field**.\nПроверьте корректность введенных данных.
+    /'TODO подумать над необходимостью выделения терминальных ошибок, скорее всего все ошибки тут терминальные будут'/
     !if $terminal == ""
     $stop
     !endif
 !endprocedure
+
+/'Обработчик передаваемых в процедуры цветов'/
+!unquoted function colorController($color="")
+    !if $color != ""
+        !$color = "#" + $color
+    !endif
+    !return $color
+!end function
+
+/'Затемнение цвета'/
+!unquoted function DARKEN($color,$step)
+    !$color = %substr((%darken($color, %intval($step))),1)
+    !return $color
+!endfunction
+
+/'Осветление цвета'/
+!unquoted function LIGHTEN($color,$step)
+    !$color = %substr((%lighten($color, %intval($step))),1)
+    !return $color
+!endfunction
