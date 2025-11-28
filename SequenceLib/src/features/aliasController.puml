@@ -24,16 +24,14 @@
 
 !unquoted procedure buildAliasToAdd($type="", $name="", $alias="", $order="")
     !$alias = %splitstr($alias, ",")
-
+    !$defaultAttr = ["alias", "type", "name", "order"]
     !foreach $item in $alias
         !$partyAttributes = {}
-        !$defaultAttr = ["alias", "type", "name", "order"]
         /'Формируем объект для добавления в текущий список участников'/
         !foreach $attr in $defaultAttr
+            !$value = %get_variable_value("$"+$attr)
             !if $attr == "alias"
                 !$value = $item
-            !else
-                !$value = %get_variable_value("$"+$attr)
             !endif
             !$partyAttributes = %json_add($partyAttributes, $attr, $value)
         !endfor
@@ -44,9 +42,11 @@
 !unquoted procedure checkAliasAttributes($alias, $partyAttributes)
         /'Проверка orderId'/
         !if $partyAttributes.order == ""
+            /'TODO продумать, точно ли здесь нужно orderId считать, что в боксах будет'/
             !$orderId = $orderId + 1
             !$partyAttributes = %json_set($partyAttributes, order, $orderId)
         !endif
+
         /'Если alias найден в текущей диаграмме $currentAliasMap'/
         !if %json_key_exists($currentAliasMap, $alias)
             %invoke_procedure("serviceError", parties, "добавление участника\nс уже используемым алиасом", $alias)
@@ -54,10 +54,18 @@
 
         /'Если alias найден в кастомных настройках $customAliasMap'/
         !if %json_key_exists($customAliasMap, $alias)
-        /'TODO: Добавить сравнение полей'/
-        note across: aga
+
+            !if $partyAttributes.type == ""
+                !$partyAttributes = %json_set($partyAttributes, type, $customAliasMap[$alias].type)
+            !endif
+
+            !if $partyAttributes.name == ""
+                !$partyAttributes = %json_set($partyAttributes, name, $customAliasMap[$alias].name)
+            !endif
+        !endif
+
         /'Если alias нигде не найден - новый участник'/
-        !else
+        !if %not(%json_key_exists($customAliasMap, $alias))
             !if $partyAttributes.name == ""
                 !$partyAttributes = %json_set($partyAttributes, name, %call_user_func("getNameByAlias", $alias))
             !endif
