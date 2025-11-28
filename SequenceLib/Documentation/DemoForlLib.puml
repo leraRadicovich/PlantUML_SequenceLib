@@ -1,5 +1,5 @@
 @startuml
-!include C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v4.puml
+!include C:\Users\valik\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v4.puml
 diagramInit(final,"Диаграмма для AnalystDays")
 
 /'Как объявлять участников'/
