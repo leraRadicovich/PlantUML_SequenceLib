@@ -1,4 +1,5 @@
 @startuml
+/'TODO Додумать вывод в диаграмму с оригинальным синтаксисом'/
 /'Вспомогательная процедура отрисовки участников: формирует мапу имя:алиас'/
 
 !unquoted procedure parties($partyType, $name="", $alias="", $order="")
@@ -55,13 +56,12 @@
         !foreach $field in ["type", "name"]
             !$value = ""
             !if %json_key_exists($customAliasMap, $alias)
-                /'Если alias найден в пользовательских настройках и дублирует их'/
+                /'Если alias найден в пользовательских настройках'/
                 !if $partyAttributes[$field] == ""
                     !$value = $customAliasMap[$alias][$field]
-                /'Если alias найден в пользовательских настройках, но не дублирует их'/
-                !elseif $partyAttributes[$field] != "" && $partyAttributes[$field] != $customAliasMap[$alias][$field]
-                    %invoke_procedure("todo","Добавляется интеграция с новым участником: $partyAttributes[$field]")
-                    %invoke_procedure("todo","В пользовательских настройках обнаружен участник с алиасом $alias, но с другим $field - возможно стоит актуализировать пользовательские настройки.")
+                /'Если alias найден в пользовательских настройках, но объявлен, как новый участник'/
+                !elseif $partyAttributes[$field] != "" /'&& $partyAttributes[$field] != $customAliasMap[$alias][$field]'/
+                    %invoke_procedure("todo","Проверьте customAliasMap, возможно стоит актуализировать пользовательские настройки.")
                 !endif
             !else
                 /'Если alias нигде не найден - новый участник'/
@@ -69,7 +69,7 @@
                 !if $partyAttributes[$field] == ""
                     !$value = %call_user_func($functionName, $alias)
                 !endif
-                %invoke_procedure("todo","Добавляется интеграция с новым участником: $partyAttributes.name")
+                %invoke_procedure("todo","Добавьте в customAliasMap нового участника $alias:$partyAttributes")
             !endif
 
             !if $value != ""
@@ -78,7 +78,7 @@
         !endfor
 
         !$currentAliasMap = %json_add($currentAliasMap, $alias, $partyAttributes)
-        %invoke_procedure("outputAliasController", $partyAttributes)
+        %invoke_procedure("outputAliasController", $alias)
 !endprocedure
 
 !unquoted function getNameByAlias($var)
@@ -98,12 +98,41 @@
 !end function
 
 
-!unquoted procedure outputAliasController($partyAttributes)
-$partyAttributes.type "$partyAttributes.name" as $partyAttributes.alias order $partyAttributes.order
+!unquoted procedure outputAliasController($alias)
+$currentAliasMap[$alias].type "$currentAliasMap[$alias].name" as $currentAliasMap[$alias].alias order $currentAliasMap[$alias].order
 !endprocedure
 
-/'TODO Дописать боксы'/
+/' Интерфейсная процедура '/
+!unquoted procedure BOX($name, $color="", $parties="")
+    %invoke_procedure("boxController", $name, $color, $parties)
+!endprocedure
 
+/' Контроллер - логика обработки '/
+!unquoted procedure boxController($name, $color="", $parties)
+    /' Сначала выводим открытие box '/
+    !if $color != ""
+        !$color = colorController($color)
+    !endif
+    box $name $color
+    /' Если есть участники - обрабатываем их '/
+    !if $parties != ""
+        /' Проверяем каждый алиас '/
+        !$partyAliases = %splitstr($parties, ",")
+        !foreach $alias in $partyAliases
+            !if %json_key_exists($currentAliasMap, $alias)
+                /' Алиас существует - перемещаем в конец списка '/
+                !$partyData = $currentAliasMap[$alias]
+                !$currentAliasMap = %json_remove($currentAliasMap, $alias)
+                !$currentAliasMap = %json_add($currentAliasMap, $alias, $partyData)
+                %invoke_procedure("outputAliasController", $alias)
+            !else
+                /' Алиас не существует - создаем через parties() '/
+                %invoke_procedure("parties", $alias)
+            !endif
+        !endfor
+    end box
+    !endif
+!endprocedure
 
 
 
