@@ -52,28 +52,31 @@
             %invoke_procedure("serviceError", parties, "добавление участника\nс уже используемым алиасом", $alias)
         !endif
 
-        /'Если alias найден в кастомных настройках $customAliasMap'/
-        !if %json_key_exists($customAliasMap, $alias)
-
-            !if $partyAttributes.type == ""
-                !$partyAttributes = %json_set($partyAttributes, type, $customAliasMap[$alias].type)
+        !foreach $field in ["type", "name"]
+            !$value = ""
+            !if %json_key_exists($customAliasMap, $alias)
+                /'Если alias найден в пользовательских настройках и дублирует их'/
+                !if $partyAttributes[$field] == ""
+                    !$value = $customAliasMap[$alias][$field]
+                /'Если alias найден в пользовательских настройках, но не дублирует их'/
+                !elseif $partyAttributes[$field] != "" && $partyAttributes[$field] != $customAliasMap[$alias][$field]
+                    %invoke_procedure("todo","Добавляется интеграция с новым участником: $partyAttributes[$field]")
+                    %invoke_procedure("todo","В пользовательских настройках обнаружен участник с алиасом $alias, но с другим $field - возможно стоит актуализировать пользовательские настройки.")
+                !endif
+            !else
+                /'Если alias нигде не найден - новый участник'/
+                !$functionName = "get" + %call_user_func("getNameByAlias", $field) + "ByAlias"
+                !if $partyAttributes[$field] == ""
+                    !$value = %call_user_func($functionName, $alias)
+                !endif
+                %invoke_procedure("todo","Добавляется интеграция с новым участником: $partyAttributes.name")
             !endif
 
-            !if $partyAttributes.name == ""
-                !$partyAttributes = %json_set($partyAttributes, name, $customAliasMap[$alias].name)
+            !if $value != ""
+                !$partyAttributes = %json_set($partyAttributes, $field, $value)
             !endif
-        !endif
+        !endfor
 
-        /'Если alias нигде не найден - новый участник'/
-        !if %not(%json_key_exists($customAliasMap, $alias))
-            !if $partyAttributes.name == ""
-                !$partyAttributes = %json_set($partyAttributes, name, %call_user_func("getNameByAlias", $alias))
-            !endif
-            !if $partyAttributes.type == ""
-                !$partyAttributes = %json_set($partyAttributes, type, %call_user_func("getTypeByAlias", $alias))
-            !endif
-            %invoke_procedure("todo","Добавляется интеграция с новым участником: $partyAttributes.name")
-        !endif
         !$currentAliasMap = %json_add($currentAliasMap, $alias, $partyAttributes)
         %invoke_procedure("outputAliasController", $partyAttributes)
 !endprocedure
@@ -86,15 +89,22 @@
 !unquoted function getTypeByAlias($var)
     !$typeByAlias = "participant"
     !foreach $item in %get_json_keys($partyTypesDictionary)
-        !if %strpos($var, $item) > 0 || %strpos($var, $item) == 0
+        !if %strpos($var, $item) >= 0
             !$typeByAlias = $partyTypesDictionary[$item]
+            !break
         !endif
     !endfor
     !return $typeByAlias
 !end function
+
 
 !unquoted procedure outputAliasController($partyAttributes)
 $partyAttributes.type "$partyAttributes.name" as $partyAttributes.alias order $partyAttributes.order
 !endprocedure
 
 /'TODO Дописать боксы'/
+
+
+
+
+
