@@ -123,8 +123,7 @@ $currentAliasMap[$alias].type "$currentAliasMap[$alias].name" as $currentAliasMa
                 /' Алиас существует - перемещаем в конец списка '/
                 !$partyData = $currentAliasMap[$alias]
                 !$currentAliasMap = %json_remove($currentAliasMap, $alias)
-                !$currentAliasMap = %json_add($currentAliasMap, $alias, $partyData)
-                %invoke_procedure("outputAliasController", $alias)
+                %invoke_procedure("parties", $partyData.type, $partyData.name, $alias)
             !else
                 /' Алиас не существует - создаем через parties() '/
                 %invoke_procedure("parties", $alias)
