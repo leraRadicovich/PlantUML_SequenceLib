@@ -21,9 +21,10 @@ title Диаграмма: <color:blue>$sequenceName $on
     !if $by != ""
         !$originalBy = "\n<color:black>Author: <color:blue>" + $by
     !else
-        !$originalBy = ""
         !if %variable_exists("$author")
             !$originalBy = "\n<color:black>Author: <color:blue>" + $author
+        !else
+            !$originalBy = ""
         !endif
     !endif
     header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $originalBy
@@ -46,9 +47,11 @@ title Диаграмма: <color:blue>$sequenceName $on
     !$partiesList = ""
     !$partiesList = %splitstr($value, ",")
 !foreach $party in $partiesList
-%invoke_procedure("aliasCheck", $party)
+!if %not(%json_key_exists($currentAliasMap, $party))
+%invoke_procedure("checkParties", $party)
 %invoke_procedure("commonBuilder", $commonType, $party)
 %invoke_procedure("setOriginalSyntaxCommon", $commonType, $party)
+!endif
 !endfor
 !endprocedure
 

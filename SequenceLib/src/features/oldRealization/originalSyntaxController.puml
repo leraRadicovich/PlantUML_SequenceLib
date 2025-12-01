@@ -17,7 +17,7 @@ header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $ori
 /'Участники и объединение в бокси'/
 !foreach $item in $currentAliasMap
 !if $item.box != 1
-%invoke_procedure("partiesBuilder", $item.type, $item.name, $item.alias, $item.order)
+%invoke_procedure("outputAliasController", $item)
 !endif
 !endfor
 /'Боксы'/
@@ -28,6 +28,10 @@ header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $ori
     /'Стрелки'/
 !if $item.type == "action"
 $tabMap[$item.layerId]%invoke_procedure("actionBuilder", $item.subtype, $item.initiator, $item.executor, $item.liveLine, $item.action)
+!endif
+    /'Зависимости'/
+!if $item.type == "dependency"
+$tabMap[$item.layerId]%invoke_procedure("dependencyBuilder", $dependencyMap[$item.lastDependencyId][source], $dependencyMap[$item.lastDependencyId][dependency], $dependencyMap[$item.lastDependencyId][status])
 !endif
     /'Слои'/
 !if $item.type == "layer"
@@ -60,7 +64,7 @@ $tabMap[$item.layerId]%invoke_procedure("commonBuilder", $item.type, $item.value
 /'Конец диаграммы'/
 %string("@"+"enduml")
 !else
-Генерация диаграммы в оригинальном синтаксисе доступна в режиме **final**
+** Генерация диаграммы в оригинальном синтаксисе доступна в режиме final **
 !endif
 end note
 !endprocedure

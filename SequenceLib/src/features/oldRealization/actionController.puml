@@ -1,17 +1,16 @@
 @startuml
 /'Интерфейс для отрисовки сплошной стрелки'/
-!unquoted procedure rq($initiator, $executor, $liveLine, $action, $comment)
+!unquoted procedure rq($initiator, $executor, $liveLine, $action, $comment="")
     %invoke_procedure("inputValidator", "->", $initiator, $executor, $liveLine, $action, $comment)
 !endprocedure
 
 /'Интерфейс для отрисовки пунктирной стрелки'/
-!unquoted procedure rs($initiator, $executor, $liveLine, $action, $comment)
+!unquoted procedure rs($initiator, $executor, $liveLine, $action, $comment="")
     %invoke_procedure("inputValidator", "-->", $initiator, $executor, $liveLine, $action, $comment)
 !endprocedure
 
 /'Валидатор данных для отрисовки стрелок'/
 !unquoted procedure inputValidator($arrow, $initiator, $executor, $liveLine, $action, $comment)
-    /'TODO Переписать - исключить запуск контроллера из двух мест'/
     /'Автоответ'/
     !if $initiator == "" && $executor == ""
         /'Т.к. объект еще не создан, $id хранит идентификатор предыдущей стрелки либо 0,
@@ -56,11 +55,11 @@
     !$id = $id + 1
     /'Проверка переданных алиасов'/
     !if $initiator != ""
-        %invoke_procedure("aliasCheck", $initiator)
+        %invoke_procedure("checkParties", $initiator)
     !endif
 
     !if $executor != ""
-        %invoke_procedure("aliasCheck", $executor)
+        %invoke_procedure("checkParties", $executor)
     !endif
 
     %invoke_procedure("setContext", $arrow, $initiator, $executor, $liveLine, $action, $comment)
@@ -71,7 +70,6 @@
 !endprocedure
 
 !unquoted procedure setContext($arrow, $initiator, $executor, $liveLine, $action, $comment)
-    /'TODO: Переписать - нужно реализовать объект-справочник id:{стрелка}, и записывать с originalSyntaxMap ссылку на поле справочника'/
     !$actionObject = %json_set($actionObject, id, $id)
     !$actionObject = %json_set($actionObject, initiator, $initiator)
     !$actionObject = %json_set($actionObject, executor, $executor)
@@ -83,7 +81,7 @@
         !$actionObject = %json_set($actionObject, comment, $comment)
         !$actionObject = %json_set($actionObject, layerId, $layerId)
     !endif
-    !dump_memory
+
 !endprocedure
 
 /'Процедура для отрисовки стрелки'/

@@ -6,6 +6,16 @@
 %invoke_procedure("checkPartyInput", $partyType, $name, $alias, $order)
 !endprocedure
 
+!unquoted procedure checkParties($parties)
+    !$parties = %splitstr($parties, ",")
+    !foreach $item in $parties
+        !if %not(%json_key_exists($currentAliasMap, $item))
+            %invoke_procedure("checkPartyInput", $item)
+        !endif
+    !endfor
+!endprocedure
+
+
 !unquoted procedure checkPartyInput($partyType, $name="", $alias="", $order="")
     /'Вместо дефолтного типа участников можно передать несколько алиасов'/
     !if %not(%json_key_exists($defaultPartyTypes, $partyType))
