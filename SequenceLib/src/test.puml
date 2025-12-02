@@ -1,0 +1,20 @@
+@startuml
+/'
+Адрес после команды include зашит в настройках IDEA, в liveTemplates.seqLibTemplates.start - в переменной by.
+Если диаграмма не инициирована, вам нужно поменять путь до файла библиотеки SequenceLibIncludeFile_v4.puml в самом шаблоне, в liveTemplates:
+'/
+'!include C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v5.puml
+!include C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\features\aliasController.puml
+diagramInit(draft,"", VPatrushev)
+
+!$currentAliasMap = {
+    "user" : {
+        "alias" : "user",
+        "type" : "actor",
+        "order" : "1"
+        }
+}
+
+parties("core,srv","",,)
+a->b: sdf
+@enduml

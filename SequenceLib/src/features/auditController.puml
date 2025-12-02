@@ -23,7 +23,9 @@
     !endif
 
     /'Проверка наличия участника переданного в аудите'/
-    %invoke_procedure("aliasCheck",$source)
+    !if %not(%json_key_exists($currentAliasMap, $source))
+    %invoke_procedure("checkParties", $source)
+    !endif
 
     /'Проверка уникальности для пользовательских событий аудита'/
     !$uniqueCheck = 0
