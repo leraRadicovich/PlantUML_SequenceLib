@@ -1,0 +1,51 @@
+@startuml
+/'TODO Нужна процедура для стратегии вывода текста в оригинальном синтаксисе планта по стратегии в json'/
+
+a->b: "Hello world"
+
+!$originalSyntaxMap = {
+    "party": {
+        "list": ["type", "name", "alias", "orderValue"],
+        "type": "",
+        "name": "",
+        "as": "as",
+        "alias": "",
+        "order": "order",
+        "orderValue": ""
+    }
+}
+
+!unquoted function createJsonObject($names, $values)
+    !$names = %splitstr($names, ",")
+    !$values = %str2json($values, ",")
+    !$i = 0
+    !$tempObject = {}
+    !foreach $item in $values
+        !$tempObject = %json_add($tempObject, $names[$i], $values[$i])
+        !$i = $i + 1
+    !endfor
+    !return $tempObject
+!end function
+
+!unquoted procedure setOriginObject($path, $type, $values)
+    !$tempList = $path[$type].list
+    !$objectToAdd = createJsonObject($tempList, $values)
+!endprocedure
+
+!unquoted procedure output($list1, $list2)
+    !$out = %call_user_func("createJsonObject", $list1, $list2)
+    note across: %get_json_type($out):\n$out
+!endprocedure
+
+!unquoted procedure testAddToList($var1, $var2, $var3)
+    !global $list = []
+    !$list = %json_add($list, $var1)
+    !$list = %json_add($list, $var2)
+    !$list = %json_add($list, $var3)
+    note across:$list
+!endprocedure
+
+testAddToList("cube", "blackbig", "")
+output("type,color", $list)
+
+@enduml
