@@ -16,7 +16,7 @@ header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $ori
 
 /'Участники и объединение в бокси'/
 !foreach $item in $currentAliasMap
-!if $item.box != 1
+!if $currentAliasMap[$item].box != 1
 %invoke_procedure("outputAliasController", $item)
 !endif
 !endfor

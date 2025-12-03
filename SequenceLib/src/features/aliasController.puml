@@ -86,7 +86,6 @@
                 !$partyAttributes = %json_set($partyAttributes, $field, $value)
             !endif
         !endfor
-
         !$currentAliasMap = %json_add($currentAliasMap, $alias, $partyAttributes)
         %invoke_procedure("outputAliasController", $alias)
 !endprocedure
@@ -107,7 +106,6 @@
     !return $typeByAlias
 !end function
 
-
 !unquoted procedure outputAliasController($alias)
 $currentAliasMap[$alias].type "$currentAliasMap[$alias].name" as $currentAliasMap[$alias].alias order $currentAliasMap[$alias].order
 !endprocedure
@@ -117,32 +115,42 @@ $currentAliasMap[$alias].type "$currentAliasMap[$alias].name" as $currentAliasMa
     %invoke_procedure("boxController", $name, $color, $parties)
 !endprocedure
 
-/' Контроллер - логика обработки '/
-!unquoted procedure boxController($name, $color="", $parties)
-    /' Сначала выводим открытие box '/
-    !if $color != ""
-        !$color = colorController($color)
-    !endif
-    box $name $color
-    /' Если есть участники - обрабатываем их '/
-    !if $parties != ""
-        /' Проверяем каждый алиас '/
-        !$partyAliases = %splitstr($parties, ",")
-        !foreach $alias in $partyAliases
-            !if %json_key_exists($currentAliasMap, $alias)
-                /' Алиас существует - перемещаем в конец списка '/
-                !$partyData = $currentAliasMap[$alias]
-                !$currentAliasMap = %json_remove($currentAliasMap, $alias)
-                %invoke_procedure("parties", $partyData.type, $partyData.name, $alias)
-            !else
-                /' Алиас не существует - создаем через parties() '/
-                %invoke_procedure("parties", $alias)
-            !endif
-        !endfor
-    end box
-    !endif
+/'Процедура объединения участников в боксы'/
+!unquoted procedure BOX($name, $color, $parties)
+!$partiesToPaint = %splitstr($parties, ",")
+!$colorToBuild = colorController($color)
+box $name $colorToBuild
+    !foreach $item in $partiesToPaint
+        !if %json_key_exists($currentAliasMap, $item)
+            %invoke_procedure("outputAliasController", $item)
+        !else
+            %invoke_procedure("parties",$item)
+        !endif
+        !$temp = {}
+        !$temp = %json_set($temp, $currentAliasMap[$item])
+        !$currentAliasMap = %json_remove($currentAliasMap, $item)
+        !$temp = %json_add($temp, box, 1)
+        !$currentAliasMap = %json_add($currentAliasMap, $item, $temp)
+    !endfor
+end box
+%invoke_procedure("setOriginalBox", $name, $color, $parties)
 !endprocedure
 
+!unquoted procedure boxUpdate($alias)
+    !$temp = {}
+    !$temp = %json_set($temp, $currentAliasMap[$alias])
+    !$currentAliasMap = %json_remove($currentAliasMap, $alias)
+    !$temp = %json_add($temp, box, 1)
+    !$currentAliasMap = %json_add($currentAliasMap, $item, $alias)
+!endprocedure
 
-
-
+/'Сохранение данных для построения диаграммы в оригинальном синтаксисе'/
+!unquoted procedure setOriginalBox($name, $color, $parties)
+!$temp = {}
+!$temp = %json_add($temp, "type", "box")
+!$temp = %json_add($temp, "name", $name)
+!$temp = %json_add($temp, "color", $color)
+!$temp = %json_add($temp, "parties", $parties)
+!$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+!$techId = $techId + 1
+!endprocedure
