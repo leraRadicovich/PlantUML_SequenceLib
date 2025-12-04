@@ -16,11 +16,19 @@ a->b: "Hello world"
 }
 
 
+!unquoted procedure getType($var)
+    !$newVar = %str2json($var)
+    note across: getType\n%get_json_type($var)\n%get_json_type($newVar)
+!endprocedure
+
 !unquoted function createJsonObject($names, $values)
-    !if %get_json_type($names) != "array" || %get_json_type($names) != "object"
-        !$names = %splitstr($names, ",")
+    %invoke_procedure("getType", $names)
+    %invoke_procedure("getType", $values)
+    !if %get_json_type($names) != array
+        /'Явно ограничиваем'/
+        !$names = %str2json($names)
     !endif
-    !if %get_json_type($values) != "array" || %get_json_type($values) != "object"
+    !if %get_json_type($values) != array
         !$values = %splitstr($values, ",")
     !endif
     !$i = 0
@@ -32,27 +40,38 @@ a->b: "Hello world"
     !return $tempObject
 !end function
 
-!unquoted procedure setOriginObject($path, $type, $values)
-    !$tempList = $path[$type].list
-    !$objectToAdd = createJsonObject($tempList, $values)
+!unquoted procedure output($list0, $list1, $list2="", $list3="", $list4="", $list5="", $list6="", $list7="", $list8="", $list9="", $list10="")
+    !$listOut = %call_user_func("testAddToList", $list1, $list2, $list3, $list4, $list5, $list6, $list7, $list8, $list9, $list10)
+    !$out = %call_user_func("createJsonObject", $list0, $listOut)
+    note across: output\n%get_json_type($out)\n$out
+
 !endprocedure
 
-!unquoted procedure output($list1, $list2)
-    !$list1 = %string($list1)
-    !$list2 = %string($list2)
-    !$out = %call_user_func("createJsonObject", $list1, $list2)
-    note across: %get_json_type($out):\n$out
-!endprocedure
-
-!unquoted procedure testAddToList($var1, $var2, $var3)
-    !global $list = []
+!unquoted function testAddToList($var1, $var2, $var3, $var4, $var5, $var6, $var7, $var8, $var9, $var10)
+    !$list = []
+    !if $var1 != ""
     !$list = %json_add($list, $var1)
+    !endif
+    !if $var2 != ""
     !$list = %json_add($list, $var2)
+    !endif
+    !if $var3 != ""
     !$list = %json_add($list, $var3)
-    note across: $list\n %get_json_type($list)
+    !endif
+    !return $list
+!end function
+
+!unquoted procedure printRaw($var1, $var2, $var3, $var4, $var5, $var6, $var7, $var8, $var9, $var10)
+$var1 $var2 $var3 $var4 $var5 $var6 $var7 $var8 $var9 $var10
 !endprocedure
 
-testAddToList("cube", "blackbig", "")
-output("type,color", $list)
+!$objTemplate = {
+    "testPartyObj": ["type", "name", "alias", "order"],
+    "testPartyRaw": ["type", "name", "as", "alias", "order", "orderId"]
+}
+
+
+output($objTemplate.testPartyObj, "participant", "Тестовый участник\\n007", agent)
+
 
 @enduml
