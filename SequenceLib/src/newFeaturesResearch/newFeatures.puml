@@ -15,9 +15,14 @@ a->b: "Hello world"
     }
 }
 
+
 !unquoted function createJsonObject($names, $values)
-    !$names = %splitstr($names, ",")
-    !$values = %str2json($values, ",")
+    !if %get_json_type($names) != "array" || %get_json_type($names) != "object"
+        !$names = %splitstr($names, ",")
+    !endif
+    !if %get_json_type($values) != "array" || %get_json_type($values) != "object"
+        !$values = %splitstr($values, ",")
+    !endif
     !$i = 0
     !$tempObject = {}
     !foreach $item in $values
@@ -33,6 +38,8 @@ a->b: "Hello world"
 !endprocedure
 
 !unquoted procedure output($list1, $list2)
+    !$list1 = %string($list1)
+    !$list2 = %string($list2)
     !$out = %call_user_func("createJsonObject", $list1, $list2)
     note across: %get_json_type($out):\n$out
 !endprocedure
@@ -42,7 +49,7 @@ a->b: "Hello world"
     !$list = %json_add($list, $var1)
     !$list = %json_add($list, $var2)
     !$list = %json_add($list, $var3)
-    note across:$list
+    note across: $list\n %get_json_type($list)
 !endprocedure
 
 testAddToList("cube", "blackbig", "")
