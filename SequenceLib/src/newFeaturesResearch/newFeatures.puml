@@ -3,23 +3,58 @@
 
 a->b: "Hello world"
 
-!$originalSyntaxMap = {
-    "party": {
-        "list": ["type", "name", "alias", "orderValue"],
-        "type": "",
-        "name": "",
-        "as": "as",
-        "alias": "",
-        "order": "order",
-        "orderValue": ""
+!$objTemplate = {
+    "parties": {
+        "operation" : "parties",
+        "testPartyVariables": ["type", "name", "alias", "order"],
+        "testPartyRaw": {
+            "type" : "",
+            "name" : "",
+            "as" : "as",
+            "alias" : "",
+            "order" : ""
+        }
     }
 }
+
+!unquoted procedure printParties($type, $name, $alias, $order="")
+    %invoke_procedure("outputBuilder", parties, $type, $name, $alias, $order)
+!endprocedure
+
+!unquoted procedure outputBuilder($list0, $list1, $list2="", $list3="", $list4="", $list5="", $list6="", $list7="", $list8="", $list9="", $list10="")
+    !$listOut = %call_user_func("addVariablesToArray", $list1, $list2, $list3, $list4, $list5, $list6, $list7, $list8, $list9, $list10)
+    !$listTemplate = $objTemplate[$list0].testPartyVariables
+    !$out = %call_user_func("createJsonObject", $listTemplate, $listOut)
+
+    note across: outputBuilder\n$list0\n$listTemplate\n$listOut\n$out\n%get_json_keys($out)
+    !$i = 0
+    !foreach $item in %get_json_keys($objTemplate[$list0].testPartyRaw)
+        note across:  $item]
+/'
+        !$i = $i + 1
+        !$outVar = "outVar" + $i
+        !if %json_key_exists($out, $item)
+            !$outVar = %set_variable_value($outVar, $out.item)
+        !else
+            !$outVar = %set_variable_value($outVar, $objTemplate[$list0].testPartyRaw.item)
+        !endif
+'/
+    !endfor
+    note across: %get_variable_value(outVar1), cve(outVar2), cve(outVar3), cve(outVar4), cve(outVar5), cve(outVar6), cve(outVar7), cve(outVar8), cve(outVar9), cve(outVar10)
+'    %invoke_procedure("printRaw", cve(outVar1), cve(outVar2), cve(outVar3), cve(outVar4), cve(outVar5), cve(outVar6), cve(outVar7), cve(outVar8), cve(outVar9), cve(outVar10))
+!endprocedure
+
+!unquoted function getVar($var)
+    !if
+    !endif
+    !return
+!end function
 
 
 !unquoted function createJsonObject($names, $values)
     /'Явно ограничиваем $names - это всегда массив из шаблонов '/
     /'Явно ограничиваем names - это всегда массив из переменных '/
-    !$names = %str2json($values)
+    !$names = %str2json($names)
     !$values = %str2json($values)
     !$i = 0
     !$tempObject = {}
@@ -30,12 +65,6 @@ a->b: "Hello world"
     !return $tempObject
 !end function
 
-!unquoted procedure outputBuilder($list0, $list1, $list2="", $list3="", $list4="", $list5="", $list6="", $list7="", $list8="", $list9="", $list10="")
-    !$listOut = %call_user_func("addVariablesToArray", $list1, $list2, $list3, $list4, $list5, $list6, $list7, $list8, $list9, $list10)
-    !$out = %call_user_func("createJsonObject", $list0, $listOut)
-    'note across: output\n%get_json_type($out)\n$out
-
-!endprocedure
 
 !unquoted function addVariablesToArray($var1, $var2, $var3, $var4, $var5, $var6, $var7, $var8, $var9, $var10)
     !$list = []
@@ -51,23 +80,29 @@ a->b: "Hello world"
     !return $list
 !end function
 
-!unquoted procedure printRaw($var1, $var2, $var3, $var4, $var5, $var6, $var7, $var8, $var9, $var10)
-$var1 $var2 $var3 $var4 $var5 $var6 $var7 $var8 $var9 $var10
+!unquoted function cv($var) /'для компактности вывода функция названа cv - checkVariable()'/
+    !if $var != ""
+    !$result = $var
+    !endif
+    !return $result
+!end function
+
+!unquoted function cve($var) /'для компактности вывода функция названа cve - checkVariableExist()'/
+    !$result = ""
+    !if %variable_exists($var)
+        !$result = $var
+    !endif
+    !return $result
+!end function
+
+!unquoted procedure printRaw($var1, $var2="", $var3="", $var4="", $var5="", $var6="", $var7="", $var8="", $var9="", $var10="")
+cv($var1) cv($var2) cv($var3) cv($var4) cv($var5) cv($var6) cv($var7) cv($var8) cv($var9) cv($var10)
 !endprocedure
 
-!$objTemplate = {
-    "testPartyObj": ["type", "name", "alias", "order"],
-    "testPartyRaw": {
-        "type" : "",
-        "name" : "",
-        "as" : "as",
-        "alias" : "",
-        "order" : ""
-    }
-}
 
 
-outputBuilder($objTemplate.testPartyObj, "participant", "Тестовый участник\\n007", agent)
+printParties("participant", "Тестовый участник\\n007", agent)
+
 
 
 @enduml
