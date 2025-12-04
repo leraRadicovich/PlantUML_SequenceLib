@@ -16,38 +16,28 @@ a->b: "Hello world"
 }
 
 
-!unquoted procedure getType($var)
-    !$newVar = %str2json($var)
-    note across: getType\n%get_json_type($var)\n%get_json_type($newVar)
-!endprocedure
-
 !unquoted function createJsonObject($names, $values)
-    %invoke_procedure("getType", $names)
-    %invoke_procedure("getType", $values)
-    !if %get_json_type($names) != array
-        /'Явно ограничиваем'/
-        !$names = %str2json($names)
-    !endif
-    !if %get_json_type($values) != array
-        !$values = %splitstr($values, ",")
-    !endif
+    /'Явно ограничиваем $names - это всегда массив из шаблонов '/
+    /'Явно ограничиваем names - это всегда массив из переменных '/
+    !$names = %str2json($values)
+    !$values = %str2json($values)
     !$i = 0
     !$tempObject = {}
-    !foreach $item in $values
+    !foreach $item in $values /'В объект добавляем только значения из массива $values'/
         !$tempObject = %json_add($tempObject, $names[$i], $values[$i])
         !$i = $i + 1
     !endfor
     !return $tempObject
 !end function
 
-!unquoted procedure output($list0, $list1, $list2="", $list3="", $list4="", $list5="", $list6="", $list7="", $list8="", $list9="", $list10="")
-    !$listOut = %call_user_func("testAddToList", $list1, $list2, $list3, $list4, $list5, $list6, $list7, $list8, $list9, $list10)
+!unquoted procedure outputBuilder($list0, $list1, $list2="", $list3="", $list4="", $list5="", $list6="", $list7="", $list8="", $list9="", $list10="")
+    !$listOut = %call_user_func("addVariablesToArray", $list1, $list2, $list3, $list4, $list5, $list6, $list7, $list8, $list9, $list10)
     !$out = %call_user_func("createJsonObject", $list0, $listOut)
-    note across: output\n%get_json_type($out)\n$out
+    'note across: output\n%get_json_type($out)\n$out
 
 !endprocedure
 
-!unquoted function testAddToList($var1, $var2, $var3, $var4, $var5, $var6, $var7, $var8, $var9, $var10)
+!unquoted function addVariablesToArray($var1, $var2, $var3, $var4, $var5, $var6, $var7, $var8, $var9, $var10)
     !$list = []
     !if $var1 != ""
     !$list = %json_add($list, $var1)
@@ -67,11 +57,17 @@ $var1 $var2 $var3 $var4 $var5 $var6 $var7 $var8 $var9 $var10
 
 !$objTemplate = {
     "testPartyObj": ["type", "name", "alias", "order"],
-    "testPartyRaw": ["type", "name", "as", "alias", "order", "orderId"]
+    "testPartyRaw": {
+        "type" : "",
+        "name" : "",
+        "as" : "as",
+        "alias" : "",
+        "order" : ""
+    }
 }
 
 
-output($objTemplate.testPartyObj, "participant", "Тестовый участник\\n007", agent)
+outputBuilder($objTemplate.testPartyObj, "participant", "Тестовый участник\\n007", agent)
 
 
 @enduml
