@@ -1,7 +1,7 @@
 @startuml
 /'Процедура для отрисовки альтернативных сценариев alt'/
 !unquoted procedure ALT($color, $description)
-    !$type = "alt#red"
+    !$type = "alt"
     %invoke_procedure("layerController", $type, $color, $description)
 !endprocedure
 
@@ -37,7 +37,7 @@
 
 /'Процедура для отрисовки еще одной развилки для текущего слоя layer'/
 !unquoted procedure ELSE($color,$description)
-    !$type = "else#red"
+    !$type = "else"
     %invoke_procedure("layerController", $type, $color, $description)
 !endprocedure
 

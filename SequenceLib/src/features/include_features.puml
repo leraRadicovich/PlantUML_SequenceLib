@@ -1,5 +1,4 @@
 @startuml
-
 !include serviceController.puml
 !include layerController.puml
 !include actionController.puml
@@ -14,3 +13,4 @@
 !include errorController.puml
 !include noteAndRefController.puml
 !include originalSyntaxController.puml
+!include dependencyControllerController.puml

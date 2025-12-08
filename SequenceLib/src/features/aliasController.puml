@@ -1,7 +1,5 @@
 @startuml
-/'TODO Додумать вывод в диаграмму с оригинальным синтаксисом'/
 /'Вспомогательная процедура отрисовки участников: формирует мапу имя:алиас'/
-
 !unquoted procedure parties($partyType, $name="", $alias="", $order="")
 %invoke_procedure("checkPartyInput", $partyType, $name, $alias, $order)
 !endprocedure
@@ -15,7 +13,6 @@
     !endfor
 !endprocedure
 
-
 !unquoted procedure checkPartyInput($partyType, $name="", $alias="", $order="")
     /'Вместо дефолтного типа участников можно передать несколько алиасов'/
     !if %not(%json_key_exists($defaultPartyTypes, $partyType))
@@ -23,12 +20,10 @@
         !$partyType = ""
         !$name = ""
         !$order = ""
-
     /'Если не передан дефолтный тип участника, можно указать только 1 алиас'/
     !elseif %size(%splitstr($alias, ",")) > 1
         %invoke_procedure("serviceError", parties, "добавление участника\nс более чем одним алиасом", $alias)
     !endif
-
     /'Переходим к подготовке объекта для добавления в диаграмму'/
     %invoke_procedure("buildAliasToAdd", $partyType, $name, $alias, $order)
 !endprocedure
@@ -57,12 +52,10 @@
             !$orderId = $orderId + 1
             !$partyAttributes = %json_set($partyAttributes, order, $orderId)
         !endif
-
         /'Если alias найден в текущей диаграмме $currentAliasMap'/
         !if %json_key_exists($currentAliasMap, $alias)
             %invoke_procedure("serviceError", parties, "добавление участника\nс уже используемым алиасом", $alias)
         !endif
-
         !foreach $field in ["type", "name"]
             !$value = ""
             !if %json_key_exists($customAliasMap, $alias)
@@ -79,9 +72,9 @@
                 !if $partyAttributes[$field] == ""
                     !$value = %call_user_func($functionName, $alias)
                 !endif
-                %invoke_procedure("todo","Добавьте в customAliasMap нового участника $alias:$partyAttributes")
+                !$todoText = "Добавьте в customAliasMap нового участника " + $alias + ": " + $partyAttributes
+                %invoke_procedure("todo",$todoText)
             !endif
-
             !if $value != ""
                 !$partyAttributes = %json_set($partyAttributes, $field, $value)
             !endif
@@ -106,13 +99,9 @@
     !return $typeByAlias
 !end function
 
+
 !unquoted procedure outputAliasController($alias)
 $currentAliasMap[$alias].type "$currentAliasMap[$alias].name" as $currentAliasMap[$alias].alias order $currentAliasMap[$alias].order
-!endprocedure
-
-/' Интерфейсная процедура '/
-!unquoted procedure BOX($name, $color="", $parties="")
-    %invoke_procedure("boxController", $name, $color, $parties)
 !endprocedure
 
 /'Процедура объединения участников в боксы'/
@@ -122,26 +111,26 @@ $currentAliasMap[$alias].type "$currentAliasMap[$alias].name" as $currentAliasMa
 box $name $colorToBuild
     !foreach $item in $partiesToPaint
         !if %json_key_exists($currentAliasMap, $item)
-            %invoke_procedure("outputAliasController", $item)
-        !else
-            %invoke_procedure("parties",$item)
+            !$temp = {}
+            !$temp = %json_merge($temp, $currentAliasMap[$item])
+            !$orderId = %intval($temp.order) - 1
+            !$currentAliasMap = %json_remove($currentAliasMap, $item)
         !endif
-        !$temp = {}
-        !$temp = %json_set($temp, $currentAliasMap[$item])
-        !$currentAliasMap = %json_remove($currentAliasMap, $item)
-        !$temp = %json_add($temp, box, 1)
-        !$currentAliasMap = %json_add($currentAliasMap, $item, $temp)
+        %invoke_procedure("parties", $item)
     !endfor
 end box
+%invoke_procedure("tagPartiesFromBoxInCurrentAliasMap",$parties)
 %invoke_procedure("setOriginalBox", $name, $color, $parties)
 !endprocedure
 
-!unquoted procedure boxUpdate($alias)
-    !$temp = {}
-    !$temp = %json_set($temp, $currentAliasMap[$alias])
-    !$currentAliasMap = %json_remove($currentAliasMap, $alias)
-    !$temp = %json_add($temp, box, 1)
-    !$currentAliasMap = %json_add($currentAliasMap, $item, $alias)
+!unquoted procedure tagPartiesFromBoxInCurrentAliasMap($parties)
+    !$partiesToPaint = %splitstr($parties, ",")
+    !foreach $field in $partiesToPaint
+        !$temp = {}
+        !$temp = %json_set($temp, $currentAliasMap[$field])
+        !$temp = %json_add($temp, box, 1)
+        !$currentAliasMap = %json_set($currentAliasMap, $field, $temp)
+    !endfor
 !endprocedure
 
 /'Сохранение данных для построения диаграммы в оригинальном синтаксисе'/

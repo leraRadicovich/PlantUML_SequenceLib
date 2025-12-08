@@ -16,11 +16,13 @@ header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $ori
 
 /'Участники и объединение в бокси'/
 !foreach $item in $currentAliasMap
-!if $currentAliasMap[$item].box != 1
+!$temp = {}
+!$temp = %json_merge($temp, $currentAliasMap[$item])
+!if $temp.box != "1"
 %invoke_procedure("outputAliasController", $item)
 !endif
 !endfor
-/'Боксы'/
+    /'Боксы'/
 !foreach $item in $originalSyntaxMap
 !if $item.type == "box"
 %invoke_procedure("BOX", $item.name, $item.color, $item.parties)

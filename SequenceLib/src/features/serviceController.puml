@@ -52,7 +52,17 @@
     !return $color
 !endfunction
 
+/'Процедура добавляет на диаграмму параметры стиля'/
+!unquoted procedure styleController()
+    !foreach $item in $style
+$item
+    !endfor
+!endprocedure
 
+!$link = "**<size:17><color:blue><&link-intact></color>**"
+!$success = "**<size:20><color:green><&circle-check></color>**"
+!$error = "**<size:20><color:red><&circle-x></color>**"
+!$end = "**<size:20><color:red><&x></color>**"
 
 /'Определение отступа'/
 !unquoted function tabController($x)

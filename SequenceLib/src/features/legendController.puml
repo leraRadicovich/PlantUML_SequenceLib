@@ -22,6 +22,17 @@ $todoListHead[1]
 !endif
 %invoke_procedure("todoRawBuilder")
 !endif
+/'Список зависимостей'/
+!if %size($dependencyMap)>0
+
+Карта зависимостей
+====
+$dependencyMapHead[0]
+!if $deviderEnabled
+$dependencyMapHead[1]
+!endif
+%invoke_procedure("$dependencyRawBuilder")
+!endif
 /'Список событий аудита'/
 !if %size($currentAuditMap)>0
 

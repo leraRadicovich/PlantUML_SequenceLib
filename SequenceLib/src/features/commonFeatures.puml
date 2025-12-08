@@ -1,34 +1,32 @@
 @startuml
 /'Процедура инициации режима работы библиотеки'/
 !unquoted procedure diagramInit($mode, $name="", $by="")
-    %invoke_procedure("styleController")
-    %invoke_procedure("setDiagramTitle", $mode, $name)
-    %invoke_procedure("setDiagramHeader",$by)
-!endprocedure
-
-/'Установка заголовка диаграммы'/
-!unquoted procedure setDiagramTitle($mode, $name="")
-    /'Выбор режима работы библиотеки'/
     !$diagramMode = $mode
-    !$on = ""
+    !$sequenceName = $name
+    %invoke_procedure("styleController")
+    /'Выбор режима работы библиотеки'/
     !if $diagramMode != "final"
-        !$on = "\nРежим: <color:blue>draft</color>; Генерация кода в оригинальном синтаксисе: <color:blue>**выключена**"
+        !$on = "\n Режим: <color:blue>draft</color>; Генерация кода в оригинальном синтаксисе: <color:blue>**выключена**"
+    !else
+        !$on = ""
     !endif
 
-    !if $name == ""
-        !$name = %filename()
-    !endif
-title Диаграмма: <color:blue>$name $on
+title Диаграмма: <color:blue>$sequenceName $on
+    %invoke_procedure("setAuthorInTitle",$by)
 !endprocedure
 
 /'Установка автора диаграммы'/
-!unquoted procedure setDiagramHeader($by)
-!global $originalBy = ""
-!if $by != ""
-    !$originalBy = "\n<color:black>Author: <color:blue>" + $by
-!elseif %variable_exists("$author")
-    !$originalBy = "\n<color:black>Author: <color:blue>" + $author
-!endif
+!unquoted procedure setAuthorInTitle($by)
+    !global $originalBy = ""
+    !if $by != ""
+        !$originalBy = "\n<color:black>Author: <color:blue>" + $by
+    !else
+        !if %variable_exists("$author")
+            !$originalBy = "\n<color:black>Author: <color:blue>" + $author
+        !else
+            !$originalBy = ""
+        !endif
+    !endif
     header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR $originalBy
 !endprocedure
 
@@ -69,25 +67,15 @@ title Диаграмма: <color:blue>$name $on
     %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
 !endprocedure
 
-/'Процедура добавляет на диаграмму параметры стиля'/
-!unquoted procedure styleController()
-    !foreach $item in $style
-$item
-    !endfor
-!endprocedure
-
-!$link = "**<size:17><color:blue><&link-intact></color>**"
-!$success = "**<size:20><color:green><&circle-check></color>**"
-!$error = "**<size:20><color:red><&circle-x></color>**"
-!$end = "**<size:20><color:red><&x></color>**"
-
 !unquoted procedure commonBuilder($commonType, $value)
 !if $commonType == "activate"
 activate $value
 !endif
+
 !if $commonType == "deactivate"
 deactivate $value
 !endif
+
 !if $commonType == "separator"
 == $value ==
 !endif
