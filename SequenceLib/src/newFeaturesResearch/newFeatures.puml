@@ -3,53 +3,6 @@
 
 a->b: "Hello world"
 
-!$objTemplate = {
-    "parties": {
-        "operation" : "parties",
-        "testPartyVariables": ["type", "name", "alias", "order"],
-        "testPartyRaw": {
-            "type" : "",
-            "name" : "",
-            "as" : "as",
-            "alias" : "",
-            "order" : ""
-        }
-    }
-}
-
-!unquoted procedure printParties($type, $name, $alias, $order="")
-    %invoke_procedure("outputBuilder", parties, $type, $name, $alias, $order)
-!endprocedure
-
-!unquoted procedure outputBuilder($list0, $list1, $list2="", $list3="", $list4="", $list5="", $list6="", $list7="", $list8="", $list9="", $list10="")
-    !$listOut = %call_user_func("addVariablesToArray", $list1, $list2, $list3, $list4, $list5, $list6, $list7, $list8, $list9, $list10)
-    !$listTemplate = $objTemplate[$list0].testPartyVariables
-    !$out = %call_user_func("createJsonObject", $listTemplate, $listOut)
-
-    note across: outputBuilder\n$list0\n$listTemplate\n$listOut\n$out\n%get_json_keys($out)
-    !$i = 0
-    !foreach $item in %get_json_keys($objTemplate[$list0].testPartyRaw)
-        note across:  $item]
-/'
-        !$i = $i + 1
-        !$outVar = "outVar" + $i
-        !if %json_key_exists($out, $item)
-            !$outVar = %set_variable_value($outVar, $out.item)
-        !else
-            !$outVar = %set_variable_value($outVar, $objTemplate[$list0].testPartyRaw.item)
-        !endif
-'/
-    !endfor
-    note across: %get_variable_value(outVar1), cve(outVar2), cve(outVar3), cve(outVar4), cve(outVar5), cve(outVar6), cve(outVar7), cve(outVar8), cve(outVar9), cve(outVar10)
-'    %invoke_procedure("printRaw", cve(outVar1), cve(outVar2), cve(outVar3), cve(outVar4), cve(outVar5), cve(outVar6), cve(outVar7), cve(outVar8), cve(outVar9), cve(outVar10))
-!endprocedure
-
-!unquoted function getVar($var)
-    !if
-    !endif
-    !return
-!end function
-
 
 !unquoted function createJsonObject($names, $values)
     /'Явно ограничиваем $names - это всегда массив из шаблонов '/
@@ -65,44 +18,72 @@ a->b: "Hello world"
     !return $tempObject
 !end function
 
+!$operationTypeList = {
+   "meta": "meta",
+   "party": "party",
+   "box": "box",
+   "testProc": "testProcPrint",
+   "layer": "layer",
+   "note": "note",
+   "ref": "ref",
+   "common": "common",
+   "todo": "todo",
+   "audit": "audit",
+   "metric": "metric",
+   "log": "log",
+   "error": "error",
+   "config": "config",
+   "dependency": "dependency",
+   "separator": "separator"
+}
 
-!unquoted function addVariablesToArray($var1, $var2, $var3, $var4, $var5, $var6, $var7, $var8, $var9, $var10)
-    !$list = []
-    !if $var1 != ""
-    !$list = %json_add($list, $var1)
-    !endif
-    !if $var2 != ""
-    !$list = %json_add($list, $var2)
-    !endif
-    !if $var3 != ""
-    !$list = %json_add($list, $var3)
-    !endif
-    !return $list
-!end function
+!$originalSyntaxMap = {}
 
-!unquoted function cv($var) /'для компактности вывода функция названа cv - checkVariable()'/
-    !if $var != ""
-    !$result = $var
-    !endif
-    !return $result
-!end function
+!$currentActionList = {}
 
-!unquoted function cve($var) /'для компактности вывода функция названа cve - checkVariableExist()'/
-    !$result = ""
-    !if %variable_exists($var)
-        !$result = $var
-    !endif
-    !return $result
-!end function
+!$rqId = 0
+!$originalId = 0
 
-!unquoted procedure printRaw($var1, $var2="", $var3="", $var4="", $var5="", $var6="", $var7="", $var8="", $var9="", $var10="")
-cv($var1) cv($var2) cv($var3) cv($var4) cv($var5) cv($var6) cv($var7) cv($var8) cv($var9) cv($var10)
+!unquoted procedure testProc($from, $to, $text)
+    !$rqId = $rqId + 1
+    !$originalId = $originalId + 1
+    %invoke_procedure("setOriginalId", "testProc", $rqId)
+    %invoke_procedure("setCurrentActionList", $from, $to, $text)
+    %invoke_procedure("testProcPrint", $rqId)
+!endprocedure
+
+!unquoted procedure setOriginalId($type, $rqId)
+    !$temp = {}
+    !$temp = %json_add($temp, "type", $type)
+    !$temp = %json_add($temp, "id", $rqId)
+    !$originalSyntaxMap = %json_add($originalSyntaxMap, $originalId, $temp)
+!endprocedure
+
+!unquoted procedure setCurrentActionList($from, $to, $text)
+    !$temp = {}
+    !$temp = %json_add($temp, "originalId", $originalId)
+    !$temp = %json_add($temp, "from", $from)
+    !$temp = %json_add($temp, "to", $to)
+    !$temp = %json_add($temp, "text", $text)
+    !$currentActionList = %json_add($currentActionList, $rqId, $temp)
+!endprocedure
+
+!unquoted procedure getFromOrigin()
+    !foreach $item in $originalSyntaxMap
+        !$operationType = $originalSyntaxMap[$item].type /'Определим тип операции'/
+        !$operation = $operationTypeList[$operationType] /'Определим процедуру для отрисовки операций полученного типа'/
+        !$operationId = $originalSyntaxMap[$item].id /'Определим ид операции'/
+        %invoke_procedure($operation, $operationId)
+    !endfor
+!endprocedure
+
+!unquoted procedure testProcPrint($id)
+$currentActionList[$id].from -> $currentActionList[$id].to: $currentActionList[$id].text
 !endprocedure
 
 
+testProc(aliice, bob, "Hello world")
 
-printParties("participant", "Тестовый участник\\n007", agent)
-
-
+getFromOrigin()
 
 @enduml
