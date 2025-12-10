@@ -14,8 +14,15 @@ BackgroundColor azure
     entity diagramMap {
     }
 !endsub
-interface ORIGINAL
-interface LEGEND
+
+interface ORIGINAL {
+    # printDiagramInOriginalSyntax()
+}
+
+interface LEGEND {
+    # printDiagramLegend()
+}
+
 class diagramInit {
     + mode [0..1]
     + title [0..1]
@@ -23,16 +30,13 @@ class diagramInit {
 }
 entity style
 
-ORIGINAL -> diagramMap
-diagramMap <- LEGEND
-    note "отрисовать заметку\nс диаграммой\nв оригинальном\nсинтаксисе" as ndmo
-    note "отрисовать легенду\nдиаграммы\nвс допинфо" as ndml
-    (ORIGINAL,diagramMap) .. ndmo
+ORIGINAL .> diagramMap
+diagramMap <. LEGEND
+    note "Нужно ли связыать с diagramMap\nили с entity каждой сущности:\nкарта процесса, тудушки и тд)?" as ndml
     (LEGEND,diagramMap) .. ndml
-
-diagramMap "1" *-- "1  " diagramInit
-diagramMap "1  " *-- "1  " style
-diagramInit "1  " --> "1" style
+diagramMap "1" *-- "1" diagramInit
+diagramMap "1 " *-- "1 " style
+diagramInit "1  " -> "1" style
 
 legend left
 * diagramMap::key == <i><u>"meta"
