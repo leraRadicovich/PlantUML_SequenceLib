@@ -57,6 +57,7 @@
             %invoke_procedure("serviceError", parties, "добавление участника\nс уже используемым алиасом", $alias)
         !endif
         !foreach $field in ["type", "name"]
+        /'TODO Дефект: для типа и имени всегда запускается цикл, внутри которого проверяется нахождение алиаса в кастоме. Из за этого дублируются записи в тудушке'/
             !$value = ""
             !if %json_key_exists($customAliasMap, $alias)
                 /'Если alias найден в пользовательских настройках'/
