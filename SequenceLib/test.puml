@@ -5,8 +5,8 @@
 '/
 !include C:/Users/Vpatrushev/IdeaProjects/PlantUML_SequenceLib/SequenceLib/src/SequenceLibIncludeFile_v5.puml
 diagramInit(final,"", VPatrushev)
-BOX("test", lightblue, "srv")
+BOX("test", lightblue, "srv,redis")
 rq(user,srv,,"asdf","asdf")
-
-ORIGINAL()
+LEGEND()
+'ORIGINAL()
 @enduml

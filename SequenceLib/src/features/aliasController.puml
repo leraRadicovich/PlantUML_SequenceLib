@@ -5,7 +5,7 @@
 !endprocedure
 
 !unquoted procedure checkParties($parties)
-    !$parties = %splitstr($parties, ",")
+    !$parties = %str2json($parties)
     !foreach $item in $parties
         !if %not(%json_key_exists($currentAliasMap, $item))
             %invoke_procedure("checkPartyInput", $item)
@@ -21,7 +21,7 @@
         !$name = ""
         !$order = ""
     /'Если не передан дефолтный тип участника, можно указать только 1 алиас'/
-    !elseif %size(%splitstr($alias, ",")) > 1
+    !elseif %size(%str2json($alias)) > 1
         %invoke_procedure("serviceError", parties, "добавление участника\nс более чем одним алиасом", $alias)
     !endif
     /'Переходим к подготовке объекта для добавления в диаграмму'/
@@ -63,9 +63,6 @@
                 /'Если alias найден в пользовательских настройках'/
                 !if $partyAttributes[$field] == ""
                     !$value = $customAliasMap[$alias][$field]
-                /'Если alias найден в пользовательских настройках, но объявлен, как новый участник'/
-                !elseif $partyAttributes[$field] != "" /'&& $partyAttributes[$field] != $customAliasMap[$alias][$field]'/
-                    %invoke_procedure("todo","Проверьте customAliasMap, возможно стоит актуализировать пользовательские настройки.")
                 !endif
             !else
                 /'Если alias нигде не найден - новый участник'/
@@ -73,13 +70,12 @@
                 !if $partyAttributes[$field] == ""
                     !$value = %call_user_func($functionName, $alias)
                 !endif
-                !$todoText = "Добавьте в customAliasMap нового участника " + $alias + ": " + $partyAttributes
-                %invoke_procedure("todo",$todoText)
             !endif
             !if $value != ""
                 !$partyAttributes = %json_set($partyAttributes, $field, $value)
             !endif
         !endfor
+        /'TODO Необходимо дописать в ORIGINAL() сравнение текущего списка участников с пользовательским, чтобы в одном месте вызывать тудушку на добавление'/
         !$currentAliasMap = %json_add($currentAliasMap, $alias, $partyAttributes)
         %invoke_procedure("outputAliasController", $alias)
 !endprocedure
