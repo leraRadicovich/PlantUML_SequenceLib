@@ -3,10 +3,12 @@
 Адрес после команды include зашит в настройках IDEA, в liveTemplates.seqLibTemplates.start - в переменной by.
 Если диаграмма не инициирована, вам нужно поменять путь до файла библиотеки SequenceLibIncludeFile_v4.puml в самом шаблоне, в liveTemplates:
 '/
-!include C:/Users/Vpatrushev/IdeaProjects/PlantUML_SequenceLib/SequenceLib/src/SequenceLibIncludeFile_v5.puml
-diagramInit(final,"", VPatrushev)
-BOX("test", lightblue, "srv,redis")
-rq(user,srv,,"asdf","asdf")
-LEGEND()
-'ORIGINAL()
+/'
+Адрес после команды include зашит в настройках IDEA, в liveTemplates.seqLibTemplates.start - в переменной by.
+Если диаграмма не инициирована, вам нужно поменять путь до файла библиотеки SequenceLibIncludeFile_v4.puml в самом шаблоне, в liveTemplates:
+'/
+!include C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\SequenceLibIncludeFile_v5.puml
+diagramInit(final,"test.puml", VPatrushev)
+rq(user,srv,++,"","")
+ORIGINAL()
 @enduml

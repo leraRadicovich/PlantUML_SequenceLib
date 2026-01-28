@@ -2,6 +2,9 @@
 /'Процедура инициации режима работы библиотеки'/
 !unquoted procedure diagramInit($mode, $name="", $by="")
     !$diagramMode = $mode
+    !if %strpos($name,".puml") > 0
+        !$name = %substr($name, 0, %strpos($name,".puml"))
+    !endif
     !$sequenceName = $name
     %invoke_procedure("styleController")
     /'Выбор режима работы библиотеки'/
@@ -31,15 +34,15 @@ title Диаграмма: <color:blue>$sequenceName $on
 !endprocedure
 
 /'Интерфейс для активации линии жизни'/
-!unquoted procedure ACTIVATE($value="")
+!unquoted procedure ACTIVATE($value)
     !$commonType = "activate"
-    %invoke_procedure("activationDeactivationController", $value,$commonType)
+    %invoke_procedure("activationDeactivationController", $value, $commonType)
 !endprocedure
 
 /'Интерфейс для деактивации линии жизни'/
-!unquoted procedure DEACTIVATE($value="")
+!unquoted procedure DEACTIVATE($value)
     !$commonType = "deactivate"
-    %invoke_procedure("activationDeactivationController", $value,$commonType)
+    %invoke_procedure("activationDeactivationController", $value, $commonType)
 !endprocedure
 
 /'Процедура контроллер активации/деактивации линии жизни'/
@@ -49,9 +52,9 @@ title Диаграмма: <color:blue>$sequenceName $on
 !foreach $party in $partiesList
 !if %not(%json_key_exists($currentAliasMap, $party))
 %invoke_procedure("checkParties", $party)
+!endif
 %invoke_procedure("commonBuilder", $commonType, $party)
 %invoke_procedure("setOriginalSyntaxCommon", $commonType, $party)
-!endif
 !endfor
 !endprocedure
 
@@ -71,11 +74,9 @@ title Диаграмма: <color:blue>$sequenceName $on
 !if $commonType == "activate"
 activate $value
 !endif
-
 !if $commonType == "deactivate"
 deactivate $value
 !endif
-
 !if $commonType == "separator"
 == $value ==
 !endif

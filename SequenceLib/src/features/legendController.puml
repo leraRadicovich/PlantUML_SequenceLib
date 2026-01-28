@@ -77,6 +77,8 @@ $metricTableHead[1]
 !endif
 %invoke_procedure("metricRawBuilder")
 !endif
+
+ #sequence #$sequenceName
 end legend
 !endprocedure
 

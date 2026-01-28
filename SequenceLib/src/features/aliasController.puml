@@ -5,7 +5,7 @@
 !endprocedure
 
 !unquoted procedure checkParties($parties)
-    !$parties = %str2json($parties)
+    !$parties = %splitstr($parties, ",")
     !foreach $item in $parties
         !if %not(%json_key_exists($currentAliasMap, $item))
             %invoke_procedure("checkPartyInput", $item)

@@ -44,9 +44,7 @@
     !if $status != ""
         !$noticeColor = "#azure/green"
     !endif
-!if $diagramMode == "final"
-    hnote over $source $noticeColor: <size:15><&fire> [[{$dependency} **ЗАВИСИМОСТЬ**]] <&fire>
-!else
+!if $diagramMode != "final"
     hnote over $source $noticeColor: <size:15><&fire> **ЗАВИСИМОСТЬ** <&fire>\n$dependency
 !endif
 !endprocedure
