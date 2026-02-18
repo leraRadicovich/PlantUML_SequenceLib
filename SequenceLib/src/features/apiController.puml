@@ -1,0 +1,20 @@
+@startuml
+!$eampleSwagger = {
+    "method" : "",
+    "resource" : "",
+    "request" : {
+        "headers" : {},
+        "cookies" : {},
+        "queryParams" : {},
+        "bodyParams" : {}
+    },
+    "response" : {
+        "headers" : {},
+        "cookies" : {},
+        "bodyParams" : {}
+    },
+    "errors" : {
+        "httpCodes" : [],
+        "errorCodes" : {}
+    }
+}
