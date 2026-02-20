@@ -1,0 +1,12 @@
+@startsalt
+{+
+{/ <b>General | Fullscreen | Behavior | Saving }
+{
+{ Open image in: | ^Smart Mode^ sdf ^sdf^ }
+[Button]|[Close]
+[X] Confirm image deletion
+[ ] Show hidden images
+}
+[Close]
+}
+@endsalt

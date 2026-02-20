@@ -1,117 +1,104 @@
 @startuml
 /'Вспомогательная процедура отрисовки участников: формирует мапу имя:алиас'/
 !unquoted procedure parties($partyType, $name="", $alias="", $order="")
-%invoke_procedure("partiesController", $partyType, $name, $alias, $order)
+%invoke_procedure("checkPartyInput", $partyType, $name, $alias, $order)
 !endprocedure
 
-/'Процедура для обработки логики построения участников'/
-!unquoted procedure partiesController($partyType, $name, $alias, $order)
-    !$iterationCheck = 0
-    /'Проверка переданного типа: из пользовательской библиотеки или новый участник'/
-    !foreach $item in $defaultTypes
-        !if $partyType == $item
-            !$iterationCheck = $iterationCheck + 1
+!unquoted procedure checkParties($parties)
+    !$parties = %splitstr($parties, ",")
+    !foreach $item in $parties
+        !if %not(%json_key_exists($currentAliasMap, $item))
+            %invoke_procedure("checkPartyInput", $item)
         !endif
     !endfor
-    /'Проверка уникальности алиаса добавляемого участника'/
-    !$uniqueCheck = 0
-    !foreach $item in $currentAliasMap
-    !if $alias == $item.alias
-        !$uniqueCheck = $uniqueCheck + 1
-    !endif
-    !endfor
-    /'Если тип дефолтный и алиас уникальный - рисуем нового, иначе вызываем проверку переданного в типе алиаса'/
-    !if $iterationCheck > 0 && $uniqueCheck == 0
-%invoke_procedure("partiesBuilder", $partyType, $name, $alias, $order)
-%invoke_procedure("currentAliasMapBuilder", $partyType, $name, $alias, $order)
-    !else
-        !if $name != ""
-            !assert Некорректный тип участника, либо не уникальный алиас
-        !endif
-        !$partiesList = ""
-        !$partiesList = %splitstr($partyType, ",")
-!foreach $party in $partiesList
-%invoke_procedure("aliasCheck", $party)
-!endfor
-    !endif
 !endprocedure
 
-/'Процедура для формирования составка участников текущей диаграммы'/
-!unquoted procedure currentAliasMapBuilder($partyType, $name="", $alias="", $order="")
-    !$temp = {}
-    !$temp = %json_add($temp, type, $partyType)
-    !$temp = %json_add($temp, name, $name)
-    !if $alias != ""
-        !$temp = %json_add($temp, alias, $alias)
-    !endif
-    !if $order == ""
-        !$orderId = $orderId + 1
-        !$order = $orderId
-    !endif
-    !$temp = %json_add($temp, order, $order)
-    !$currentAliasMap = %json_add($currentAliasMap, $temp)
-!endprocedure
-
-/'Процедура для отрисовка участника'/
-!unquoted procedure partiesBuilder($partyType, $name="", $alias="", $order="")
-    !$ord = ""
-    !if $order != ""
-        !$ord = "order " + $order
-    !endif
-$partyType "$name" as $alias $ord
-!endprocedure
-
-
-/'Процедура получения имени по алиасу'/
-!unquoted function getNameByAlias($alias)
-    !foreach $field in $currentAliasMap
-        !if $alias == $field.alias
-            !return $field.name
-        !endif
-    !endfor
-    !dump_memory
-!end function
-
-/'Процедура для проверки алиаса и автоопределения участников'/
-!unquoted procedure aliasCheck($alias)
-    !$iterationCurrentAliasMapCheckCount = 0
-    !$iterationCustomAliasMapCheckCount = 0
-    /'Ищем в составе участников текущей диаграммы'/
-    !foreach $item in $currentAliasMap
-        !if $alias == $item.alias
-            !$iterationCurrentAliasMapCheckCount = $iterationCurrentAliasMapCheckCount + 1
-        !endif
-    !endfor
-    /'Ищем в пользовательской библиотеке участников'/
-    !if $iterationCurrentAliasMapCheckCount == 0
-        !foreach $item in $customAliasMap
-            !if $alias == $item.alias
-                !$iterationCustomAliasMapCheckCount = $iterationCustomAliasMapCheckCount + 1
-%invoke_procedure("partiesBuilder", $item.type, $item.name, $item.alias, $item.order)
-%invoke_procedure("currentAliasMapBuilder", $item.type, $item.name, $item.alias, $item.order)
-            !endif
-        !endfor
-    !endif
-    /'Логика обработки результатов поиска'/
-    !if $iterationCurrentAliasMapCheckCount == 0 && $iterationCustomAliasMapCheckCount == 0
+!unquoted procedure checkPartyInput($partyType, $name="", $alias="", $order="")
+    /'Вместо дефолтного типа участников можно передать несколько алиасов'/
+    !if %not(%json_key_exists($defaultPartyTypes, $partyType))
+        !$alias = $partyType
         !$partyType = ""
         !$name = ""
-        /'Автоопределение типа: редис, кака и тд'/
-        !foreach $item in $partyTypes
-            !$xpos = %strpos($alias, $item.item)
-            !if $xpos == 0 || $xpos > 0
-                !$partyType = $item.type
+        !$order = ""
+    /'Если не передан дефолтный тип участника, можно указать только 1 алиас'/
+    !elseif %size(%str2json($alias)) > 1
+        %invoke_procedure("serviceError", parties, "добавление участника\nс более чем одним алиасом", $alias)
+    !endif
+    /'Переходим к подготовке объекта для добавления в диаграмму'/
+    %invoke_procedure("buildAliasToAdd", $partyType, $name, $alias, $order)
+!endprocedure
+
+!unquoted procedure buildAliasToAdd($type="", $name="", $alias="", $order="")
+    !$alias = %splitstr($alias, ",")
+    !$defaultAttr = ["alias", "type", "name", "order"]
+    !foreach $item in $alias
+        !$partyAttributes = {}
+        /'Формируем объект для добавления в текущий список участников'/
+        !foreach $attr in $defaultAttr
+            !$value = %get_variable_value("$"+$attr)
+            !if $attr == "alias"
+                !$value = $item
+            !endif
+            !$partyAttributes = %json_add($partyAttributes, $attr, $value)
+        !endfor
+        %invoke_procedure("checkAliasAttributes", $item, $partyAttributes)
+    !endfor
+!endprocedure
+
+!unquoted procedure checkAliasAttributes($alias, $partyAttributes)
+        /'Проверка orderId'/
+        !if $partyAttributes.order == ""
+            /'TODO продумать, точно ли здесь нужно orderId считать, что в боксах будет'/
+            !$orderId = $orderId + 1
+            !$partyAttributes = %json_set($partyAttributes, order, $orderId)
+        !endif
+        /'Если alias найден в текущей диаграмме $currentAliasMap'/
+        !if %json_key_exists($currentAliasMap, $alias)
+            %invoke_procedure("serviceError", parties, "добавление участника\nс уже используемым алиасом", $alias)
+        !endif
+        !foreach $field in ["type", "name"]
+        /'TODO Дефект: для типа и имени всегда запускается цикл, внутри которого проверяется нахождение алиаса в кастоме. Из за этого дублируются записи в тудушке'/
+            !$value = ""
+            !if %json_key_exists($customAliasMap, $alias)
+                /'Если alias найден в пользовательских настройках'/
+                !if $partyAttributes[$field] == ""
+                    !$value = $customAliasMap[$alias][$field]
+                !endif
+            !else
+                /'Если alias нигде не найден - новый участник'/
+                !$functionName = "get" + %call_user_func("getNameByAlias", $field) + "ByAlias"
+                !if $partyAttributes[$field] == ""
+                    !$value = %call_user_func($functionName, $alias)
+                !endif
+            !endif
+            !if $value != ""
+                !$partyAttributes = %json_set($partyAttributes, $field, $value)
             !endif
         !endfor
-        /'Делаем первую букву заглавной'/
-        !$name = %upper(%substr($alias,0,1)) + %substr($alias,1)
-        !if $partyType == ""
-            !$partyType = "participant"
+        /'TODO Необходимо дописать в ORIGINAL() сравнение текущего списка участников с пользовательским, чтобы в одном месте вызывать тудушку на добавление'/
+        !$currentAliasMap = %json_add($currentAliasMap, $alias, $partyAttributes)
+        %invoke_procedure("outputAliasController", $alias)
+!endprocedure
+
+!unquoted function getNameByAlias($var)
+    !$nameByAlias = %upper(%substr($var,0,1)) + %substr($var,1)
+    !return $nameByAlias
+!end function
+
+!unquoted function getTypeByAlias($var)
+    !$typeByAlias = "participant"
+    !foreach $item in %get_json_keys($partyTypesDictionary)
+        !if %strpos($var, $item) >= 0
+            !$typeByAlias = $partyTypesDictionary[$item]
+            !break
         !endif
-%invoke_procedure("partiesBuilder", $partyType, $name, $alias)
-%invoke_procedure("currentAliasMapBuilder", $partyType, $name, $alias)
-    !endif
-!dump_memory
+    !endfor
+    !return $typeByAlias
+!end function
+
+
+!unquoted procedure outputAliasController($alias)
+$currentAliasMap[$alias].type "$currentAliasMap[$alias].name" as $currentAliasMap[$alias].alias order $currentAliasMap[$alias].order
 !endprocedure
 
 /'Процедура объединения участников в боксы'/
@@ -120,41 +107,26 @@ $partyType "$name" as $alias $ord
 !$colorToBuild = colorController($color)
 box $name $colorToBuild
     !foreach $item in $partiesToPaint
-        !foreach $field in $currentAliasMap
-            !if $item == $field.alias
-    %invoke_procedure("partiesBuilder", $field.type, $field.name, $field.alias, $field.order)
-!$partiesToPaint = %json_remove($partiesToPaint, $item)
-            !endif
-        !endfor
-    !endfor
-    !foreach $item in $partiesToPaint
-%invoke_procedure("parties",$item)
-!$partiesToPaint = %json_remove($partiesToPaint, $item)
+        !if %json_key_exists($currentAliasMap, $item)
+            !$temp = {}
+            !$temp = %json_merge($temp, $currentAliasMap[$item])
+            !$orderId = %intval($temp.order) - 1
+            !$currentAliasMap = %json_remove($currentAliasMap, $item)
+        !endif
+        %invoke_procedure("parties", $item)
     !endfor
 end box
-%invoke_procedure("setOriginalBox", $name, $color, $parties)
 %invoke_procedure("tagPartiesFromBoxInCurrentAliasMap",$parties)
-!dump_memory
+%invoke_procedure("setOriginalBox", $name, $color, $parties)
 !endprocedure
 
 !unquoted procedure tagPartiesFromBoxInCurrentAliasMap($parties)
     !$partiesToPaint = %splitstr($parties, ",")
-    !$i = 0
-    !foreach $item in $currentAliasMap
-        !foreach $field in $partiesToPaint
-            !if $field == $item.alias
-                !$temp = {}
-                !$temp = %json_add($temp, type, $item.type)
-                !$temp = %json_add($temp, name, $item.name)
-                !$temp = %json_add($temp, alias, $item.alias)
-                !if $order != ""
-                !$temp = %json_add($temp, order, $item.order)
-                !endif
-                !$temp = %json_add($temp, box, 1)
-                !$currentAliasMap = %json_set($currentAliasMap, $i, $temp)
-            !endif
-        !endfor
-    !$i = $i + 1
+    !foreach $field in $partiesToPaint
+        !$temp = {}
+        !$temp = %json_set($temp, $currentAliasMap[$field])
+        !$temp = %json_add($temp, box, 1)
+        !$currentAliasMap = %json_set($currentAliasMap, $field, $temp)
     !endfor
 !endprocedure
 
@@ -166,5 +138,5 @@ end box
 !$temp = %json_add($temp, "color", $color)
 !$temp = %json_add($temp, "parties", $parties)
 !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
-!dump_memory
+!$techId = $techId + 1
 !endprocedure

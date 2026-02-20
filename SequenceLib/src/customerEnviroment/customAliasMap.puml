@@ -1,17 +1,18 @@
 @startuml
-!$customAliasMap = [
-    { "type": "actor",
-      "name": "Пользователь",
-      "alias": "user"
+!$customAliasMap = {
+    "user" : {
+      "alias": "user",
+      "type": "actor",
+      "name": "Пользователь"
     },
-    { "type": "participant",
-      "name": "Ваш сервис",
+    "srv" : {
       "alias": "srv",
-      "order": "0"
+      "type": "participant",
+      "name": "Ваш сервис"
     },
-    { "type": "participant",
-      "name": "Смежный сервис",
-      "alias": "srv2",
-      "order": "20"
+    "core": {
+      "alias": "core",
+      "type": "participant",
+      "name": "Ядро"
     }
-]
+}

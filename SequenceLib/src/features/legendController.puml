@@ -3,41 +3,44 @@
 !unquoted procedure LEGEND()
 legend
 /'Карта процесса драфт'/
-Карта процесса (полная)
+Карта процесса
 ====
-$processMapFull
-!if $deviderEnabled == 1
-tableDevider(6)
+$processMapHead[0]
+!if $deviderEnabled
+$processMapHead[1]
 !endif
-%invoke_procedure("procMapBuilder", "full")
+%invoke_procedure("procMapBuilder")
 /'Карта процесса ПроПро'/
-
-/'Карта процесса (для ПроПро) - раскомментировать при необходимости
-====
-$processMapProPro
-!if $deviderEnabled == 1
-tableDevider(7)
-!endif
-%invoke_procedure("procMapBuilder", "draft")
 
 /'Список доработок'/
 !if %size($todoMap)>0
 Список доработок
 ====
-$todoList
-!if $deviderEnabled == 1
-tableDevider(2)
+$todoListHead[0]
+!if $deviderEnabled
+$todoListHead[1]
 !endif
 %invoke_procedure("todoRawBuilder")
+!endif
+/'Список зависимостей'/
+!if %size($dependencyMap)>0
+
+Карта зависимостей
+====
+$dependencyMapHead[0]
+!if $deviderEnabled
+$dependencyMapHead[1]
+!endif
+%invoke_procedure("$dependencyRawBuilder")
 !endif
 /'Список событий аудита'/
 !if %size($currentAuditMap)>0
 
 Новые события аудита
 ====
-$auditTable
-!if $deviderEnabled == 1
-tableDevider(8)
+$auditTableHead[0]
+!if $deviderEnabled
+$auditTableHead[1]
 !endif
 %invoke_procedure("auditLegendBuilder")
 !endif
@@ -46,9 +49,9 @@ tableDevider(8)
 
 Новые параметры
 ====
-$configTable
-!if $deviderEnabled == 1
-tableDevider(5)
+$configTableHead[0]
+!if $deviderEnabled
+$configTableHead[1]
 !endif
 %invoke_procedure("configRawBuilder")
 !endif
@@ -57,9 +60,9 @@ tableDevider(5)
 
 Новые ошибки
 ====
-$errorTable
-!if $deviderEnabled == 1
-tableDevider(10)
+$errorTableHead[0]
+!if $deviderEnabled
+$errorTableHead[1]
 !endif
 %invoke_procedure("errorRawBuilder")
 !endif
@@ -68,35 +71,36 @@ tableDevider(10)
 
 Новые метрики
 ====
-$metricTable
-!if $deviderEnabled == 1
-tableDevider(2)
+$metricTableHead[0]
+!if $deviderEnabled
+$metricTableHead[1]
 !endif
 %invoke_procedure("metricRawBuilder")
 !endif
 
+ #sequence #$sequenceName
 end legend
 !endprocedure
 
 /'Построение строки карты процесса'/
-!unquoted procedure procMapBuilder($mode)
+!unquoted procedure procMapBuilder()
     !$from = ""
     !$to = ""
-    !foreach $item in $processMap
-    !if $item.initiator != ""
-        !$from = getNameByAlias($item.initiator)
-    !endif
-    !if $item.executor != ""
-        !$to = getNameByAlias($item.executor)
-    !endif
-    !if $mode == full
-| $item.id | $from | $to | $item.type | $item.layer | $item.action | $item.comment |
-    !else
-| $item.id |  | $from | $to | $item.type | $item.comment | | $item.action |
+    !foreach $item in $originalSyntaxMap
+    !if $item.type == "action"
+        !if $item.initiator != ""
+            !$from = getNameByAlias($item.initiator)
+        !endif
+        !if $item.executor != ""
+            !$to = getNameByAlias($item.executor)
+        !endif
+        !$layerType = $layerMap[$item.layerId]
+| $item.id | $from | $to | $arrowForLegend[$item.subtype] | $layerType | $item.action | $item.comment |
     !endif
     !endfor
 !endprocedure
 
+/'Построение таблицы с событиями аудита'/
 !unquoted procedure auditLegendBuilder()
     !$i = 0
     !foreach $item in $currentAuditMap
@@ -106,6 +110,7 @@ end legend
     !endfor
 !endprocedure
 
+/'Построение таблицы с конфигурационными параметрами'/
 !unquoted procedure configRawBuilder()
     !$i = 0
     !foreach $item in $currentConfigMap
@@ -114,6 +119,7 @@ end legend
     !endfor
 !endprocedure
 
+/'Построение таблицы с ошибками'/
 !unquoted procedure errorRawBuilder()
     !$i = 0
     !foreach $item in $currentErrorMap
@@ -122,11 +128,11 @@ end legend
     !endfor
 !endprocedure
 
+/'Построение таблицы с метриками'/
 !unquoted procedure metricRawBuilder()
     !$i = 0
     !foreach $item in $currentMetricMap
     !$i = $i + 1
 | $i | $item |  |
     !endfor
-
 !endprocedure

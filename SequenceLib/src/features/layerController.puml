@@ -71,8 +71,8 @@
             %invoke_procedure("layerEntityMapBuilder", $layerId, $type)
         !endif
     !else
-        !$removeId = %size($layerMap)
-        !$layerMap = %json_remove($layerMap, $removeId)
+/'        !$removeId = %size($layerMap)-1
+        !$layerMap = %json_remove($layerMap, $removeId)'/
     !endif
 
     /'пробел'/
@@ -91,9 +91,7 @@ $type
 
 !unquoted procedure layerEntityMapBuilder($layerId, $type)
     !$temp = {}
-    !$temp = %json_add($temp, id, $layerId)
-    !$temp = %json_add($temp, type, $type)
-    !$layerMap = %json_add($layerMap, $temp)
+    !$layerMap = %json_add($layerMap, $layerId, $type)
 !endprocedure
 
 /'Сохранение слоев в оригинальном синтаксисе'/
@@ -106,5 +104,6 @@ $type
     !$temp = %json_add($temp, "color", $color)
     !$temp = %json_add($temp, "description", $description)
     !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !$techId = $techId + 1
     !endif
 !endprocedure

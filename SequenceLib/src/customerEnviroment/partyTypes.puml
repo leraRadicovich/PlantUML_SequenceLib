@@ -1,50 +1,28 @@
 @startuml
 /'Мапа алиасов'/
-!$partyTypes = [
-    {"item" : "user",
-    "type" : "actor"
-    },
-    {"item" : "client",
-    "type" : "actor"
-    },
-    {"item" : "redis",
-    "type" : "database"
-    },
-    {"item" : "PostgreSql",
-    "type" : "database"
-    },
-    {"item" : "postgre",
-    "type" : "database"
-    },
-    {"item" : "postgres",
-    "type" : "database"
-    },
-    {"item" : "postgreSQL",
-    "type" : "database"
-    },
-    {"item" : "kafka",
-    "type" : "queue"
-    },
-    {"item" : "queue",
-    "type" : "queue"
-    },
-    {"item" : "rabbit",
-    "type" : "queue"
-    },
-    {"item" : "rabbitMQ",
-    "type" : "queue"
-    },
-    {"item" : "MQ",
-    "type" : "queue"}
-]
+!$partyTypesDictionary = {
+    "user": "actor",
+    "client": "actor",
+    "redis": "database",
+    "psql": "database",
+    "postgre": "database",
+    "postgres": "database",
+    "postgreSQL": "database",
+    "PostgreSql": "database",
+    "kafka": "queue",
+    "queue": "queue",
+    "rabbit": "queue",
+    "rabbitMQ": "queue",
+    "MQ": "queue"
+   }
 
-!$defaultTypes = [
-    "participant",
-    "actor",
-    "queue",
-    "boundary",
-    "control",
-    "entity",
-    "database",
-    "collections"
-]
+!$defaultPartyTypes = {
+    "participant": "Участник",
+    "actor": "Пользователь",
+    "database": "БД",
+    "queue": "Очередь",
+    "boundary": "Граница",
+    "control": "Контроль",
+    "entity": "Сущность",
+    "collections": "Коллекция"
+}

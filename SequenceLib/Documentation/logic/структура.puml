@@ -1,0 +1,123 @@
+@startuml
+title Хранение метаинформации
+
+!startsub style
+skinparam linetype ortho
+<style>
+legend {
+BackgroundColor azure
+}
+</style>
+!endsub
+
+!startsub dm
+    entity diagramMap {
+    }
+!endsub
+
+interface ORIGINAL {
+    # printDiagramInOriginalSyntax()
+}
+
+interface LEGEND {
+    # printDiagramLegend()
+}
+
+class diagramInit {
+    + mode [0..1]
+    + title [0..1]
+    + author [0..1]
+}
+entity style
+
+ORIGINAL .> diagramMap
+diagramMap <. LEGEND
+(LEGEND,diagramMap) .. ndml
+diagramMap "1" *-- "1" diagramInit
+diagramMap "1 " *-- "1 " style
+diagramInit "1  " -> "1" style
+
+legend left
+* diagramMap::key == <i><u>"meta"
+* diagramMap::key == <i><u>"style"
+end legend
+
+newpage
+title Хранение участников и их групп
+!includesub dm
+!includesub style
+
+entity currentAliasMap {}
+entity customAliasMap {}
+
+class party {
+    # <i><color:blue>string</i> type [1]
+    # <i><color:blue>string</i> name [0..1]
+    # <i><color:blue>string</i> alias [1]
+    # <i><color:blue>int</i> order [0..1]
+    ~ <i><color:blue>int</i> layerId [0..1]
+    ----
+    + addAlias()
+    + addAliasToCurrentAliasMap()
+    + addAliasToDiagramMap()
+    ----
+     USE CASEs
+    * объявить [1..N] участников
+}
+
+class BOX {
+    # name [0..1]
+    # color [0..1]
+    # parties [0..N]
+    ----
+    # addBox()
+    ~ addAlias()
+    ~ addAliasToCurrentAliasMap()
+    ~ removeAliasFromCurrentAliasMap()
+    ~ addAliasToDiagramMap()
+    ~ removeAliasFromDiagramMap()
+    ~ upLayer ()
+    ~ downLayer ()
+    ----
+     USE CASEs
+    * объявить BOX c [0..N] участников
+}
+
+diagramMap *--- "0..N    " party
+currentAliasMap *-- "0..N  " party
+customAliasMap o-- "0..N" party
+customAliasMap -[hidden] currentAliasMap
+diagramMap *-- "0..N " BOX
+party -o  BOX
+party <-  BOX
+legend left
+* diagramMap::party
+*** diagramMap::key = alias
+*** party::key = alias
+
+* diagramMap::BOX
+*** diagramMap::key = <i><u>"BOX"
+end legend
+
+newpage
+title Хранение взаимодействий участников
+!includesub style
+!includesub dm
+
+class action {
+    +  actioinId [1]
+    # from [0..1]
+    # to [0..1]
+    # liveline [0..1]
+    # text [0..1]
+    # comment [0..1]
+}
+diagramMap *-- "0..1 " action
+    action <|-- rq
+    action <|-- rs
+
+legend left
+
+end legend
+
+@enduml

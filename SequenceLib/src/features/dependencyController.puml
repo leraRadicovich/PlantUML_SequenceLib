@@ -1,0 +1,62 @@
+@startuml
+/'Список зависимостей'/
+!unquoted procedure dependFrom($source, $dependency="", $requirements="", $rds="", $duty="", $comment="", $status="")
+    !if $source == ""
+        !$i = $id - 1
+        !$i = $linkOnOriginalSyntaxMap[$i]
+        !$source = $originalSyntaxMap[$i].executor
+    !endif
+
+    !if $diagramMode == "final"
+        !$temp = {}
+        !$temp = %json_add($temp, "id", $id)
+        !$temp = %json_add($temp, "source", $source)
+        !$temp = %json_add($temp, "dependency", $dependency)
+        !$temp = %json_add($temp, "requirements", $requirements)
+        !$temp = %json_add($temp, "rds", $rds)
+        !$temp = %json_add($temp, "duty", $duty)
+        !$temp = %json_add($temp, "comment", $comment)
+        !$temp = %json_add($temp, "status", $status)
+        !$dependencyMap = %json_add($dependencyMap, $temp)
+        !if $status == ""
+            %invoke_procedure("setOriginalSyntaxDependency", $source, $lastDependencyId)
+        !endif
+    !endif
+    %invoke_procedure("dependencyBuilder", $source, $dependency, $status)
+    !$lastDependencyId = $lastDependencyId + 1
+!endprocedure
+
+!unquoted procedure setOriginalSyntaxDependency($source, $lastId)
+    !if $diagramMode == "final"
+    !$temp = {}
+    !$temp = %json_add($temp, "type", "dependency")
+    !$temp = %json_add($temp, "layerId", $layerId)
+    !$temp = %json_add($temp, "source", $source)
+    !$temp = %json_add($temp, "lastDependencyId", $lastDependencyId)
+    !$originalSyntaxMap = %json_add($originalSyntaxMap, $temp)
+    !$techId = $techId + 1
+    !endif
+!endprocedure
+
+!unquoted procedure dependencyBuilder($source, $dependency="", $status="")
+
+    !$noticeColor = "#azure/red"
+    !if $status != ""
+        !$noticeColor = "#azure/green"
+    !endif
+!if $diagramMode != "final"
+    hnote over $source $noticeColor: <size:15><&fire> **ЗАВИСИМОСТЬ** <&fire>\n$dependency
+!endif
+!endprocedure
+
+/'Построение строки со списком доработок'/
+!unquoted procedure $dependencyRawBuilder()
+    !$i = 0
+    !foreach $item in $dependencyMap
+    !$i = $i + 1
+    !$dependOn = getNameByAlias($item.source)
+| $i | $item.id | $dependOn | $item.dependency | $item.requirements | $item.rds | $item.duty | $item.comment | $item.status |
+    !endfor
+!endprocedure
+/'TODO карта зависимостей строится некорректно, но конвертером обрабатывается'/
+

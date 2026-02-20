@@ -1,0 +1,122 @@
+@startuml
+title "AliasController"
+legend top left
+Легенда диаграммы
+====
+1. ввести в редакторе "имя процедуры/ функции" - вызвать в редакторе плагина plantUml пользовтельскуй процедуру/функцию - интерфейс
+2. Вызвать "действие/ имя процедуры функции" - вызов процедуры/функции внутри другой процедуры функции
+3. repeat - обозначение цикла foreach
+4. Действие (например найти/сформировать) - обозначение простой функции/процедуры
+5. Сложные процедуры/функции - состоят из проверок, циклов и вызовов простых процедур/функций, объединены в пакеты
+6. Примеры объединены в группы, в названии которых указано - это примеры
+end legend
+
+start
+:Ввести parties;
+
+group Примеры ввода #moccasin
+    split
+    :parties(user);
+    split again
+    :parties("user,kafka");
+    split again
+    :parties("participant", "Имя участника", алиас, порядок);
+    end split
+end group
+
+package parties #tan
+    :Вызвать checkPartyInput(type, name, alias, order);
+end group
+
+package checkPartyInput #tan
+    :Задать глобальный список !$aliasDefaultTypes = [participant, database, queue, control];
+    :Проверить заполненные поля: тип, имя, алиас, порядок;
+    if (type найден в $aliasDefaultTypes?) then (Нет)
+        :Установить alias == type;
+        :Установить type == "";
+    else(Да)
+    endif
+    :Вызвать buildAliasToAdd(type, name, alias, order);
+end group
+
+package findAlias #tan
+    :Установить alias = stringToArray(alias, ",");
+    repeat:ЦИКЛ foreach item in alias
+    :Создать пустой массив $aliasToCheck;
+    if(Найден?) then(Да)
+       :Установить $searchResult = 1;
+    else(Нет)
+    :Найти алиас в $customAliasMap;
+        if(Найден?) then(Нет)
+            :Установить $searchResult = 0;
+        else(Да)
+            :Установить $searchResult = 2;
+        endif
+    endif
+    :Создать объект $aliasToCheck,
+    {"alias": {
+        "type":"value",
+        "name":"value",
+        "searchResult":"value"}};
+    :Добавить объект $aliasToCheck
+    в массив $aliasArrayToCheck;
+    repeat while (Весь массив обработан?) is (Нет) not (Да)
+    :Вызвать checkAliasAttributes($aliasArrayToCheck);
+end group
+
+package checkAliasAttributes #tan
+    repeat:ЦИКЛ foreach item in $aliasArrayToCheck;
+    :Инкрементировать orderId на 1, если пустой;
+    :Установить в текущем объекте полученный orderId;
+    :Найти алиас в $currentAliasMap;
+    if(Найден?) then(Да)
+        #yellow:Вывести яркую заметку:
+        Вы указали неуникальный для этой диаграммы алиас $alias,
+        проверьте корректность введенных данных;
+    else(Нет)
+        :Найти в $customAliasMap;
+        if (Найден?) then (Нет)
+            if(item.aliass.name == NULL) then(Да)
+                package makeNameByAlias #moccasin
+                :Вызвать makeNameByAlias:
+                увеличить регистр 1-ой буквы алиаса,
+                сохранить полученное значение в item.aliass.name;
+                end group
+            else(Нет)
+            endif
+            :Вызывать тудушку:
+            Добавляется интеграция с $item.name,
+            обновите пользовательскую библиотеку участников: $item;
+        else(Да)
+            :Вызывать compareAliasAttributes($item);
+            package compareAliasAttributes #moccasin
+                :Задать список !$aliasAttributesToCompare = [type,name];
+                repeat:ЦИКЛ foreach attr in $aliasAttributesToCompare;
+                    if(item.alias.attr = "") then(Нет)
+                        if(item.alias.attr == custom.alias.attr?) then(Нет)
+                            :Вызвать тудушку:
+                            Введенный attr не совпадает
+                            с пользовательскими настройками.
+                            Уточните данные или обновите
+                            пользовательску библиотеку $item;
+                        else(Да)
+                        endif
+                    else(Да)
+                        :Установить item.alias.attr = custom.alias.attr;
+                    endif
+                repeat while (Все атрибуты проверили?) is (Нет) not (Да)
+            end group
+        endif
+    endif
+    :Добавить item в $currentAliasMap;
+    repeat while (Весь массив обработан?) is (Нет) not (Да)
+    :Вызвать partyOutputController($aliasArrayToCheck);
+end group
+
+package partyOutputController #tan
+    repeat:ЦИКЛ foreach item in $aliasArrayToCheck;
+:вывод $aliasArrayToCheck.item.type $aliasArrayToCheck.item.name $aliasArrayToCheck.item.alias $aliasArrayToCheck.item.order; 
+    repeat while (Весь массив обработан?) is (Нет) not (Да)
+end group
+stop
+@enduml

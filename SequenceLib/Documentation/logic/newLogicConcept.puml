@@ -1,0 +1,54 @@
+@startuml
+title Общий концепт логики каждого сервиса библиотеки
+start
+group #lightyellow Входящий триггер
+:Вызвать интерфейс;
+:Проверить сигнатуру;
+end group
+group #moccasin Слой бизнес-логики
+    :Проверить на множественный вызов;
+    note right
+    Множественный вызов возможен для:
+    ----
+    * объявление участников
+    * объединение участников в боксы
+    * активация/деактивация линии жизни участников
+    * проксирование (проброс) стрелок
+    end note
+    if(Множественный вызов?) then(Нет)
+        :Преобразовать в массив из 1 элемента;
+    else(Нет)
+    endif
+    repeat :Вызвать контроллер для каждого элемента;
+    :выполнить бизнес логику;
+    backward: Перейти к следующему элементу;
+    group #lightblue Слой данных
+        if(Новые данные?) then(Да)
+            :Посчитать идентификаторы:
+            ----
+            * originalId,
+            * {operation}Id;
+            :Сохранить данные в current{Operation}List:
+            primaryKey = operationId
+            foreignKey = originalId;
+
+            :Сохранить данные в originalSyntaxMap:
+            primaryKey = originalId
+            foreignKey = operationId;
+        else(Нет)
+            :Обновить данные в current{Operation}List:
+            primaryKey = operationId
+            foreignKey = originalId;
+
+            :Обновить данные в originalSyntaxMap:
+            primaryKey = originalId
+            foreignKey = operationId;
+        endif
+    end group
+    repeat while (Еще есть элементы?) is (Да) not (Нет)
+end group
+group #lightyellow Исходящий триггер
+:Вызвать отрисовку операции по ссылке на current{Operation}List;
+end group
+stop
+@enduml

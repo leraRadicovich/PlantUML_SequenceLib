@@ -1,8 +1,0 @@
-[2025-06-08T11:32:06.779119600] Начало обработки: C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\demoForFest.puml
-[2025-06-08T11:32:06.790066800] Обработка файла: demoForFest.puml
-[2025-06-08T11:32:06.792187400] [Generator] Чтение файла: C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\demoForFest.puml
-[2025-06-08T11:32:06.794335900] [Generator] Запуск генерации ASCII-art...
-[2025-06-08T11:32:08.344458200] [Generator] Успешная генерация. Размер результата: 10923 символов
-[2025-06-08T11:32:08.348580800] [Generator] Результат сохранен: C:\Users\Vpatrushev\IdeaProjects\PlantUML_SequenceLib\SequenceLib\src\result\demoForFest_unicode_ascii_result.txt
-[2025-06-08T11:32:08.362982400] Успешно обработан: demoForFest.puml
-[2025-06-08T11:32:08.362982400] Обработка завершена

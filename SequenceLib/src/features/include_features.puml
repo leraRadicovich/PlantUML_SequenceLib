@@ -13,3 +13,4 @@
 !include errorController.puml
 !include noteAndRefController.puml
 !include originalSyntaxController.puml
+!include dependencyController.puml

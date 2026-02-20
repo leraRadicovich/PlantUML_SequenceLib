@@ -1,0 +1,89 @@
+@startuml
+/'TODO Нужна процедура для стратегии вывода текста в оригинальном синтаксисе планта по стратегии в json'/
+
+a->b: "Hello world"
+
+
+!unquoted function createJsonObject($names, $values)
+    /'Явно ограничиваем $names - это всегда массив из шаблонов '/
+    /'Явно ограничиваем names - это всегда массив из переменных '/
+    !$names = %str2json($names)
+    !$values = %str2json($values)
+    !$i = 0
+    !$tempObject = {}
+    !foreach $item in $values /'В объект добавляем только значения из массива $values'/
+        !$tempObject = %json_add($tempObject, $names[$i], $values[$i])
+        !$i = $i + 1
+    !endfor
+    !return $tempObject
+!end function
+
+!$operationTypeList = {
+   "meta": "meta",
+   "party": "party",
+   "box": "box",
+   "testProc": "testProcPrint",
+   "layer": "layer",
+   "note": "note",
+   "ref": "ref",
+   "common": "common",
+   "todo": "todo",
+   "audit": "audit",
+   "metric": "metric",
+   "log": "log",
+   "error": "error",
+   "config": "config",
+   "dependency": "dependency",
+   "separator": "separator"
+}
+
+!$originalSyntaxMap = {}
+
+!$currentActionList = {}
+
+!$rqId = 0
+!$originalId = 0
+
+!unquoted procedure testProc($from, $to, $text)
+    !$rqId = $rqId + 1
+    !$originalId = $originalId + 1
+    %invoke_procedure("setOriginalId", "testProc", $rqId)
+    %invoke_procedure("setCurrentActionList", $from, $to, $text)
+    %invoke_procedure("testProcPrint", $rqId)
+!endprocedure
+
+!unquoted procedure setOriginalId($type, $rqId)
+    !$temp = {}
+    !$temp = %json_add($temp, "type", $type)
+    !$temp = %json_add($temp, "id", $rqId)
+    !$originalSyntaxMap = %json_add($originalSyntaxMap, $originalId, $temp)
+!endprocedure
+
+!unquoted procedure setCurrentActionList($from, $to, $text)
+    !$temp = {}
+    !$temp = %json_add($temp, "originalId", $originalId)
+    !$temp = %json_add($temp, "from", $from)
+    !$temp = %json_add($temp, "to", $to)
+    !$temp = %json_add($temp, "text", $text)
+    !$currentActionList = %json_add($currentActionList, $rqId, $temp)
+!endprocedure
+
+!unquoted procedure getFromOrigin()
+    !foreach $item in $originalSyntaxMap
+        !$operationType = $originalSyntaxMap[$item].type /'Определим тип операции'/
+        !$operation = $operationTypeList[$operationType] /'Определим процедуру для отрисовки операций полученного типа'/
+        !$operationId = $originalSyntaxMap[$item].id /'Определим ид операции'/
+        %invoke_procedure($operation, $operationId)
+    !endfor
+!endprocedure
+
+!unquoted procedure testProcPrint($id)
+$currentActionList[$id].from -> $currentActionList[$id].to: $currentActionList[$id].text
+!endprocedure
+
+
+testProc(aliice, bob, "Hello world")
+
+getFromOrigin()
+
+@enduml
