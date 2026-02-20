@@ -1,0 +1,94 @@
+@startuml                                                                                                                                                                            ░║
+                                                                                                                                                                                      
+autonumber                                                                                                                                                                            
+skinparam dpi 70                                                                                                                                                                      
+skinparam maxMessageSize 200                                                                                                                                                          
+skinparam backgroundColor LightGray                                                                                                                                                   
+skinparam sequence {                                                                                                                                                                  
+ArrowColor blue                                                                                                                                                                       
+ActorBorderColor blue                                                                                                                                                                 
+LifeLineBorderColor blue                                                                                                                                                              
+LifeLineBackgroundColor #White                                                                                                                                                        
+ParticipantBorderColor blue                                                                                                                                                           
+ParticipantBackgroundColor DodgerBlue                                                                                                                                                 
+ParticipantFontName Impact                                                                                                                                                            
+ParticipantFontSize 17                                                                                                                                                                
+ParticipantFontColor #A9DCDF                                                                                                                                                          
+ActorBackgroundColor DodgerBlue                                                                                                                                                       
+ActorFontColor DeepSkyBlue                                                                                                                                                            
+ActorFontSize 17                                                                                                                                                                      
+ActorFontName Aapex                                                                                                                                                                   
+}                                                                                                                                                                                     
+                                                                                                                                                                                      
+title Диаграмма: <color:blue>Демонстрационная диаграмма                                                                                                                               
+header <color:black>with <color:blue>SequenceLib.v.4.0.<color:black> by PVR \n<color:black>Author: <color:blue>PVR                                                                    
+                                                                                                                                                                                      
+actor "Пользователь" as user order 1                                                                                                                                                  
+box сервис #lightblue                                                                                                                                                                 
+        participant "Ваш сервис" as srv order 2                                                                                                                                       
+        participant "Ядро" as core order 3                                                                                                                                            
+end box                                                                                                                                                                               
+== Начало ==                                                                                                                                                                          
+activate srv                                                                                                                                                                          
+user -> srv : Тест                                                                                                                                                                    
+hnote over srv #lightyellow/lightgreen: <color:red><&media-play> <color:black>new_audit_event                                                                                         
+                                                                                                                                                                                      
+alt #D98C00 Альтернативный ответ                                                                                                                                                      
+    srv --> user :                                                                                                                                                                    
+    hnote over srv #orange/red: <color:red><&media-stop> <color:black>new_audit_event                                                                                                 
+end                                                                                                                                                                                   
+                                                                                                                                                                                      
+srv --> user --:                                                                                                                                                                      
+hnote over srv #lightyellow/lightgreen: <color:red><&media-play> <color:black>new_audit_event                                                                                         
+user -> srv ++: Проксирующий вызов                                                                                                                                                    
+srv -> core ++: Проксирование запроса                                                                                                                                                 
+srv -> core ++#tan: Копирование через якорь                                                                                                                                           
+legend                                                                                                                                                                                
+Карта процесса                                                                                                                                                                        
+====                                                                                                                                                                                  
+| Код | ИC-инициатор | ИС-исполнитель | Тип взаимодействия | Тип сценария | Метод API/ Действие | Описание |
+|--|--|--|--|--|--|--|
+| 1 | User | Srv | rq | default | Тест |  |
+| 2 | Srv | User | rs | alt |  |  |
+| 3 | Srv | User | rs | default |  |  |
+| 4 | User | Srv | rq | default | Проксирующий вызов |  |
+| 5 | Srv | Core | rq | default | Проксирование запроса |  |
+| 6 | Srv | Core | rq | default | Копирование через якорь |  |
+                                                                                                                                                                                      
+Список доработок                                                                                                                                                                      
+====                                                                                                                                                                                  
+| № | id обнаружения | Суть доработки|
+|--|--|--|
+| 1 | 1 | Необходимо реализовать новое событие аудита new_audit_event. Отправитель: Srv |
+| 2 | 2 | Необходимо добавить новую ошибку: new_demo_error. Шаг обнаружения: 2 |
+| 3 | 2 | 20.02.2026: Новая ошибка new_demo_error |
+| 4 | 6 | Необходимо добавить новый параметр: new_feature_enabled. Тип: boolean |
+                                                                                                                                                                                      
+Карта зависимостей                                                                                                                                                                    
+====                                                                                                                                                                                  
+| i | id | source | point | requirements | rds | duty | comment | status |
+|------|------|--------|-------|--------------|-----|------|---------|--------|
+| 1 | 1 | Srv | Не реализовал новый АПИ | Требование | Номер задачи | Комментарий | Админ |  |
+| 2 | 1 | Srv | Не реализовал новый АПИ | Требование | Номер задачи | Комментарий | Админ | Реализовал |
+                                                                                                                                                                                      
+Новые события аудита                                                                                                                                                                  
+====                                                                                                                                                                                  
+| # | Код события | Статус | Объект | Тип события | Операция | Краткое описание | Подробное описание | Доп.параметры |
+|--|--|--|--|--|--|--|--|--|
+| 1 | new_audit_event | SUCCESS \n FAILURE |  |  |  |  |  | |
+                                                                                                                                                                                      
+Новые параметры                                                                                                                                                                       
+====                                                                                                                                                                                  
+| # | Наименование | Тип1 | Тип2 | Значение | Описание |
+|--|--|--|--|--|--|
+| 1 | new_feature_enabled | параметр configMap \n coreSetting | boolean |  |  |
+                                                                                                                                                                                      
+Новые ошибки                                                                                                                                                                          
+====                                                                                                                                                                                  
+| # | Метод | Ошибка | ИС источник | Маппинг в error.type 1673 | Стадия возникновения | Стадия в ответ для фронта | Параметры redirectUri | error&errorMessage | Заголовок | Текст |
+|--|--|--|--|--|--|--|--|--|--|--|
+| 1 |  | new_demo_error |  |  |  |  |  |  |  |  |
+                                                                                                                                                                                      
+ #sequence #Демонстрационная диаграмма                                                                                                                                                
+end legend                                                                                                                                                                            
+@endum

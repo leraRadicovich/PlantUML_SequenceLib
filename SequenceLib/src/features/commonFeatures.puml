@@ -70,6 +70,17 @@ title Диаграмма: <color:blue>$sequenceName $on
     %invoke_procedure("setOriginalSyntaxCommon", $commonType, $value)
 !endprocedure
 
+/'Изменение цвета'/
+!unquoted function DARKEN($color,$step)
+    !$color = %substr((%darken($color, %intval($step))),1)
+    !return $color
+!endfunction
+
+!unquoted function LIGHTEN($color,$step)
+    !$color = %substr((%lighten($color, %intval($step))),1)
+    !return $color
+!endfunction
+
 !unquoted procedure commonBuilder($commonType, $value)
 !if $commonType == "activate"
 activate $value

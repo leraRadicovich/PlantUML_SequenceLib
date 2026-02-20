@@ -1,6 +1,0 @@
-@startuml
-!include environment.puml
-
-enterWebSite(testSp)
-readLog()
-@enduml

@@ -32,8 +32,7 @@ entity style
 
 ORIGINAL .> diagramMap
 diagramMap <. LEGEND
-    note "Нужно ли связыать с diagramMap\nили с entity каждой сущности:\nкарта процесса, тудушки и тд)?" as ndml
-    (LEGEND,diagramMap) .. ndml
+(LEGEND,diagramMap) .. ndml
 diagramMap "1" *-- "1" diagramInit
 diagramMap "1 " *-- "1 " style
 diagramInit "1  " -> "1" style
